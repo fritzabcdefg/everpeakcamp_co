@@ -13,6 +13,13 @@ Route::get('/', function () {
     return view('welcome', ['categories' => $categories, 'products' => $products]);
 });
 
+// Authentication Routes
+Route::get('/register', [UserController::class, 'createRegister'])->name('register');
+Route::post('/register', [UserController::class, 'storeRegister']);
+Route::get('/login', [UserController::class, 'createLogin'])->name('login');
+Route::post('/login', [UserController::class, 'storeLogin']);
+Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+
 // Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

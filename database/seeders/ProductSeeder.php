@@ -1,23 +1,90 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace Database\Seeders;
 
-return new class extends Migration
+use Illuminate\Database\Seeder;
+use App\Models\Category;
+use App\Models\Product;
+use App\Models\Stock;
+
+class ProductSeeder extends Seeder
 {
-    public function up(): void
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
     {
-        Schema::create('categories', function (Blueprint $table) {
-            $table->id('category_id'); // unsigned BIGINT primary key
-            $table->string('name');
-            $table->text('description')->nullable(); // <-- add this
-            $table->timestamps();
-        });
-    }
+        // Categories with descriptions
+        $categories = [
+            ['name' => 'Tents', 'description' => 'Camping tents and shelters for outdoor adventures'],
+            ['name' => 'Sleeping Gear', 'description' => 'Sleeping bags, pads, and pillows for comfortable rest'],
+            ['name' => 'Backpacks', 'description' => 'High-quality backpacks for hiking and camping'],
+            ['name' => 'Cooking Equipment', 'description' => 'Portable stoves, cookware, and utensils'],
+            ['name' => 'Lighting', 'description' => 'Lanterns, flashlights, and headlamps'],
+            ['name' => 'Clothing', 'description' => 'Weather-resistant clothing for outdoor activities'],
+            ['name' => 'Navigation', 'description' => 'Maps, compasses, and GPS devices'],
+            ['name' => 'First Aid', 'description' => 'First aid kits and emergency supplies'],
+        ];
 
-    public function down(): void
-    {
-        Schema::dropIfExists('categories');
+        // Insert categories
+        $createdCategories = collect();
+        foreach ($categories as $category) {
+            $createdCategories->push(Category::create($category));
+        }
+
+        // Products linked to categories
+        $products = [
+            [
+                'name' => 'Dome Camping Tent 4-Person',
+                'description' => 'Spacious 4-person dome tent with waterproof coating.',
+                'cost_price' => 80.00,
+                'sell_price' => 149.99,
+                'category_id' => $createdCategories[0]->category_id,
+                'img_path' => null,
+            ],
+            [
+                'name' => 'Winter Sleeping Bag -15°C',
+                'description' => 'Premium insulated sleeping bag rated for -15°C.',
+                'cost_price' => 120.00,
+                'sell_price' => 249.99,
+                'category_id' => $createdCategories[1]->category_id,
+                'img_path' => null,
+            ],
+            [
+                'name' => 'Day Hike Backpack 25L',
+                'description' => '25-liter capacity backpack perfect for day hikes.',
+                'cost_price' => 50.00,
+                'sell_price' => 119.99,
+                'category_id' => $createdCategories[2]->category_id,
+                'img_path' => null,
+            ],
+            [
+                'name' => 'Portable Camping Stove',
+                'description' => 'Lightweight stove that runs on propane cartridges.',
+                'cost_price' => 30.00,
+                'sell_price' => 59.99,
+                'category_id' => $createdCategories[3]->category_id,
+                'img_path' => null,
+            ],
+            [
+                'name' => 'LED Camping Lantern',
+                'description' => 'Rechargeable LED lantern with adjustable brightness.',
+                'cost_price' => 25.00,
+                'sell_price' => 59.99,
+                'category_id' => $createdCategories[4]->category_id,
+                'img_path' => null,
+            ],
+        ];
+
+        // Insert products and stock
+        foreach ($products as $product) {
+            $createdProduct = Product::create($product);
+
+            Stock::create([
+                'product_id' => $createdProduct->product_id,
+                'quantity' => rand(5, 50),
+                'warehouse_location' => 'Warehouse ' . chr(65 + rand(0, 3)),
+            ]);
+        }
     }
-};
+}

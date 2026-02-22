@@ -20,11 +20,6 @@ class ProductController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function show(Product $product)
-    {
-        // Laravel automatically finds the product by its ID!
-        return view('products.show', compact('product'));
-    }
 
     public function create()
     {
