@@ -8,7 +8,9 @@ use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    $categories = \App\Models\Category::all();
+    $products = \App\Models\Product::limit(8)->get();
+    return view('welcome', ['categories' => $categories, 'products' => $products]);
 });
 
 // Dashboard

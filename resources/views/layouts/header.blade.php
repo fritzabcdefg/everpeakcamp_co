@@ -1,67 +1,105 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    {{-- <a class="navbar-brand" href="{{ route('getItems') }}">larashop</a> --}}
-    <a class="navbar-brand" href="/">larashop</a>
-
-
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-                {{-- <a class="nav-link" href="{{ route('getItems') }}">Home<span class="sr-only">(current)</span></a> --}}
-                <a class="nav-link" href="">Home<span class="sr-only"></span></a>
-
-            </li>
-
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
-                        class="fas fa-user-circle"></i>
-                    {{ Auth::check() ? Auth::user()->name : '' }}
-                </a>
-
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    @if (Auth::check() && Auth::user()->role === 'admin')
-                        {{-- <a class="dropdown-item" href="{{ route('admin.orders') }}">Orders</a>
-                        <a class="dropdown-item" href="{{ route('admin.users') }}">Users</a> --}}
-                        <a class="dropdown-item" href="#">Orders </a>
-                        <a class="dropdown-item" href="#">User Profile</a>
-                        <div class="dropdown-divider"></div>
-                        {{-- <a class="dropdown-item" href="{{ route('logout') }}">Logout </a> --}}
-                        <a class="dropdown-item" href="#">Logout </a>
-                    @elseif (Auth::check())
-                        {{-- <a class="dropdown-item" href="{{ route('user.profile') }}">User Profile</a> --}}
-                        <a class="dropdown-item" href="#">User Profile</a>
-                        <div class="dropdown-divider"></div>
-                        {{-- <a class="dropdown-item" href="{{ route('user.logout') }}">Logout </a> --}}
-                        <a class="dropdown-item" href="">Logout </a>
-                    @else
-                        {{-- <a class="dropdown-item" href="{{ route('register') }}">register</a>
-                        <a class="dropdown-item" href="{{ route('login') }}">Login </a> --}}
-                        <a class="dropdown-item" href="">register</a>
-                        <a class="dropdown-item" href="">Login </a>
-                    @endif
-                </div>
-    </div>
-    </li>
-    <li class="nav-link">
-        <a href="{{ route('getCart') }}">
-            {{-- <a href=""> --}}
-            <i class="fa-solid fa-cart-shopping"></i> Shopping Cart
-            <span
-                class="badge rounded-pill bg-danger">{{ Session::has('cart') ? Session::get('cart')->totalQty : '' }}</span>
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ route('products.index') }}">
+            <i class="fas fa-campground"></i> Outdoor & Camping Gears
         </a>
 
-    </li>
-    </ul>
-    {{-- <form action="{{ route('search') }}" "form-inline my-2 my-lg-0" method="GET"> --}}
-    <form action="#" "form-inline my-2 my-lg-0" method="POST">
-        @csrf
-        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="term">
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('products.index') }}">
+                        <i class="fas fa-list"></i> All Products
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('categories.index') }}">
+                        <i class="fas fa-folder"></i> Categories
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('dashboard') }}">
+                        <i class="fas fa-chart-line"></i> Dashboard
+                    </a>
+                </li>
+            </ul>
+
+            <div class="d-flex align-items-center gap-2">
+                <form action="/products" class="d-flex me-3" method="GET">
+                    <input class="form-control form-control-sm me-2" type="search" placeholder="Search products..." 
+                           aria-label="Search" name="search" style="width: 200px;">
+                    <button class="btn btn-outline-primary btn-sm" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+
+                <a href="{{ route('cart.index') }}" class="btn btn-outline-success position-relative me-2">
+                    <i class="fas fa-shopping-cart"></i> Cart
+                    @php
+                        $cartCount = Auth::check() ? \App\Models\CartItem::where('user_id', Auth::id())->count() : 0;
+                    @endphp
+                    @if($cartCount > 0)
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ $cartCount }}
+                        </span>
+                    @endif
+                </a>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user-circle"></i>
+                        {{ Auth::check() ? Auth::user()->name : 'Account' }}
+                    </a>
+
+                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        @if (Auth::check())
+                            <a class="dropdown-item" href="{{ route('users.show', Auth::user()) }}">
+                                <i class="fas fa-user"></i> My Profile
+                            </a>
+                            <a class="dropdown-item" href="{{ route('orders.index') }}">
+                                <i class="fas fa-receipt"></i> My Orders
+                            </a>
+                            <a class="dropdown-item" href="{{ route('cart.index') }}">
+                                <i class="fas fa-shopping-cart"></i> Shopping Cart
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a class="dropdown-item" href="{{ route('users.index') }}">
+                                <i class="fas fa-users"></i> Manage Users
+                            </a>
+                            <a class="dropdown-item" href="{{ route('products.index') }}">
+                                <i class="fas fa-box"></i> Manage Products
+                            </a>
+                            <a class="dropdown-item" href="{{ route('categories.index') }}">
+                                <i class="fas fa-folder"></i> Manage Categories
+                            </a>
+                            <a class="dropdown-item" href="{{ route('orders.index') }}">
+                                <i class="fas fa-receipt"></i> Manage Orders
+                            </a>
+                            <hr class="dropdown-divider">
+                            <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+                                @csrf
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </form>
+                        @else
+                            <a class="dropdown-item" href="{{ route('register') }}">
+                                <i class="fas fa-user-plus"></i> Register
+                            </a>
+                            <a class="dropdown-item" href="{{ route('login') }}">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
+                        @endif
+                    </div>
+                </li>
+            </div>
+        </div>
     </div>
 </nav>
