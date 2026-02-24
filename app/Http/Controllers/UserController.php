@@ -112,7 +112,7 @@ class UserController extends Controller
         
         Auth::login($user);
         
-        return redirect()->route('products.index')->with('success', 'Registration successful!');
+        return redirect()->route('home')->with('success', 'Registration successful!');
     }
 
     /**
@@ -135,7 +135,13 @@ class UserController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->route('products.index')->with('success', 'Login successful!');
+            
+            // Redirect based on user role
+            if (Auth::user()->role === 'admin') {
+                return redirect()->route('dashboard')->with('success', 'Welcome Admin! Login successful!');
+            }
+            
+            return redirect()->route('home')->with('success', 'Login successful!');
         }
 
         return back()->withErrors([
@@ -153,6 +159,6 @@ class UserController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         
-        return redirect()->route('products.index')->with('success', 'You have been logged out successfully.');
+        return redirect()->route('home')->with('success', 'You have been logged out successfully.');
     }
 }

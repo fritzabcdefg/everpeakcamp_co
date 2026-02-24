@@ -6,9 +6,11 @@
 
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Gear Categories</h2>
-            <a class="btn btn-primary" href="{{ route('categories.create') }}" role="button">
-                <i class="fas fa-plus"></i> Add Category
-            </a>
+            @if (Auth::check() && Auth::user()->role === 'admin')
+                <a class="btn btn-primary" href="{{ route('categories.create') }}" role="button">
+                    <i class="fas fa-plus"></i> Add Category
+                </a>
+            @endif
         </div>
 
         <div class="row">
@@ -24,16 +26,18 @@
                             <a href="{{ route('categories.show', $category) }}" class="btn btn-sm btn-info" title="View">
                                 <i class="fas fa-eye"></i> View
                             </a>
-                            <a href="{{ route('categories.edit', $category) }}" class="btn btn-sm btn-warning" title="Edit">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <form action="{{ route('categories.destroy', $category) }}" method="POST" style="display:inline;">
-                                @method('DELETE')
-                                @csrf
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
+                            @if (Auth::check() && Auth::user()->role === 'admin')
+                                <a href="{{ route('categories.edit', $category) }}" class="btn btn-sm btn-warning" title="Edit">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <form action="{{ route('categories.destroy', $category) }}" method="POST" style="display:inline;">
+                                    @method('DELETE')
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 </div>

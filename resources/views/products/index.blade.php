@@ -6,9 +6,11 @@
         
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Outdoor & Camping Gears</h2>
-            <a class="btn btn-primary" href="{{ route('products.create') }}" role="button">
-                <i class="fas fa-plus"></i> Add New Gear
-            </a>
+            @if (Auth::check() && Auth::user()->role === 'admin')
+                <a class="btn btn-primary" href="{{ route('products.create') }}" role="button">
+                    <i class="fas fa-plus"></i> Add New Gear
+                </a>
+            @endif
         </div>
 
         <div class="card mb-3">
@@ -66,17 +68,19 @@
                                 <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-info" title="View">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-warning" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline;">
-                                    @method('DELETE')
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-danger" title="Delete" 
-                                            onclick="return confirm('Are you sure?')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                                @if (Auth::check() && Auth::user()->role === 'admin')
+                                    <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-warning" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline;">
+                                        @method('DELETE')
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Delete" 
+                                                onclick="return confirm('Are you sure?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
                     @empty
