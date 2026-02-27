@@ -13,6 +13,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $products = Product::with('category', 'stock')->where('deleted_at', null)->paginate(12);
+        return view('home', ['products' => $products]);
     }
 }

@@ -9,28 +9,6 @@
                 aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('products.index') }}">
-                        <i class="fas fa-list"></i> All Products
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('categories.index') }}">
-                        <i class="fas fa-folder"></i> Categories
-                    </a>
-                </li>
-                @auth
-                    @if (Auth::user()->role === 'admin')
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('dashboard') }}">
-                                <i class="fas fa-chart-line"></i> Admin Dashboard
-                            </a>
-                        </li>
-                    @endif
-                @endauth
             </ul>
 
             <div class="d-flex align-items-center gap-2">

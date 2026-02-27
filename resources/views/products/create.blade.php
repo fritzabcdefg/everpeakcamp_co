@@ -56,7 +56,16 @@
                                     </div>
                                 </div>
                             </div>
-
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="stocks" class="form-label">Stocks</label>
+                                        <input type="number" class="form-control @error('stocks') is-invalid @enderror" 
+                                               id="stocks" name="stocks" step="1" min="0" 
+                                               value="{{ old('stocks') }}" required>
+                                        @error('stocks')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                             <div class="mb-3">
                                 <label for="category_id" class="form-label">Category</label>
                                 <select class="form-control @error('category_id') is-invalid @enderror" 

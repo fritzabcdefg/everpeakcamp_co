@@ -4,7 +4,7 @@
     <div class="container-fluid mt-4">
         @include('layouts.flash-messages')
 
-        <h1 class="mb-4"><i class="fas fa-chart-line"></i> Dashboard - Outdoor & Camping Gears Shop</h1>
+        <h1 class="mb-4"><i class="fas fa-chart-line"></i> Dashboard - Everpeak Camp Co</h1>
 
         <div class="row">
             <div class="col-md-3 mb-4">
