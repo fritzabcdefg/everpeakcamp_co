@@ -13,40 +13,50 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Admin user
+        // Admin user 1
         User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'password' => bcrypt('password123'),
+            'name' => 'Lorraine',
+            'email' => 'lorrainefrancesdesagun19@gmail.com',
+            'role' => 'admin',
+            'password' => bcrypt('Admin12345'),
         ]);
 
-        // Test user
+        // Admin user 2
         User::create([
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'password' => bcrypt('password123'),
+            'name' => 'Fritzie',
+            'email' => 'fritziecadao@gmail.com',
+            'role' => 'admin',
+            'password' => bcrypt('Admin12345'),
         ]);
 
-        // Additional users
+        // Test users
         User::create([
-            'name' => 'Sarah Smith',
-            'email' => 'sarah@example.com',
-            'password' => bcrypt('password123'),
-        ]);
-
-        User::create([
-            'name' => 'Mike Johnson',
-            'email' => 'mike@example.com',
+            'name' => 'Raymund Turallo',
+            'email' => 'raymund@example.com',
+            'role' => 'user',
             'password' => bcrypt('password123'),
         ]);
 
         User::create([
-            'name' => 'Emily Brown',
-            'email' => 'emily@example.com',
+            'name' => 'Elijah Gallardo',
+            'email' => 'elijah@example.com',
+            'role' => 'user',
             'password' => bcrypt('password123'),
         ]);
 
-        // Create 10 more random users using factory
-        User::factory(10)->create();
+        User::create([
+            'name' => 'Francis Balbin',
+            'email' => 'francis@example.com',
+            'role' => 'user',
+            'password' => bcrypt('password123'),
+        ]);
+
+        User::create([
+            'name' => 'Donn Torres',
+            'email' => 'donn@example.com',
+            'role' => 'user',
+            'password' => bcrypt('password123'),
+        ]);
+
     }
 }
