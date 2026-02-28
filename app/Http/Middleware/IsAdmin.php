@@ -16,8 +16,12 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
-            return redirect()->route('products.index')->with('error', 'You do not have permission to access this page.');
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Please log in to continue.');
+        }
+
+        if (Auth::user()->role !== 'admin') {
+            return redirect()->route('home')->with('error', 'You do not have permission to access this page.');
         }
 
         return $next($request);

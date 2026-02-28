@@ -5,12 +5,19 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
 
-// Home Route - Welcome Page
+// Home Route - Welcome Page with Featured Products
 Route::get('/', function () {
     $categories = \App\Models\Category::all();
-    $products = \App\Models\Product::limit(8)->get();
+    $products = \App\Models\Product::limit(4)->get();
+    return view('welcome', ['categories' => $categories, 'products' => $products]);
+});
+
+Route::get('/home', function () {
+    $categories = \App\Models\Category::all();
+    $products = \App\Models\Product::limit(4)->get();
     return view('welcome', ['categories' => $categories, 'products' => $products]);
 })->name('home');
 
@@ -42,6 +49,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
     // Order Management
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');
     Route::put('/orders/{order}', [OrderController::class, 'update'])->name('orders.update');
     Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
@@ -56,6 +66,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
 // Public product routes (show only) - AFTER create/edit routes above
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 
+// Shop route - All products page
+Route::get('/shop', [ShopController::class, 'show'])->name('shop.show');
+
 // Public category routes
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
@@ -69,10 +82,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/cart/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
     Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
+    // Customer orders (view only)
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-    Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
-    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
 
     // User Profile
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');

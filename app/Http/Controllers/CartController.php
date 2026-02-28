@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CartItem;
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -17,7 +18,8 @@ class CartController extends Controller
         $cartItems = CartItem::where('user_id', $userId)
             ->with('product')
             ->paginate(15);
-        return view('cart.index', ['cartItems' => $cartItems]);
+        $categories = Category::all();
+        return view('cart.index', ['cartItems' => $cartItems, 'categories' => $categories]);
     }
 
     /**

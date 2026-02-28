@@ -126,12 +126,6 @@
                         <a href="{{ route('orders.index') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Back
                         </a>
-                        <form action="{{ route('orders.destroy', $order) }}" method="POST" style="display:inline;">
-                            @method('DELETE')
-                            @csrf
-                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">
-                                <i class="fas fa-trash"></i> Delete
-                            </button>
                         </form>
                     </div>
                 </div>

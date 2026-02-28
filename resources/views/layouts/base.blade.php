@@ -33,12 +33,6 @@
         .container, .container-fluid {
             margin-top: 20px;
         }
-        footer {
-            background-color: #343a40;
-            color: #fff;
-            margin-top: 50px;
-            padding: 30px 0;
-        }
     </style>
     @stack('css')
 </head>
@@ -47,40 +41,10 @@
     @include('layouts.header')
     
     <main>
-        @yield('body')
+        @yield('content')
     </main>
 
-    <footer class="mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <h5><i class="fas fa-campground"></i> Outdoor & Camping Gears</h5>
-                    <p class="text-muted">Your one-stop shop for premium outdoor and camping equipment.</p>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{{ route('products.index') }}" class="text-muted text-decoration-none">Products</a></li>
-                        <li><a href="{{ route('categories.index') }}" class="text-muted text-decoration-none">Categories</a></li>
-                        <li><a href="{{ route('cart.index') }}" class="text-muted text-decoration-none">Shopping Cart</a></li>
-                        <li><a href="{{ route('dashboard') }}" class="text-muted text-decoration-none">Dashboard</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <h5>Contact Us</h5>
-                    <p class="text-muted">
-                        <i class="fas fa-phone"></i> 1-800-CAMPING<br>
-                        <i class="fas fa-envelope"></i> info@outdoorgears.com<br>
-                        <i class="fas fa-map-marker-alt"></i> Denver, Colorado
-                    </p>
-                </div>
-            </div>
-            <hr class="bg-secondary">
-            <div class="text-center text-muted">
-                <p>&copy; 2026 Outdoor & Camping Gears Shop. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    @include('layouts.footer')
 
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
