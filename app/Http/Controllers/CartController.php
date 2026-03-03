@@ -34,15 +34,22 @@ class CartController extends Controller
 
         $userId = $request->user()?->id ?? auth()->id();
 
-        CartItem::updateOrCreate(
-            [
-                'user_id' => $userId,
-                'product_id' => $validated['product_id'],
-            ],
-            ['quantity' => $validated['quantity']]
-        );
+        // attempt to find existing cart item for this user/product
+        $cartItem = CartItem::firstOrNew([
+            'user_id' => $userId,
+            'product_id' => $validated['product_id'],
+        ]);
 
-        return redirect()->route('cart.index')->with('success', 'Item added to cart');
+        // if exists increment, otherwise set initial quantity
+        if ($cartItem->exists) {
+            $cartItem->quantity += $validated['quantity'];
+        } else {
+            $cartItem->quantity = $validated['quantity'];
+        }
+        $cartItem->save();
+
+        // redirect back instead of jumping to cart index so the user stays on the current page
+        return redirect()->back()->with('success', 'Item added to cart');
     }
 
     /**

@@ -85,6 +85,16 @@
     </div>
 </nav>
 
+{{-- flash messages shown on every page that includes header --}}
+@if(session('success'))
+    <div class="container mt-3">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+@endif
+
 <style>
     .navbar {
         transition: all 0.3s ease;

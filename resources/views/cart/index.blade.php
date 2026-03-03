@@ -56,14 +56,17 @@
                                     </span>
                                 </td>
                                 <td class="text-center py-4 align-middle">
-                                    <form action="{{ route('cart.update', $item) }}" method="POST" class="d-inline-block">
+                                    <form action="{{ route('cart.update', $item) }}" method="POST" class="d-inline-block quantity-form">
                                         @csrf
                                         @method('PUT')
-                                        <div class="input-group input-group-sm" style="width: 110px;">
+                                        <div class="input-group input-group-sm" style="width: 120px;">
+                                            <button type="button" class="btn btn-outline-secondary btn-decrement">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
                                             <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" 
-                                                   class="form-control text-center" style="border-color: #1a472a;">
-                                            <button type="submit" class="btn" style="background-color: #1a472a; color: white; border-color: #1a472a;">
-                                                <i class="fas fa-sync-alt fa-sm"></i>
+                                                   class="form-control text-center quantity-input" style="border-color: #1a472a;">
+                                            <button type="button" class="btn btn-outline-secondary btn-increment">
+                                                <i class="fas fa-plus"></i>
                                             </button>
                                         </div>
                                     </form>
@@ -119,10 +122,13 @@
                                     ${{ number_format($total * 1.10, 2) }}
                                 </h6>
                             </div>
-                            <a href="{{ route('orders.create') }}" class="btn btn-lg w-100 mb-2 rounded-pill fw-bold" 
-                               style="background: linear-gradient(135deg, #1a472a 0%, #2d5f3f 100%); color: white; border: none;">
-                                <i class="fas fa-credit-card me-2"></i> Checkout
-                            </a>
+                            <form action="{{ route('orders.checkout') }}" method="POST" style="width:100%;">
+                                @csrf
+                                <button type="submit" class="btn btn-lg w-100 mb-2 rounded-pill fw-bold" 
+                                        style="background: linear-gradient(135deg, #1a472a 0%, #2d5f3f 100%); color: white; border: none;">
+                                    <i class="fas fa-credit-card me-2"></i> Checkout
+                                </button>
+                            </form>
                             <form action="{{ route('cart.clear') }}" method="POST" style="display:inline-block; width:100%;">
                                 @csrf
                                 <button type="submit" class="btn btn-outline-danger w-100 rounded-pill fw-bold" 
@@ -204,5 +210,38 @@
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
+        /* hide default number spinner */
+        input.quantity-input::-webkit-outer-spin-button,
+        input.quantity-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input.quantity-input {
+            -moz-appearance: textfield;
+        }
     </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.quantity-form').forEach(function(form) {
+                var input = form.querySelector('.quantity-input');
+                var dec = form.querySelector('.btn-decrement');
+                var inc = form.querySelector('.btn-increment');
+
+                dec.addEventListener('click', function() {
+                    var val = parseInt(input.value, 10);
+                    if (val > 1) {
+                        input.value = val - 1;
+                        form.submit();
+                    }
+                });
+
+                inc.addEventListener('click', function() {
+                    var val = parseInt(input.value, 10);
+                    input.value = val + 1;
+                    form.submit();
+                });
+            });
+        });
+    </script>
 @endsection

@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\CartItem;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -44,6 +47,54 @@ class OrderController extends Controller
 
         Order::create($validated);
         return redirect()->route('orders.index')->with('success', 'Order created successfully');
+    }
+
+    /**
+     * Process checkout from customer's cart: create order + order items and clear cart.
+     */
+    public function checkout(Request $request)
+    {
+        $userId = $request->user()?->id ?? auth()->id();
+        $cartItems = CartItem::where('user_id', $userId)->with('product')->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty');
+        }
+
+        DB::beginTransaction();
+        try {
+            $total = 0;
+            foreach ($cartItems as $ci) {
+                $price = $ci->product->sell_price ?? 0;
+                $total += $price * $ci->quantity;
+            }
+
+            $order = Order::create([
+                'user_id' => $userId,
+                'customer_id' => null,
+                'total_amount' => $total,
+                'status' => 'processing',
+                'order_date' => now(),
+            ]);
+
+            foreach ($cartItems as $ci) {
+                OrderItem::create([
+                    'order_id' => $order->order_id,
+                    'product_id' => $ci->product_id,
+                    'quantity' => $ci->quantity,
+                    'unit_price' => $ci->product->sell_price ?? 0,
+                ]);
+            }
+
+            // clear cart
+            CartItem::where('user_id', $userId)->delete();
+
+            DB::commit();
+            return redirect()->route('orders.show', $order)->with('success', 'Order placed successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('cart.index')->with('error', 'Unable to process order: ' . $e->getMessage());
+        }
     }
 
     /**
