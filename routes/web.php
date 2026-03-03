@@ -90,10 +90,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 
-    // User Profile
+    // User Profile (generic) – used by admin and other links
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+
+    // current user profile shortcuts
+    Route::get('/profile', [UserController::class, 'showProfile'])->name('profile.show');
+    Route::get('/profile/index', [UserController::class, 'showProfile'])->name('profile.index');
+    Route::get('/profile/create', [UserController::class, 'createProfile'])->name('profile.create');
+    Route::post('/profile', [UserController::class, 'storeProfile'])->name('profile.store');
+    Route::get('/profile/edit', [UserController::class, 'editProfile'])->name('profile.edit');
+    Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
 });
 
 

@@ -1,77 +1,80 @@
 @extends('layouts.base')
 
-@section('body')
+@section('content')
     <div class="container mt-4">
-        @include('layouts.flash-messages')
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header text-white" style="background: linear-gradient(135deg, #1a472a 0%, #2d5f3f 100%);">
+                        <h4 class="mb-0"><i class="fas fa-receipt"></i> My Orders</h4>
+                    </div>
+                    <div class="card-body">
+                        @if ($orders->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Order Date</th>
+                                            <th>Total Amount</th>
+                                            <th>Status</th>
+                                            <th>Items</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($orders as $order)
+                                            <tr>
+                                                <td><strong>#{{ $order->order_id }}</strong></td>
+                                                <td>{{ $order->order_date->format('M d, Y') }}</td>
+                                                @php $rowTotal = $order->orderItems->sum(fn($it) => $it->quantity * $it->unit_price) + ($order->shipping_fee ?? 0); @endphp
+                                                <td>${{ number_format($rowTotal, 2) }}</td>
+                                                <td>
+                                                    @switch($order->status)
+                                                        @case('pending')
+                                                            <span class="badge bg-warning text-dark">Pending</span>
+                                                            @break
+                                                        @case('processing')
+                                                            <span class="badge bg-info">Processing</span>
+                                                            @break
+                                                        @case('completed')
+                                                            <span class="badge bg-success">Completed</span>
+                                                            @break
+                                                        @case('cancelled')
+                                                            <span class="badge bg-danger">Cancelled</span>
+                                                            @break
+                                                        @default
+                                                            <span class="badge bg-secondary">{{ $order->status }}</span>
+                                                    @endswitch
+                                                </td>
+                                                <td>{{ $order->orderItems->count() }} items</td>
+                                                <td>
+                                                    <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-info">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
 
-        <h2><i class="fas fa-receipt"></i> Orders</h2>
-
-        @if ($orders->count() > 0)
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Order Date</th>
-                            <th>Total Amount</th>
-                            <th>Status</th>
-                            <th>Items</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($orders as $order)
-                            <tr>
-                                <td><strong>#{{ $order->order_id }}</strong></td>
-                                <td>{{ $order->order_date->format('M d, Y') }}</td>
-                                @php $rowTotal = $order->orderItems->sum(fn($it) => $it->quantity * $it->unit_price) + ($order->shipping_fee ?? 0); @endphp
-                                <td>${{ number_format($rowTotal, 2) }}</td>
-                                <td>
-                                    @switch($order->status)
-                                        @case('pending')
-                                            <span class="badge bg-warning text-dark">Pending</span>
-                                            @break
-                                        @case('processing')
-                                            <span class="badge bg-info">Processing</span>
-                                            @break
-                                        @case('completed')
-                                            <span class="badge bg-success">Completed</span>
-                                            @break
-                                        @case('cancelled')
-                                            <span class="badge bg-danger">Cancelled</span>
-                                            @break
-                                        @default
-                                            <span class="badge bg-secondary">{{ $order->status }}</span>
-                                    @endswitch
-                                </td>
-                                <td>{{ $order->orderItems->count() }} items</td>
-                                <td>
-                                    <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-info">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
-                                    <a href="{{ route('orders.edit', $order) }}" class="btn btn-sm btn-warning">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                            <div class="d-flex justify-content-center">
+                                {{ $orders->links() }}
+                            </div>
+                        @else
+                            <div class="alert alert-info mt-4" role="alert">
+                                <i class="fas fa-info-circle"></i> You have no orders yet. <a href="{{ route('shop.show') }}">Start shopping</a>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ route('home') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </a>
+                    </div>
+                </div>
             </div>
-
-            <div class="d-flex justify-content-center">
-                {{ $orders->links() }}
-            </div>
-        @else
-            <div class="alert alert-info mt-4" role="alert">
-                <i class="fas fa-info-circle"></i> No orders found. <a href="{{ route('products.index') }}">Start shopping</a>
-            </div>
-        @endif
-
-        <div class="mt-4">
-            <a href="{{ route('orders.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Create Order
-            </a>
         </div>
     </div>
 @endsection

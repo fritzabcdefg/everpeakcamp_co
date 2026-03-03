@@ -63,9 +63,8 @@
                                 <a class="dropdown-item" href="{{ route('orders.index') }}"><i class="fas fa-receipt text-danger me-2"></i> Manage Orders</a>
                                 <hr class="dropdown-divider" style="margin: 0.5rem 0;">
                             @else
-                                <a class="dropdown-item" href="{{ route('users.show', Auth::user()) }}"><i class="fas fa-user text-primary me-2"></i> My Profile</a>
+                                <a class="dropdown-item" href="{{ route('profile.index') }}"><i class="fas fa-user text-primary me-2"></i> My Profile</a>
                                 <a class="dropdown-item" href="{{ route('orders.index') }}"><i class="fas fa-receipt text-success me-2"></i> My Orders</a>
-                                <a class="dropdown-item" href="{{ route('cart.index') }}"><i class="fas fa-shopping-cart text-info me-2"></i> Shopping Cart</a>
                                 <hr class="dropdown-divider" style="margin: 0.5rem 0;">
                             @endif
                             <form action="{{ route('logout') }}" method="POST" style="display:inline;">

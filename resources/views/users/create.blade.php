@@ -47,6 +47,24 @@
                                        id="password_confirmation" name="password_confirmation" required>
                             </div>
 
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Phone</label>
+                                <input type="text" class="form-control @error('phone') is-invalid @enderror" 
+                                       id="phone" name="phone" value="{{ old('phone') }}">
+                                @error('phone')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Address</label>
+                                <textarea class="form-control @error('address') is-invalid @enderror" 
+                                          id="address" name="address" rows="2">{{ old('address') }}</textarea>
+                                @error('address')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                                 <a href="{{ route('users.index') }}" class="btn btn-secondary">Cancel</a>
                                 <button type="submit" class="btn btn-primary">

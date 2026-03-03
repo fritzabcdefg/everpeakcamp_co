@@ -34,6 +34,24 @@
                             </div>
 
                             <div class="mb-3">
+                                <label for="phone" class="form-label">Phone</label>
+                                <input type="text" class="form-control @error('phone') is-invalid @enderror" 
+                                       id="phone" name="phone" value="{{ old('phone', $user->phone) }}">
+                                @error('phone')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Address</label>
+                                <textarea class="form-control @error('address') is-invalid @enderror" 
+                                          id="address" name="address" rows="2">{{ old('address', $user->address) }}</textarea>
+                                @error('address')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
                                 <label for="password" class="form-label">Password (leave blank to keep current)</label>
                                 <input type="password" class="form-control @error('password') is-invalid @enderror" 
                                        id="password" name="password">
