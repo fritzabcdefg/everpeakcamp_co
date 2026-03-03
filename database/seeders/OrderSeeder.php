@@ -40,13 +40,13 @@ class OrderSeeder extends Seeder
         // Create orders
         foreach ($users->take(5) as $user) {
             for ($i = 0; $i < rand(2, 4); $i++) {
-                // Random total amount between 100 and 500
-                $totalAmount = rand(100, 500);
+                // create order with random shipping fee and compute items later
+                $shippingFee = rand(5, 20);
 
                 $order = Order::create([
                     'user_id' => $user->id,
                     'customer_id' => $createdCustomers->random()->customer_id,
-                    'total_amount' => $totalAmount,
+                    'shipping_fee' => $shippingFee,
                     'status' => collect(['pending', 'processing', 'completed', 'cancelled'])->random(),
                     'order_date' => now()->subDays(rand(1, 60)),
                 ]);

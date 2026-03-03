@@ -54,6 +54,35 @@ In order to ensure that the Laravel community is welcoming to all, please review
 
 If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
+## Project Notes
+
+This application implements a simple e-commerce flow with the following behaviours:
+
+- **Cart** shows item quantities, prices, tax, and a fixed shipping fee.
+- **Checkout** has a confirmation page (`/checkout`) where the user can review items, their address and place the order.
+- Orders no longer store a total amount in the database; the total is calculated dynamically from `order_items` and the `shipping_fee` column (added via migration).
+- Shipping fee is stored on the order and included in summary tables and emails.
+- After placing an order, a confirmation e‑mail is sent. The default mailer is configured via environment variables.
+
+### Mailtrap Setup
+
+To test email delivery, use Mailtrap (credentials provided by the user). Add the following values to your `.env` file:
+
+```text
+MAIL_MAILER=smtp
+MAIL_HOST=sandbox.smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=ad3f31aa582735
+MAIL_PASSWORD=****f446
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS=no-reply@everpeakcamp.test
+MAIL_FROM_NAME="EverPeak Camp Co."
+```
+
+You can choose any port supported by Mailtrap (25, 465, 587 or 2525). TLS/STARTTLS is optional.
+
+After updating the `.env` run `php artisan config:cache` and `php artisan migrate` to apply database changes.
+
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

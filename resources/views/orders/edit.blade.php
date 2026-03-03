@@ -33,11 +33,11 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="total_amount" class="form-label">Total Amount $ *</label>
-                                <input type="number" class="form-control @error('total_amount') is-invalid @enderror" 
-                                       id="total_amount" name="total_amount" step="0.01" min="0" 
-                                       value="{{ old('total_amount', $order->total_amount) }}" required>
-                                @error('total_amount')
+                                <label for="shipping_fee" class="form-label">Shipping Fee $ *</label>
+                                <input type="number" class="form-control @error('shipping_fee') is-invalid @enderror" 
+                                       id="shipping_fee" name="shipping_fee" step="0.01" min="0" 
+                                       value="{{ old('shipping_fee', $order->shipping_fee ?? 0) }}" required>
+                                @error('shipping_fee')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

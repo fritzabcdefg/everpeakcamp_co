@@ -112,6 +112,11 @@
                                 <span class="fw-bold">${{ number_format($total, 2) }}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-3">
+                                <span class="text-muted">Shipping:</span>
+                                @php $shippingFee = 5.00; @endphp
+                                <span class="fw-bold text-success">${{ number_format($shippingFee, 2) }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3">
                                 <span class="text-muted">Tax (10%):</span>
                                 <span class="fw-bold text-success">${{ number_format($total * 0.10, 2) }}</span>
                             </div>
@@ -119,16 +124,13 @@
                             <div class="d-flex justify-content-between mb-4">
                                 <h6 class="mb-0">Total:</h6>
                                 <h6 class="mb-0" style="color: #1a472a;">
-                                    ${{ number_format($total * 1.10, 2) }}
+                                    ${{ number_format($total + ($total * 0.10) + $shippingFee, 2) }}
                                 </h6>
                             </div>
-                            <form action="{{ route('orders.checkout') }}" method="POST" style="width:100%;">
-                                @csrf
-                                <button type="submit" class="btn btn-lg w-100 mb-2 rounded-pill fw-bold" 
-                                        style="background: linear-gradient(135deg, #1a472a 0%, #2d5f3f 100%); color: white; border: none;">
-                                    <i class="fas fa-credit-card me-2"></i> Checkout
-                                </button>
-                            </form>
+                            <a href="{{ route('checkout.index') }}" class="btn btn-lg w-100 mb-2 rounded-pill fw-bold" 
+                               style="background: linear-gradient(135deg, #1a472a 0%, #2d5f3f 100%); color: white; border: none;">
+                                <i class="fas fa-credit-card me-2"></i> Checkout
+                            </a>
                             <form action="{{ route('cart.clear') }}" method="POST" style="display:inline-block; width:100%;">
                                 @csrf
                                 <button type="submit" class="btn btn-outline-danger w-100 rounded-pill fw-bold" 

@@ -81,7 +81,8 @@
                                             <tr>
                                                 <td>#{{ $order->order_id }}</td>
                                                 <td>{{ $order->order_date->format('M d, Y') }}</td>
-                                                <td>${{ number_format($order->total_amount, 2) }}</td>
+                                                @php $oTotal = $order->orderItems->sum(fn($it)=>$it->quantity*$it->unit_price) + ($order->shipping_fee ?? 0); @endphp
+                                                <td>${{ number_format($oTotal, 2) }}</td>
                                                 <td>
                                                     @switch($order->status)
                                                         @case('pending')

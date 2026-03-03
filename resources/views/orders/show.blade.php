@@ -59,6 +59,10 @@
                                         <th>Phone:</th>
                                         <td>{{ $order->customer->phone ?? 'N/A' }}</td>
                                     </tr>
+                                    <tr>
+                                        <th>Address:</th>
+                                        <td>{{ $order->customer->address ?? 'N/A' }}</td>
+                                    </tr>
                                 </table>
                             </div>
                         </div>
@@ -101,18 +105,27 @@
                             <div class="col-md-6">
                                 <div class="card">
                                     <div class="card-body">
+                                        @php
+                                            $subt = $order->orderItems->sum(fn($it) => $it->quantity * $it->unit_price);
+                                            $tax = $subt * 0.10;
+                                            $total = $subt + $tax + ($order->shipping_fee ?? 0);
+                                        @endphp
                                         <div class="d-flex justify-content-between mb-2">
                                             <span>Subtotal:</span>
-                                            <span>${{ number_format($order->total_amount * 0.9, 2) }}</span>
+                                            <span>${{ number_format($subt, 2) }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between mb-3">
                                             <span>Tax (10%):</span>
-                                            <span>${{ number_format($order->total_amount * 0.1, 2) }}</span>
+                                            <span>${{ number_format($tax, 2) }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-3">
+                                            <span>Shipping:</span>
+                                            <span>${{ number_format($order->shipping_fee ?? 0, 2) }}</span>
                                         </div>
                                         <hr>
                                         <div class="d-flex justify-content-between">
                                             <h5>Total:</h5>
-                                            <h5>${{ number_format($order->total_amount, 2) }}</h5>
+                                            <h5>${{ number_format($total, 2) }}</h5>
                                         </div>
                                     </div>
                                 </div>

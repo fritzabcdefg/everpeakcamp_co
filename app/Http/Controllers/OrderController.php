@@ -37,7 +37,7 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             'customer_id' => 'nullable|exists:customers,customer_id',
-            'total_amount' => 'required|numeric|min:0',
+            'shipping_fee' => 'required|numeric|min:0',
             'status' => 'required|in:pending,processing,completed,cancelled',
         ]);
 
@@ -50,10 +50,46 @@ class OrderController extends Controller
     }
 
     /**
+     * Show checkout confirmation page with order summary and shipping address.
+     */
+    public function checkoutForm(Request $request)
+    {
+        $userId = $request->user()?->id ?? auth()->id();
+        $cartItems = CartItem::where('user_id', $userId)->with('product')->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty');
+        }
+
+        // default flat shipping fee (can be adjusted in UI)
+        $shippingFee = 5.00;
+
+        // try to find a customer record by user email
+        $customer = null;
+        if ($request->user()?->email) {
+            $customer = \App\Models\Customer::where('email', $request->user()->email)->first();
+        }
+
+        return view('checkout.index', [
+            'cartItems' => $cartItems,
+            'shippingFee' => $shippingFee,
+            'customer' => $customer,
+        ]);
+    }
+
+    /**
      * Process checkout from customer's cart: create order + order items and clear cart.
      */
     public function checkout(Request $request)
     {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'phone' => 'nullable|string|max:50',
+            'address' => 'required|string',
+            'shipping_fee' => 'required|numeric|min:0',
+        ]);
+
         $userId = $request->user()?->id ?? auth()->id();
         $cartItems = CartItem::where('user_id', $userId)->with('product')->get();
 
@@ -63,16 +99,16 @@ class OrderController extends Controller
 
         DB::beginTransaction();
         try {
-            $total = 0;
-            foreach ($cartItems as $ci) {
-                $price = $ci->product->sell_price ?? 0;
-                $total += $price * $ci->quantity;
-            }
+            // create or update customer record by email
+            $customer = \App\Models\Customer::updateOrCreate(
+                ['email' => $validated['email']],
+                ['name' => $validated['name'], 'phone' => $validated['phone'] ?? null, 'address' => $validated['address']]
+            );
 
             $order = Order::create([
                 'user_id' => $userId,
-                'customer_id' => null,
-                'total_amount' => $total,
+                'customer_id' => $customer->customer_id,
+                'shipping_fee' => $validated['shipping_fee'],
                 'status' => 'processing',
                 'order_date' => now(),
             ]);
@@ -90,6 +126,14 @@ class OrderController extends Controller
             CartItem::where('user_id', $userId)->delete();
 
             DB::commit();
+
+            // send confirmation email (Mailtrap credentials should be in env; we send using configured mailer)
+            try {
+                \Illuminate\Support\Facades\Mail::to($validated['email'])->send(new \App\Mail\OrderPlaced($order));
+            } catch (\Exception $mailEx) {
+                // swallow mail exceptions for now
+            }
+
             return redirect()->route('orders.show', $order)->with('success', 'Order placed successfully');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -121,7 +165,7 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             'customer_id' => 'nullable|exists:customers,customer_id',
-            'total_amount' => 'sometimes|numeric|min:0',
+            'shipping_fee' => 'sometimes|numeric|min:0',
             'status' => 'sometimes|in:pending,processing,completed,cancelled',
         ]);
 

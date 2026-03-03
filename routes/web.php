@@ -82,7 +82,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/cart/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
     Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
-    // Checkout (process order) for customers
+    // Checkout (confirm and process order) for customers
+    Route::get('/checkout', [OrderController::class, 'checkoutForm'])->name('checkout.index');
     Route::post('/checkout', [OrderController::class, 'checkout'])->name('orders.checkout');
 
     // Customer orders (view only)

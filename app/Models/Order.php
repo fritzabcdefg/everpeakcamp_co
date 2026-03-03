@@ -18,13 +18,13 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'customer_id',
-        'total_amount',
+        'shipping_fee',
         'status',
         'order_date',
     ];
 
     protected $casts = [
-        'total_amount' => 'decimal:2',
+        'shipping_fee' => 'decimal:2',
         'order_date' => 'datetime',
     ];
 
