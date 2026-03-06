@@ -1,7 +1,7 @@
 @extends('layouts.base')
 
-@section('body')
-    <div id="products" class="container mt-4">
+@section('content')
+    <div id="products" class="container-fluid mt-4">
         @include('layouts.flash-messages')
         
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -55,8 +55,8 @@
                                 @endif
                             </td>
                             <td>{{ Str::limit($product->description, 50) }}</td>
-                            <td>${{ number_format($product->cost_price, 2) }}</td>
-                            <td><strong>${{ number_format($product->sell_price, 2) }}</strong></td>
+                            <td>₱{{ number_format($product->cost_price, 2) }}</td>
+                            <td><strong>₱{{ number_format($product->sell_price, 2) }}</strong></td>
                             <td>
                                 @if ($product->stock->sum('quantity') > 0)
                                     <span class="badge bg-success">{{ $product->stock->sum('quantity') }}</span>

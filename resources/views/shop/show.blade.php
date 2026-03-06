@@ -127,10 +127,10 @@
                                     <!-- Price -->
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <div>
-                                            <span class="h5 text-success fw-bold">${{ number_format($product->sell_price, 2) }}</span>
+                                            <span class="h5 text-success fw-bold">₱{{ number_format($product->sell_price, 2) }}</span>
                                             @if($product->cost_price < $product->sell_price)
                                                 <span class="text-muted text-decoration-line-through small d-block" style="font-size: 0.85rem;">
-                                                    ${{ number_format($product->cost_price, 2) }}
+                                                    ₱{{ number_format($product->cost_price, 2) }}
                                                 </span>
                                             @endif
                                         </div>

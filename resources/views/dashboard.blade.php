@@ -1,132 +1,143 @@
 @extends('layouts.base')
 
-@section('body')
-    <div class="container-fluid mt-4">
+@section('content')
+    <div class="container mt-4">
         @include('layouts.flash-messages')
 
-        <h1 class="mb-4"><i class="fas fa-chart-line"></i> Dashboard - Everpeak Camp Co</h1>
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <h2><i class="fas fa-chart-line"></i> Dashboard</h2>
+        </div>
 
-        <div class="row">
-            <div class="col-md-3 mb-4">
-                <div class="card bg-primary text-white">
+        <!-- Stats Cards Row -->
+        <div class="row g-3 mb-5">
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h6 class="card-title">Total Users</h6>
-                                <h2 class="mb-0">{{ $stats['total_users'] }}</h2>
+                                <p class="text-muted small mb-2">Total Users</p>
+                                <h3 class="mb-0">{{ $stats['total_users'] }}</h3>
                             </div>
-                            <i class="fas fa-users fa-3x opacity-50"></i>
+                            <div class="bg-primary bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-users text-primary fa-lg"></i>
+                            </div>
                         </div>
                     </div>
-                    <a href="{{ route('users.index') }}" class="card-footer text-white text-decoration-none">
-                        View Users <i class="fas fa-arrow-right"></i>
+                    <a href="{{ route('users.index') }}" class="card-footer bg-transparent border-top text-center text-decoration-none text-primary small fw-semibold">
+                        View Users <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>
 
-            <div class="col-md-3 mb-4">
-                <div class="card bg-success text-white">
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h6 class="card-title">Total Products</h6>
-                                <h2 class="mb-0">{{ $stats['total_products'] }}</h2>
+                                <p class="text-muted small mb-2">Total Products</p>
+                                <h3 class="mb-0">{{ $stats['total_products'] }}</h3>
                             </div>
-                            <i class="fas fa-box fa-3x opacity-50"></i>
+                            <div class="bg-success bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-box text-success fa-lg"></i>
+                            </div>
                         </div>
                     </div>
-                    <a href="{{ route('products.index') }}" class="card-footer text-white text-decoration-none">
-                        View Products <i class="fas fa-arrow-right"></i>
+                    <a href="{{ route('products.index') }}" class="card-footer bg-transparent border-top text-center text-decoration-none text-success small fw-semibold">
+                        View Products <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>
 
-            <div class="col-md-3 mb-4">
-                <div class="card bg-info text-white">
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h6 class="card-title">Total Categories</h6>
-                                <h2 class="mb-0">{{ $stats['total_categories'] }}</h2>
+                                <p class="text-muted small mb-2">Total Categories</p>
+                                <h3 class="mb-0">{{ $stats['total_categories'] }}</h3>
                             </div>
-                            <i class="fas fa-list fa-3x opacity-50"></i>
+                            <div class="bg-info bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-list text-info fa-lg"></i>
+                            </div>
                         </div>
                     </div>
-                    <a href="{{ route('categories.index') }}" class="card-footer text-white text-decoration-none">
-                        View Categories <i class="fas fa-arrow-right"></i>
+                    <a href="{{ route('categories.index') }}" class="card-footer bg-transparent border-top text-center text-decoration-none text-info small fw-semibold">
+                        View Categories <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>
 
-            <div class="col-md-3 mb-4">
-                <div class="card bg-warning text-dark">
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h6 class="card-title">Total Orders</h6>
-                                <h2 class="mb-0">{{ $stats['total_orders'] }}</h2>
+                                <p class="text-muted small mb-2">Total Orders</p>
+                                <h3 class="mb-0">{{ $stats['total_orders'] }}</h3>
                             </div>
-                            <i class="fas fa-shopping-cart fa-3x opacity-50"></i>
+                            <div class="bg-warning bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-shopping-cart text-warning fa-lg"></i>
+                            </div>
                         </div>
                     </div>
-                    <a href="{{ route('orders.index') }}" class="card-footer text-dark text-decoration-none">
-                        View Orders <i class="fas fa-arrow-right"></i>
+                    <a href="{{ route('orders.index') }}" class="card-footer bg-transparent border-top text-center text-decoration-none text-warning small fw-semibold">
+                        View Orders <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0"><i class="fas fa-dollar-sign"></i> Total Revenue</h5>
-                    </div>
+        <!-- Revenue & Pending Orders Row -->
+        <div class="row g-3 mb-5">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
-                        <h2 class="text-success">${{ number_format($stats['total_revenue'] ?? 0, 2) }}</h2>
-                        <p class="text-muted mb-0">From all completed and pending orders</p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0"><i class="fas fa-dollar-sign text-success"></i> Total Revenue</h5>
+                        </div>
+                        <h2 class="text-success mb-2">₱{{ number_format($stats['total_revenue'] ?? 0, 2) }}</h2>
+                        <p class="text-muted small mb-0">From all completed and pending orders</p>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-header bg-danger text-white">
-                        <h5 class="mb-0"><i class="fas fa-clock"></i> Pending Orders</h5>
-                    </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
-                        <h2>{{ $stats['pending_orders'] }}</h2>
-                        <p class="text-muted mb-0">Orders waiting to be processed</p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0"><i class="fas fa-clock text-danger"></i> Pending Orders</h5>
+                        </div>
+                        <h2 class="text-danger mb-2">{{ $stats['pending_orders'] }}</h2>
+                        <p class="text-muted small mb-0">Orders waiting to be processed</p>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Quick Actions -->
         <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header bg-secondary text-white">
-                        <h5 class="mb-0"><i class="fas fa-tasks"></i> Quick Actions</h5>
-                    </div>
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <a href="{{ route('products.create') }}" class="btn btn-primary btn-block w-100">
-                                    <i class="fas fa-plus"></i> Add New Product
+                        <h5 class="card-title mb-4"><i class="fas fa-tasks"></i> Quick Actions</h5>
+                        <div class="row g-2">
+                            <div class="col-md-3 col-sm-6">
+                                <a href="{{ route('products.create') }}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                                    <i class="fas fa-plus"></i> Add Product
                                 </a>
                             </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="{{ route('categories.create') }}" class="btn btn-success btn-block w-100">
-                                    <i class="fas fa-plus"></i> Add New Category
+                            <div class="col-md-3 col-sm-6">
+                                <a href="{{ route('categories.create') }}" class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2">
+                                    <i class="fas fa-plus"></i> Add Category
                                 </a>
                             </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="{{ route('users.create') }}" class="btn btn-info btn-block w-100">
-                                    <i class="fas fa-plus"></i> Add New User
+                            <div class="col-md-3 col-sm-6">
+                                <a href="{{ route('users.create') }}" class="btn btn-info w-100 d-flex align-items-center justify-content-center gap-2">
+                                    <i class="fas fa-plus"></i> Add User
                                 </a>
                             </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="{{ route('orders.create') }}" class="btn btn-warning btn-block w-100">
+                            <div class="col-md-3 col-sm-6">
+                                <a href="{{ route('orders.create') }}" class="btn btn-warning w-100 d-flex align-items-center justify-content-center gap-2">
                                     <i class="fas fa-plus"></i> Create Order
                                 </a>
                             </div>

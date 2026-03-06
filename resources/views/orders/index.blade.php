@@ -28,7 +28,7 @@
                                                 <td><strong>#{{ $order->order_id }}</strong></td>
                                                 <td>{{ $order->order_date->format('M d, Y') }}</td>
                                                 @php $rowTotal = $order->orderItems->sum(fn($it) => $it->quantity * $it->unit_price) + ($order->shipping_fee ?? 0); @endphp
-                                                <td>${{ number_format($rowTotal, 2) }}</td>
+                                                <td>₱{{ number_format($rowTotal, 2) }}</td>
                                                 <td>
                                                     @switch($order->status)
                                                         @case('pending')

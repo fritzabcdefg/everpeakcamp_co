@@ -88,8 +88,8 @@
                                                 <small class="text-muted">#{{ $item->product->product_id }}</small>
                                             </td>
                                             <td>{{ $item->quantity }}</td>
-                                            <td>${{ number_format($item->unit_price, 2) }}</td>
-                                            <td>${{ number_format($item->quantity * $item->unit_price, 2) }}</td>
+                                            <td>₱{{ number_format($item->unit_price, 2) }}</td>
+                                            <td>₱{{ number_format($item->quantity * $item->unit_price, 2) }}</td>
                                         </tr>
                                     @empty
                                         <tr>
@@ -112,20 +112,20 @@
                                         @endphp
                                         <div class="d-flex justify-content-between mb-2">
                                             <span>Subtotal:</span>
-                                            <span>${{ number_format($subt, 2) }}</span>
+                                            <span>₱{{ number_format($subt, 2) }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between mb-3">
                                             <span>Tax (10%):</span>
-                                            <span>${{ number_format($tax, 2) }}</span>
+                                            <span>₱{{ number_format($tax, 2) }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between mb-3">
                                             <span>Shipping:</span>
-                                            <span>${{ number_format($order->shipping_fee ?? 0, 2) }}</span>
+                                            <span>₱{{ number_format($order->shipping_fee ?? 0, 2) }}</span>
                                         </div>
                                         <hr>
                                         <div class="d-flex justify-content-between">
                                             <h5>Total:</h5>
-                                            <h5>${{ number_format($total, 2) }}</h5>
+                                            <h5>₱{{ number_format($total, 2) }}</h5>
                                         </div>
                                     </div>
                                 </div>

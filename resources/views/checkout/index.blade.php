@@ -54,15 +54,15 @@
                         @endforeach
                         <li class="list-group-item d-flex justify-content-between">
                             <span>Subtotal</span>
-                            <strong>${{ number_format($subtotal,2) }}</strong>
+                            <strong>₱{{ number_format($subtotal,2) }}</strong>
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
                             <span>Shipping</span>
-                            <strong>${{ number_format($shippingFee,2) }}</strong>
+                            <strong>₱{{ number_format($shippingFee,2) }}</strong>
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
                             <span>Total</span>
-                            <strong>${{ number_format($subtotal + $shippingFee,2) }}</strong>
+                            <strong>₱{{ number_format($subtotal + $shippingFee,2) }}</strong>
                         </li>
                     </ul>
 

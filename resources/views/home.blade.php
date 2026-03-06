@@ -241,7 +241,7 @@
                             <p class="product-description">{{ $product->description }}</p>
                             
                             <div class="product-price">
-                                ${{ number_format($product->sell_price, 2) }}
+                                ₱{{ number_format($product->sell_price, 2) }}
                             </div>
 
                             @php

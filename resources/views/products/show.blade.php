@@ -1,7 +1,7 @@
 @extends('layouts.base')
 
-@section('body')
-    <div class="container mt-4">
+@section('content')
+    <div class="container-fluid mt-4">
         @include('layouts.flash-messages')
 
         <div class="row">
@@ -42,11 +42,11 @@
                                     </tr>
                                     <tr>
                                         <th>Cost Price:</th>
-                                        <td>${{ number_format($product->cost_price, 2) }}</td>
+                                        <td>₱{{ number_format($product->cost_price, 2) }}</td>
                                     </tr>
                                     <tr>
                                         <th>Sell Price:</th>
-                                        <td><strong>${{ number_format($product->sell_price, 2) }}</strong></td>
+                                        <td><strong>₱{{ number_format($product->sell_price, 2) }}</strong></td>
                                     </tr>
                                     <tr>
                                         <th>Stock Level:</th>

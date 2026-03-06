@@ -27,9 +27,9 @@ class OrderSeeder extends Seeder
 
         // Create customers
         $customers = [
-            ['name' => 'John Outdoor', 'email' => 'john.outdoor@example.com', 'phone' => '555-0101', 'address' => '123 Mountain Road, Denver, CO'],
-            ['name' => 'Sarah Adventure', 'email' => 'sarah.adv@example.com', 'phone' => '555-0102', 'address' => '456 Canyon Lane, Moab, UT'],
-            ['name' => 'Mike Explorer', 'email' => 'mike.explore@example.com', 'phone' => '555-0103', 'address' => '789 Forest Path, Portland, OR'],
+            ['name' => 'Juan dela Cruz', 'email' => 'juan.delacruz@example.com', 'phone' => '+63 912 345 6789', 'address' => '123 Makati Ave, Makati City'],
+            ['name' => 'Maria Santos', 'email' => 'maria.santos@example.com', 'phone' => '+63 917 654 3210', 'address' => '456 BGC Taguig, Metro Manila'],
+            ['name' => 'Miguel Reyes', 'email' => 'miguel.reyes@example.com', 'phone' => '+63 918 765 4321', 'address' => '789 Quezon City, NCR'],
         ];
 
         $createdCustomers = collect();
@@ -41,7 +41,7 @@ class OrderSeeder extends Seeder
         foreach ($users->take(5) as $user) {
             for ($i = 0; $i < rand(2, 4); $i++) {
                 // create order with random shipping fee and compute items later
-                $shippingFee = rand(5, 20);
+                $shippingFee = rand(250, 500); // PHP currency
 
                 $order = Order::create([
                     'user_id' => $user->id,

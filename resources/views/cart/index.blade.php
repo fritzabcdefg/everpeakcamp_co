@@ -52,7 +52,7 @@
                                 </td>
                                 <td class="text-center py-4 align-middle">
                                     <span class="badge bg-success" style="font-size: 0.95rem; padding: 0.5rem 0.8rem;">
-                                        ${{ number_format($item->product->sell_price, 2) }}
+                                        ₱{{ number_format($item->product->sell_price, 2) }}
                                     </span>
                                 </td>
                                 <td class="text-center py-4 align-middle">
@@ -73,7 +73,7 @@
                                 </td>
                                 <td class="text-end py-4 align-middle">
                                     <strong style="color: #1a472a; font-size: 1.1rem;">
-                                        ${{ number_format($subtotal, 2) }}
+                                        ₱{{ number_format($subtotal, 2) }}
                                     </strong>
                                 </td>
                                 <td class="text-center py-4 align-middle">
@@ -109,22 +109,22 @@
                         <div class="card-body" style="padding: 1.5rem;">
                             <div class="d-flex justify-content-between mb-3">
                                 <span class="text-muted">Subtotal:</span>
-                                <span class="fw-bold">${{ number_format($total, 2) }}</span>
+                                <span class="fw-bold">₱{{ number_format($total, 2) }}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-3">
                                 <span class="text-muted">Shipping:</span>
                                 @php $shippingFee = 5.00; @endphp
-                                <span class="fw-bold text-success">${{ number_format($shippingFee, 2) }}</span>
+                                <span class="fw-bold text-success">₱{{ number_format($shippingFee, 2) }}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-3">
                                 <span class="text-muted">Tax (10%):</span>
-                                <span class="fw-bold text-success">${{ number_format($total * 0.10, 2) }}</span>
+                                <span class="fw-bold text-success">₱{{ number_format($total * 0.10, 2) }}</span>
                             </div>
                             <hr style="border-color: #e0e0e0; margin: 1rem 0;">
                             <div class="d-flex justify-content-between mb-4">
                                 <h6 class="mb-0">Total:</h6>
                                 <h6 class="mb-0" style="color: #1a472a;">
-                                    ${{ number_format($total + ($total * 0.10) + $shippingFee, 2) }}
+                                    ₱{{ number_format($total + ($total * 0.10) + $shippingFee, 2) }}
                                 </h6>
                             </div>
                             <a href="{{ route('checkout.index') }}" class="btn btn-lg w-100 mb-2 rounded-pill fw-bold" 

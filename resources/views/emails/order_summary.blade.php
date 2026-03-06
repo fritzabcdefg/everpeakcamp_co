@@ -31,24 +31,24 @@
                 @php $line = ($it->unit_price * $it->quantity); $subtotal += $line; @endphp
                 <tr>
                     <td style="padding:6px;">{{ $it->product->name }}</td>
-                    <td style="text-align:center;">${{ number_format($it->unit_price,2) }}</td>
+                    <td style="text-align:center;">₱{{ number_format($it->unit_price,2) }}</td>
                     <td style="text-align:center;">{{ $it->quantity }}</td>
-                    <td style="text-align:right;">${{ number_format($line,2) }}</td>
+                    <td style="text-align:right;">₱{{ number_format($line,2) }}</td>
                 </tr>
             @endforeach
         </tbody>
         <tfoot>
             <tr>
                 <td colspan="3" style="text-align:right; padding:6px;">Subtotal:</td>
-                <td style="text-align:right; padding:6px;">${{ number_format($subtotal,2) }}</td>
+                <td style="text-align:right; padding:6px;">₱{{ number_format($subtotal,2) }}</td>
             </tr>
             <tr>
                 <td colspan="3" style="text-align:right; padding:6px;">Shipping:</td>
-                <td style="text-align:right; padding:6px;">${{ number_format($order->shipping_fee ?? 0,2) }}</td>
+                <td style="text-align:right; padding:6px;">₱{{ number_format($order->shipping_fee ?? 0,2) }}</td>
             </tr>
             <tr>
                 <td colspan="3" style="text-align:right; padding:6px; font-weight:bold;">Total:</td>
-                <td style="text-align:right; padding:6px; font-weight:bold;">${{ number_format(($subtotal + ($order->shipping_fee ?? 0)),2) }}</td>
+                <td style="text-align:right; padding:6px; font-weight:bold;">₱{{ number_format(($subtotal + ($order->shipping_fee ?? 0)),2) }}</td>
             </tr>
         </tfoot>
     </table>

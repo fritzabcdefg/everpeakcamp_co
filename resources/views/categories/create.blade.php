@@ -1,6 +1,6 @@
 @extends('layouts.base')
 
-@section('body')
+@section('content')
     <div class="container mt-4">
         @include('layouts.flash-messages')
 

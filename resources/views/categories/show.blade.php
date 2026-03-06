@@ -1,6 +1,6 @@
 @extends('layouts.base')
 
-@section('body')
+@section('content')
     <div class="container mt-4">
         @include('layouts.flash-messages')
 
@@ -34,7 +34,7 @@
                                             <tr>
                                                 <td>#{{ $product->product_id }}</td>
                                                 <td>{{ $product->name }}</td>
-                                                <td>${{ number_format($product->sell_price, 2) }}</td>
+                                                <td>₱{{ number_format($product->sell_price, 2) }}</td>
                                                 <td>
                                                     @if ($product->stock->sum('quantity') > 0)
                                                         <span class="badge bg-success">{{ $product->stock->sum('quantity') }}</span>
