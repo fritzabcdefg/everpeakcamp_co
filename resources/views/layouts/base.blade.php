@@ -23,13 +23,10 @@
         integrity="sha512-pVSTZJo4Kj/eLMUG1w+itkGx+scwF00G5dMb02FjgU9WwF7F/cpZvu1Bf1ojA3iAf8y94cltGnuPV9vwv3CgZw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     
+    <!-- Nature Theme CSS -->
+    <link rel="stylesheet" href="{{ asset('css/nature-theme.css') }}">
+    
     <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .navbar {
-            box-shadow: 0 2px 4px rgba(0,0,0,.1);
-        }
         .container, .container-fluid {
             margin-top: 20px;
         }
@@ -64,6 +61,9 @@
     
     <!-- Chart JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    
+    <!-- Nature Theme JavaScript -->
+    <script src="{{ asset('js/nature-theme.js') }}"></script>
 
     @stack('scripts')
 </body>
