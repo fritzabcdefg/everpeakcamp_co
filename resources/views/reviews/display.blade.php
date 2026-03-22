@@ -6,22 +6,39 @@
 
     @auth
         @if (auth()->user()->role === 'customer')
-            <div class="mb-4">
-                <button class="btn btn-primary" onclick="openReviewModal({{ $product->product_id }}, @if($userReview) {!! json_encode($userReview) !!} @else null @endif)">
-                    <i class="fas fa-pen me-2"></i>
-                    @if($userReview)
-                        Edit Your Review
-                    @else
-                        Write a Review
-                    @endif
-                </button>
-            </div>
+            @php
+                // Check if user has received this product (completed order)
+                $hasReceivedProduct = \App\Models\Order::whereHas('orderItems', function ($query) use ($product) {
+                    $query->where('product_id', $product->product_id);
+                })
+                ->where('user_id', auth()->id())
+                ->where('status', 'completed')
+                ->exists();
+            @endphp
+            
+            @if($hasReceivedProduct)
+                <div class="mb-4">
+                    <button class="btn btn-primary" onclick="openReviewModal({{ $product->product_id }}, @if($userReview) {!! json_encode($userReview) !!} @else null @endif)">
+                        <i class="fas fa-pen me-2"></i>
+                        @if($userReview)
+                            Edit Your Review
+                        @else
+                            Write a Review
+                        @endif
+                    </button>
+                </div>
+            @else
+                <div class="alert alert-info mb-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    You can only review products you have received them.
+                </div>
+            @endif
         @endif
     @else
         <div class="alert alert-info mb-4">
             <i class="fas fa-info-circle me-2"></i>
             <a href="{{ route('login') }}" style="color: var(--primary-green-light); font-weight: 600;">Please log in</a> 
-            to post a review. You can only review products you have purchased.
+            to post a review. You can only review products you have received.
         </div>
     @endauth
 

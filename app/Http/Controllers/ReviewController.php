@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 class ReviewController extends Controller
 {
     /**
-     * Check if user has purchased the product
+     * Check if user has purchased and received the product (order completed)
      */
     protected function hasPurchasedProduct($userId, $productId)
     {
@@ -19,6 +19,7 @@ class ReviewController extends Controller
             $query->where('product_id', $productId);
         })
         ->where('user_id', $userId)
+        ->where('status', 'completed')
         ->exists();
     }
 
@@ -59,7 +60,7 @@ class ReviewController extends Controller
 
         // Check if user has purchased this product
         if (!$this->hasPurchasedProduct($userId, $productId)) {
-            return back()->withErrors(['error' => 'You can only review products you have purchased.']);
+            return back()->withErrors(['error' => 'You can only review products you have received (order completed).']);
         }
 
         // Check if user already has a review for this product

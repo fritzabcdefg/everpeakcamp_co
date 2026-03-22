@@ -2,7 +2,6 @@
 
 @section('content')
     <div class="container mt-4">
-        @include('layouts.flash-messages')
 
         <div class="row">
             <div class="col-md-8">

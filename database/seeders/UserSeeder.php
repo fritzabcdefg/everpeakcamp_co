@@ -21,6 +21,7 @@ class UserSeeder extends Seeder
             'password' => bcrypt('Admin12345'),
             'phone' => '555-0001',
             'address' => 'Admin Office - Denver, CO',
+            'email_verified_at' => now(),
         ]);
 
         // Admin user 2
@@ -31,6 +32,7 @@ class UserSeeder extends Seeder
             'password' => bcrypt('Admin12345'),
             'phone' => '555-0002',
             'address' => 'Admin Office - Denver, CO',
+            'email_verified_at' => now(),
         ]);
 
         // Test users
@@ -39,6 +41,7 @@ class UserSeeder extends Seeder
             'email' => 'raymund@gmail.com',
             'role' => 'customer',
             'password' => bcrypt('password123'),
+            'email_verified_at' => now(),
         ]);
 
         User::create([
@@ -46,6 +49,7 @@ class UserSeeder extends Seeder
             'email' => 'elijah@gmail.com',
             'role' => 'customer',
             'password' => bcrypt('password123'),
+            'email_verified_at' => now(),
         ]);
 
         User::create([

@@ -64,19 +64,22 @@ class OrderController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty');
         }
 
+        // Get authenticated user's profile data
+        $user = auth()->user();
+
+        // Check if user has completed their profile
+        if (empty($user->phone) || empty($user->address)) {
+            return redirect()->route('profile.create')
+                         ->with('error', 'Please complete your profile (phone and address) before checkout.');
+        }
+
         // default flat shipping fee (can be adjusted in UI)
         $shippingFee = 5.00;
-
-        // try to find a customer record by user email
-        $customer = null;
-        if ($request->user()?->email) {
-            $customer = \App\Models\Customer::where('email', $request->user()->email)->first();
-        }
 
         return view('checkout.index', [
             'cartItems' => $cartItems,
             'shippingFee' => $shippingFee,
-            'customer' => $customer,
+            'user' => $user,
         ]);
     }
 
@@ -112,7 +115,7 @@ class OrderController extends Controller
                 'user_id' => $userId,
                 'customer_id' => $customer->customer_id,
                 'shipping_fee' => $validated['shipping_fee'],
-                'status' => 'completed',
+                'status' => 'pending',
                 'order_date' => now(),
             ]);
 

@@ -140,5 +140,141 @@
                 </div>
             </div>
         </div>
+
+        <!-- Charts Section -->
+        <div class="row g-3 mb-5">
+            <!-- Yearly Sales Chart -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Yearly Sales Revenue</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="yearlySalesChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Sales Percentage Pie Chart -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Product Sales Distribution</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="productSalesChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- Chart.js Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Yearly Sales Bar Chart
+                const yearlySalesCtx = document.getElementById('yearlySalesChart');
+                if (yearlySalesCtx) {
+                    const yearlySalesData = @json($yearlySales ?? collect([['year' => '2025', 'total' => 1000], ['year' => '2026', 'total' => 1500]]));
+
+                    new Chart(yearlySalesCtx.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: yearlySalesData.map(item => item.year),
+                            datasets: [{
+                                label: 'Revenue (₱)',
+                                data: yearlySalesData.map(item => item.total),
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return '₱' + value.toLocaleString();
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Product Sales Percentage Pie Chart
+                const productSalesCtx = document.getElementById('productSalesChart');
+                if (productSalesCtx) {
+                    const productSalesData = @json($productSales ?? collect([['product_name' => 'Test Product', 'percentage' => 100]]));
+
+                    new Chart(productSalesCtx.getContext('2d'), {
+                        type: 'pie',
+                        data: {
+                            labels: productSalesData.map(item => item.product_name + ' (' + item.percentage + '%)'),
+                            datasets: [{
+                                data: productSalesData.map(item => item.percentage),
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.6)',
+                                    'rgba(54, 162, 235, 0.6)',
+                                    'rgba(255, 205, 86, 0.6)',
+                                    'rgba(75, 192, 192, 0.6)',
+                                    'rgba(153, 102, 255, 0.6)',
+                                    'rgba(255, 159, 64, 0.6)',
+                                    'rgba(201, 203, 207, 0.6)',
+                                    'rgba(255, 99, 255, 0.6)',
+                                    'rgba(99, 255, 132, 0.6)',
+                                    'rgba(132, 99, 255, 0.6)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 205, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)',
+                                    'rgba(201, 203, 207, 1)',
+                                    'rgba(255, 99, 255, 1)',
+                                    'rgba(99, 255, 132, 1)',
+                                    'rgba(132, 99, 255, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        boxWidth: 12,
+                                        font: {
+                                            size: 11
+                                        }
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.label + ': ' + context.parsed + '%';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Chart initialization error:', error);
+            }
+        });
+    </script>
 @endsection

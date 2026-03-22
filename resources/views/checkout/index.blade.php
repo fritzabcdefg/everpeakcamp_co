@@ -14,19 +14,19 @@
                         @csrf
                         <div class="mb-2">
                             <label class="form-label">Name</label>
-                            <input type="text" name="name" class="form-control" value="{{ old('name', $customer->name ?? auth()->user()->name ?? '') }}" required>
+                            <input type="text" name="name" class="form-control" value="{{ old('name', $user->name ?? '') }}" required>
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control" value="{{ old('email', $customer->email ?? auth()->user()->email ?? '') }}" required>
+                            <input type="email" name="email" class="form-control" value="{{ old('email', $user->email ?? '') }}" required>
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Phone</label>
-                            <input type="text" name="phone" class="form-control" value="{{ old('phone', $customer->phone ?? '') }}">
+                            <input type="text" name="phone" class="form-control" value="{{ old('phone', $user->phone ?? '') }}">
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Address</label>
-                            <textarea name="address" class="form-control" rows="3" required>{{ old('address', $customer->address ?? '') }}</textarea>
+                            <textarea name="address" class="form-control" rows="3" required>{{ old('address', $user->address ?? '') }}</textarea>
                         </div>
 
                         <input type="hidden" name="shipping_fee" id="shipping_fee" value="{{ number_format($shippingFee, 2, '.', '') }}">

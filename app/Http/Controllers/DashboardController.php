@@ -30,42 +30,41 @@ class DashboardController extends Controller
                 return $carry + $subtotal + ($o->shipping_fee ?? 0);
             }, 0);
 
-        // Monthly sales data for bar chart
-        $monthlySales = Order::selectRaw('DATE_TRUNC(\'month\', order_date) as month, SUM(CAST(shipping_fee AS NUMERIC)) as monthly_total')
+        // Yearly sales data for bar chart
+        $yearlySales = Order::selectRaw('YEAR(order_date) as year, SUM(shipping_fee) as shipping_total')
             ->with('orderItems')
             ->whereBetween('order_date', [$startDate, $endDate])
             ->where('status', '!=', 'cancelled')
-            ->groupByRaw('DATE_TRUNC(\'month\', order_date)')
-            ->orderBy('month')
+            ->groupByRaw('YEAR(order_date)')
+            ->orderBy('year')
             ->get()
             ->map(function($item) {
-                $orderTotal = Order::whereBetween('order_date', [
-                    $item->month, 
-                    \Carbon\Carbon::parse($item->month)->endOfMonth()
-                ])
-                ->where('status', '!=', 'cancelled')
-                ->with('orderItems')
-                ->get()
-                ->reduce(function ($carry, $o) {
-                    $subtotal = $o->orderItems->sum(fn($it) => $it->quantity * $it->unit_price);
-                    return $carry + $subtotal + ($o->shipping_fee ?? 0);
-                }, 0);
-                
+                // Calculate product sales for this year
+                $productTotal = Order::whereYear('order_date', $item->year)
+                    ->whereBetween('order_date', [$startDate, $endDate])
+                    ->where('status', '!=', 'cancelled')
+                    ->with('orderItems')
+                    ->get()
+                    ->reduce(function ($carry, $o) {
+                        $subtotal = $o->orderItems->sum(fn($it) => $it->quantity * $it->unit_price);
+                        return $carry + $subtotal;
+                    }, 0);
+
                 return [
-                    'month' => \Carbon\Carbon::parse($item->month)->format('M Y'),
-                    'total' => $orderTotal
+                    'year' => (string)$item->year,
+                    'total' => $productTotal + $item->shipping_total
                 ];
             });
 
-        // Ensure chart has at least the current month
-        if ($monthlySales->isEmpty()) {
-            $monthlySales = collect([
-                ['month' => now()->format('M Y'), 'total' => 0]
+        // Ensure chart has at least the current year
+        if ($yearlySales->isEmpty()) {
+            $yearlySales = collect([
+                ['year' => now()->format('Y'), 'total' => 0]
             ]);
         }
 
-        // Product sales breakdown for pie chart
-        $productSales = OrderItem::selectRaw('product_id, SUM(quantity * unit_price) as total_sales, COUNT(*) as order_count')
+        // Product sales percentage for pie chart (all products, not just top 5)
+        $productSales = OrderItem::selectRaw('product_id, SUM(quantity * unit_price) as total_sales')
             ->whereHas('order', function($q) use ($startDate, $endDate) {
                 $q->whereBetween('order_date', [$startDate, $endDate])
                   ->where('status', '!=', 'cancelled');
@@ -73,15 +72,19 @@ class DashboardController extends Controller
             ->with('product')
             ->groupBy('product_id')
             ->orderByDesc('total_sales')
-            ->limit(5)
-            ->get()
-            ->map(function($item) {
-                return [
-                    'product_name' => $item->product->name ?? 'Unknown',
-                    'total_sales' => $item->total_sales,
-                    'order_count' => $item->order_count
-                ];
-            });
+            ->get();
+
+        // Calculate total sales for percentage calculation
+        $totalSalesAmount = $productSales->sum('total_sales');
+
+        $productSales = $productSales->map(function($item) use ($totalSalesAmount) {
+            $percentage = $totalSalesAmount > 0 ? ($item->total_sales / $totalSalesAmount) * 100 : 0;
+            return [
+                'product_name' => $item->product->name ?? 'Unknown',
+                'total_sales' => $item->total_sales,
+                'percentage' => round($percentage, 1)
+            ];
+        });
 
         // Overall statistics
         $stats = [
@@ -96,7 +99,7 @@ class DashboardController extends Controller
 
         return view('dashboard', [
             'stats' => $stats,
-            'monthlySales' => $monthlySales,
+            'yearlySales' => $yearlySales,
             'productSales' => $productSales,
             'startDate' => $startDate,
             'endDate' => $endDate,
