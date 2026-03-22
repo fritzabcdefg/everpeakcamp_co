@@ -1,5 +1,7 @@
 @extends('layouts.base')
 
+@php use Illuminate\Support\Facades\Storage; @endphp
+
 @section('content')
     <div class="container mt-4">
         <div class="row">
@@ -9,6 +11,27 @@
                         <h4 class="mb-0"><i class="fas fa-user"></i> My Profile</h4>
                     </div>
                     <div class="card-body">
+                        <!-- Profile Photo Section -->
+                        <div class="text-center mb-4">
+                            @if (Auth::user()->photo)
+                                <img src="{{ Storage::url(Auth::user()->photo) }}" alt="Profile Photo" 
+                                     class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid var(--primary-green-light);">
+                            @else
+                                <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" 
+                                     style="width: 150px; height: 150px; border: 3px solid var(--primary-green-light);">
+                                    <i class="fas fa-user fa-5x text-muted"></i>
+                                </div>
+                            @endif
+                            <h5 class="mt-3" style="color: var(--primary-green-light);">{{ Auth::user()->name }}</h5>
+                            @if (Auth::user()->email_verified_at)
+                                <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Email Verified</span>
+                            @else
+                                <span class="badge bg-warning text-dark"><i class="fas fa-exclamation-circle me-1"></i>Email Not Verified</span>
+                            @endif
+                        </div>
+
+                        <hr>
+
                         <table class="table table-borderless">
                             <tr>
                                 <th width="30%">Name:</th>

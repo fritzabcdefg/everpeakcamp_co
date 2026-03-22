@@ -50,19 +50,6 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="photo" class="form-label">{{ __('Profile Photo') }}</label>
-                            <input id="photo" type="file" class="form-control @error('photo') is-invalid @enderror" 
-                                   name="photo" accept="image/*" onchange="previewPhoto(event)">
-                            <small class="text-muted">Optional - JPG, PNG (Max 2MB, at least 100x100px)</small>
-                            <div id="photoPreview" class="mt-2"></div>
-                            @error('photo')
-                                <div class="invalid-feedback d-block">
-                                    <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
-                                </div>
-                            @enderror
-                        </div>
-
-                        <div class="form-group mb-3">
                             <label for="password" class="form-label">{{ __('Password') }} <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" 

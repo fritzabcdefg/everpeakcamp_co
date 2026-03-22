@@ -31,7 +31,8 @@ class OrderPlaced extends Mailable
             'order' => $this->order,
         ]);
 
-        return $this->subject('Order Confirmation #' . $this->order->order_id)
+        return $this->to($this->order->user->email)
+                    ->subject('Order Confirmation #' . $this->order->order_id)
                     ->view('emails.order_summary')
                     ->with(['order' => $this->order])
                     ->attachData(

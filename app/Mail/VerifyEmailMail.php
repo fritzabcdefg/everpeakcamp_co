@@ -21,6 +21,8 @@ class VerifyEmailMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: config('mail.from.address'),
+            to: $this->user->email,
             subject: 'Verify Your EverPeak Camp Email Address',
         );
     }

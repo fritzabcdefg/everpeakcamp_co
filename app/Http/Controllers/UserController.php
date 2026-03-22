@@ -340,7 +340,8 @@ class UserController extends Controller
         // Delete the verification token
         $verificationToken->delete();
 
-        // Log the user in
+        // Refresh user data and log in
+        $user = $user->fresh();
         Auth::login($user);
 
         return redirect()->route('profile.create')

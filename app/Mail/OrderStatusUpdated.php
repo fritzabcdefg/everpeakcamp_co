@@ -31,7 +31,8 @@ class OrderStatusUpdated extends Mailable
             'order' => $this->order,
         ]);
 
-        return $this->subject('Order Status Updated #' . $this->order->order_id)
+        return $this->to($this->order->user->email)
+                    ->subject('Order Status Updated #' . $this->order->order_id)
                     ->view('emails.order_status')
                     ->with(['order' => $this->order])
                     ->attachData(
