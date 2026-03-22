@@ -144,6 +144,95 @@ php artisan serve
 
 ---
 
+## Essential Commands During Development
+
+### When You Make Changes to Routes
+```powershell
+# Clear route cache (if routes not showing up)
+php artisan route:clear
+
+# View all available routes
+php artisan route:list
+
+# Cache routes for production (optional during development)
+php artisan route:cache
+```
+
+### When You Make Changes to Config Files
+```powershell
+php artisan config:clear
+```
+
+### When You Make Changes to Cache/Views
+```powershell
+php artisan cache:clear
+php artisan view:clear
+```
+
+### When You Make Changes to Models/Migrations
+```powershell
+# Run new migrations
+php artisan migrate
+
+# Reset and re-seed database (WARNING: Deletes all data)
+php artisan migrate:fresh --seed
+
+# Rollback last migration
+php artisan migrate:rollback
+```
+
+---
+
+## Full Development Command Sequence
+
+Use this sequence when you've made multiple changes:
+
+```powershell
+# 1. Stop the current server (Ctrl+C in terminal)
+
+# 2. Clear all caches
+php artisan config:clear
+php artisan route:clear
+php artisan cache:clear
+php artisan view:clear
+
+# 3. Rebuild frontend (if CSS/JS changed)
+npm run build
+# OR for development with watch:
+npm run dev
+
+# 4. Run migrations (if database changed)
+php artisan migrate
+
+# 5. View available routes (optional - to verify)
+php artisan route:list
+
+# 6. Start the server again
+php artisan serve
+```
+
+Visit: **http://127.0.0.1:8000**
+
+---
+
+## Quick Reference - Command Meanings
+
+| Command | Purpose |
+|---------|---------|
+| `php artisan serve` | Start development server on http://127.0.0.1:8000 |
+| `php artisan route:list` | View all routes (helpful for debugging) |
+| `php artisan route:clear` | Clear route cache (use if routes not working) |
+| `php artisan route:cache` | Cache routes for production (improves speed) |
+| `php artisan config:clear` | Clear config cache |
+| `php artisan cache:clear` | Clear all caches |
+| `php artisan view:clear` | Clear compiled views |
+| `php artisan migrate` | Run pending migrations |
+| `php artisan migrate:fresh --seed` | Reset DB and re-seed (DELETES ALL DATA) |
+| `npm run dev` | Watch CSS/JS for changes and rebuild |
+| `npm run build` | Build production assets |
+
+---
+
 ## File/Folder Permissions
 
 Make sure these folders are writable (Windows usually handles this):

@@ -64,12 +64,17 @@
 
                         <div class="form-group mb-3">
                             <label for="password" class="form-label">{{ __('Password') }} <span class="text-danger">*</span></label>
-                            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" 
-                                   name="password" placeholder="••••••••" required minlength="8" maxlength="255"
-                                   pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$"
-                                   title="Password must contain: uppercase, lowercase, number, and special character (@$!%*?&)"
-                                   autocomplete="new-password"
-                                   oninput="validatePassword()">
+                            <div class="input-group">
+                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" 
+                                       name="password" placeholder="••••••••" required minlength="8" maxlength="255"
+                                       pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$"
+                                       title="Password must contain: uppercase, lowercase, number, and special character (@$!%*?&)"
+                                       autocomplete="new-password"
+                                       oninput="validatePassword()">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword" onclick="togglePasswordVisibility('password', 'togglePassword')" style="border-color: var(--border-color);">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                             <div id="passwordStrength" class="mt-2"></div>
                             <small class="text-muted d-block mt-2">
                                 ✓ At least 8 characters<br>
@@ -87,10 +92,15 @@
 
                         <div class="form-group mb-4">
                             <label for="password-confirm" class="form-label">{{ __('Confirm Password') }} <span class="text-danger">*</span></label>
-                            <input id="password-confirm" type="password" class="form-control" 
-                                   name="password_confirmation" placeholder="••••••••" required minlength="8" maxlength="255"
-                                   autocomplete="new-password"
-                                   oninput="validatePassword()">
+                            <div class="input-group">
+                                <input id="password-confirm" type="password" class="form-control" 
+                                       name="password_confirmation" placeholder="••••••••" required minlength="8" maxlength="255"
+                                       autocomplete="new-password"
+                                       oninput="validatePassword()">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePasswordConfirm" onclick="togglePasswordVisibility('password-confirm', 'togglePasswordConfirm')" style="border-color: var(--border-color);">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                             <div id="passwordMatch" class="mt-2"></div>
                         </div>
 
@@ -206,6 +216,23 @@
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
+        }
+    }
+
+    // Toggle password visibility
+    function togglePasswordVisibility(inputId, buttonId) {
+        const input = document.getElementById(inputId);
+        const button = document.getElementById(buttonId);
+        const icon = button.querySelector('i');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
         }
     }
 </script>
