@@ -11,47 +11,69 @@
                         <h4 class="mb-0"><i class="fas fa-plus-circle"></i> Add New Product/Service</h4>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" id="productForm" novalidate>
                             @csrf
 
                             <div class="mb-3">
-                                <label for="name" class="form-label">Product Name *</label>
+                                <label for="name" class="form-label">Product Name <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                       id="name" name="name" value="{{ old('name') }}" required>
+                                       id="name" name="name" value="{{ old('name') }}" required 
+                                       minlength="3" maxlength="255" placeholder="Enter product name"
+                                       pattern="^[a-zA-Z0-9\s\-&\/.,()]+$"
+                                       title="Product name can contain letters, numbers, spaces, and these symbols: - & / . , ( )">
+                                <small class="form-text text-muted">3-255 characters, letters, numbers, and special characters allowed</small>
                                 @error('name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="mb-3">
-                                <label for="description" class="form-label">Description *</label>
+                                <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
                                 <textarea class="form-control @error('description') is-invalid @enderror" 
-                                          id="description" name="description" rows="4" required>{{ old('description') }}</textarea>
+                                          id="description" name="description" rows="4" required minlength="10" maxlength="5000"
+                                          placeholder="Enter detailed product description">{{ old('description') }}</textarea>
+                                <div class="d-flex justify-content-between">
+                                    <small class="form-text text-muted">10-5000 characters required</small>
+                                    <small class="form-text text-muted"><span id="charCount">0</span>/5000</small>
+                                </div>
                                 @error('description')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="cost_price" class="form-label">Cost Price *</label>
-                                        <input type="number" class="form-control @error('cost_price') is-invalid @enderror" 
-                                               id="cost_price" name="cost_price" step="0.01" min="0" 
-                                               value="{{ old('cost_price') }}" required>
+                                        <label for="cost_price" class="form-label">Cost Price <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₱</span>
+                                            <input type="number" class="form-control @error('cost_price') is-invalid @enderror" 
+                                                   id="cost_price" name="cost_price" step="0.01" min="0" max="999999.99"
+                                                   value="{{ old('cost_price') }}" required placeholder="0.00"
+                                                   oninput="validatePrices()">
+                                        </div>
+                                        <small class="form-text text-muted">Must be a positive number</small>
                                         @error('cost_price')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="sell_price" class="form-label">Sell Price *</label>
-                                        <input type="number" class="form-control @error('sell_price') is-invalid @enderror" 
-                                               id="sell_price" name="sell_price" step="0.01" min="0" 
-                                               value="{{ old('sell_price') }}" required>
+                                        <label for="sell_price" class="form-label">Selling Price <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₱</span>
+                                            <input type="number" class="form-control @error('sell_price') is-invalid @enderror" 
+                                                   id="sell_price" name="sell_price" step="0.01" min="0" max="999999.99"
+                                                   value="{{ old('sell_price') }}" required placeholder="0.00"
+                                                   oninput="validatePrices()">
+                                        </div>
+                                        <small class="form-text text-muted">Must be ≥ cost price</small>
+                                        <div id="priceWarning" class="text-warning mt-1" style="display: none;">
+                                            <small><i class="fas fa-exclamation-triangle"></i> Selling price should be greater than cost price</small>
+                                        </div>
                                         @error('sell_price')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
@@ -114,14 +136,70 @@
     </div>
 
     <script>
+        // Product form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('productForm');
+            const descField = document.getElementById('description');
+            const charCount = document.getElementById('charCount');
+
+            // Character counter
+            descField.addEventListener('input', function() {
+                charCount.textContent = this.value.length;
+                if (this.value.length < 10) {
+                    this.classList.add('is-invalid');
+                } else if (this.value.length <= 5000) {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            // Form submit validation
+            form.addEventListener('submit', function(e) {
+                if (!form.checkValidity() === false) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+
+        // Price validation
+        function validatePrices() {
+            const costPrice = parseFloat(document.getElementById('cost_price').value) || 0;
+            const sellPrice = parseFloat(document.getElementById('sell_price').value) || 0;
+            const priceWarning = document.getElementById('priceWarning');
+
+            if (sellPrice < costPrice && sellPrice > 0) {
+                priceWarning.style.display = 'block';
+            } else {
+                priceWarning.style.display = 'none';
+            }
+        }
+
         function previewMainImage(event) {
             const preview = document.getElementById('mainImagePreview');
             const file = event.target.files[0];
             
             if (file) {
+                // Validate file size
+                if (file.size > 2048 * 1024) {
+                    alert('Main image cannot exceed 2MB');
+                    event.target.value = '';
+                    return;
+                }
+
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    preview.innerHTML = `<img src="${e.target.result}" style="max-width: 200px; max-height: 200px;" class="img-thumbnail">`;
+                    const img = new Image();
+                    img.onload = function() {
+                        if (this.width < 100 || this.height < 100) {
+                            alert('Main image must be at least 100x100 pixels');
+                            event.target.value = '';
+                            preview.innerHTML = '';
+                            return;
+                        }
+                        preview.innerHTML = `<img src="${e.target.result}" style="max-width: 200px; max-height: 200px;" class="img-thumbnail">`;
+                    };
+                    img.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             }

@@ -62,6 +62,12 @@
                             </div>
                         @endif
 
+                        <div class="text-center mb-3">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#resendVerificationModal">
+                                {{ __('Resend Verification Email') }}
+                            </button>
+                        </div>
+
                         <div class="text-center" style="border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
                             <p style="color: var(--gray-text); margin-bottom: 0;">
                                 {{ __('Don\'t have an account?') }} 
@@ -81,4 +87,54 @@
         </div>
     </div>
 </div>
+
+<!-- Resend Verification Email Modal -->
+<div class="modal fade" id="resendVerificationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-green-light) 0%, var(--accent-green) 100%); color: white;">
+                <h5 class="modal-title">
+                    <i class="fas fa-envelope me-2"></i>{{ __('Resend Verification Email') }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">Enter your email address to receive a new verification link.</p>
+                
+                <form method="POST" action="{{ route('email.resend') }}">
+                    @csrf
+                    
+                    <div class="form-group mb-3">
+                        <label for="resend_email" class="form-label">{{ __('Email Address') }}</label>
+                        <input id="resend_email" type="email" class="form-control" 
+                               name="email" placeholder="your@email.com" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-paper-plane me-2"></i>{{ __('Resend Verification Email') }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (session('success'))
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11; right: 20px; bottom: 20px;">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+@endif
+
+@if (session('info'))
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11; right: 20px; bottom: 20px;">
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            {{ session('info') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+@endif
+
 @endsection

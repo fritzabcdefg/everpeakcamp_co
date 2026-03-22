@@ -4,6 +4,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,10 @@ Route::post('/register', [UserController::class, 'storeRegister']);
 Route::get('/login', [UserController::class, 'createLogin'])->name('login');
 Route::post('/login', [UserController::class, 'storeLogin']);
 Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+
+// Email Verification Routes
+Route::get('/email/verify/{token}', [UserController::class, 'verifyEmail'])->name('email.verify');
+Route::post('/email/resend', [UserController::class, 'resendVerification'])->name('email.resend');
 
 // Dashboard - Admin only
 Route::middleware(['auth', 'admin'])->get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -65,7 +70,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::put('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.updateRole');
+    Route::put('/users/{user}/status', [UserController::class, 'updateStatus'])->name('users.updateStatus');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+    // Review Management
+    Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
 });
 
 // Public product routes (show only) - AFTER create/edit routes above
@@ -107,6 +117,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile', [UserController::class, 'storeProfile'])->name('profile.store');
     Route::get('/profile/edit', [UserController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+
+    // Review routes
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::get('/products/{product}/reviews', [ReviewController::class, 'productReviews'])->name('product.reviews');
 });
 
 

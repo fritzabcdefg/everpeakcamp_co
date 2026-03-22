@@ -120,13 +120,39 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'cost_price' => 'required|numeric|min:0',
-            'sell_price' => 'required|numeric|min:0',
+            'name' => 'required|string|min:3|max:255|regex:/^[a-zA-Z0-9\s\-&\/.,()]+$/',
+            'description' => 'required|string|min:10|max:5000',
+            'cost_price' => 'required|numeric|min:0|max:999999.99',
+            'sell_price' => 'required|numeric|min:0|max:999999.99|gte:cost_price',
             'category_id' => 'nullable|exists:categories,category_id',
-            'img_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'img_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=100,min_height=100',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=100,min_height=100',
+        ], [
+            'name.required' => 'Product name is required.',
+            'name.min' => 'Product name must be at least 3 characters.',
+            'name.max' => 'Product name cannot exceed 255 characters.',
+            'name.regex' => 'Product name contains invalid characters.',
+            'description.required' => 'Description is required.',
+            'description.min' => 'Description must be at least 10 characters.',
+            'description.max' => 'Description cannot exceed 5000 characters.',
+            'cost_price.required' => 'Cost price is required.',
+            'cost_price.numeric' => 'Cost price must be a valid number.',
+            'cost_price.min' => 'Cost price cannot be negative.',
+            'cost_price.max' => 'Cost price is too high.',
+            'sell_price.required' => 'Selling price is required.',
+            'sell_price.numeric' => 'Selling price must be a valid number.',
+            'sell_price.min' => 'Selling price cannot be negative.',
+            'sell_price.max' => 'Selling price is too high.',
+            'sell_price.gte' => 'Selling price must be greater than or equal to cost price.',
+            'category_id.exists' => 'Selected category does not exist.',
+            'img_path.image' => 'Main image must be a valid image file.',
+            'img_path.mimes' => 'Main image must be JPG, PNG or GIF format.',
+            'img_path.max' => 'Main image cannot exceed 2MB.',
+            'img_path.dimensions' => 'Main image must be at least 100x100 pixels.',
+            'images.*.image' => 'Gallery images must be valid image files.',
+            'images.*.mimes' => 'Gallery images must be JPG, PNG or GIF format.',
+            'images.*.max' => 'Each gallery image cannot exceed 2MB.',
+            'images.*.dimensions' => 'Gallery images must be at least 100x100 pixels.',
         ]);
 
         // Handle main product image
@@ -155,8 +181,21 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $product->load('category', 'images', 'reviews', 'stock');
-        return view('products.show', ['product' => $product]);
+        $product->load('category', 'images', 'reviews.user', 'stock');
+        
+        // Get user's review if exists
+        $userReview = null;
+        if (auth()->check()) {
+            $userReview = $product->reviews()->where('user_id', auth()->id())->first();
+        }
+        
+        // Check if user is admin (accessing via admin panel)
+        if (auth()->check() && auth()->user()->role === 'admin') {
+            return view('products.show', ['product' => $product]);
+        }
+        
+        // Otherwise show customer-facing view with reviews
+        return view('products.customer-detail', ['product' => $product, 'userReview' => $userReview]);
     }
 
     /**
@@ -175,13 +214,39 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'description' => 'sometimes|string',
-            'cost_price' => 'sometimes|numeric|min:0',
-            'sell_price' => 'sometimes|numeric|min:0',
+            'name' => 'required|string|min:3|max:255|regex:/^[a-zA-Z0-9\s\-&\/.,()]+$/',
+            'description' => 'required|string|min:10|max:5000',
+            'cost_price' => 'required|numeric|min:0|max:999999.99',
+            'sell_price' => 'required|numeric|min:0|max:999999.99|gte:cost_price',
             'category_id' => 'nullable|exists:categories,category_id',
-            'img_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'img_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=100,min_height=100',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=100,min_height=100',
+        ], [
+            'name.required' => 'Product name is required.',
+            'name.min' => 'Product name must be at least 3 characters.',
+            'name.max' => 'Product name cannot exceed 255 characters.',
+            'name.regex' => 'Product name contains invalid characters.',
+            'description.required' => 'Description is required.',
+            'description.min' => 'Description must be at least 10 characters.',
+            'description.max' => 'Description cannot exceed 5000 characters.',
+            'cost_price.required' => 'Cost price is required.',
+            'cost_price.numeric' => 'Cost price must be a valid number.',
+            'cost_price.min' => 'Cost price cannot be negative.',
+            'cost_price.max' => 'Cost price is too high.',
+            'sell_price.required' => 'Selling price is required.',
+            'sell_price.numeric' => 'Selling price must be a valid number.',
+            'sell_price.min' => 'Selling price cannot be negative.',
+            'sell_price.max' => 'Selling price is too high.',
+            'sell_price.gte' => 'Selling price must be greater than or equal to cost price.',
+            'category_id.exists' => 'Selected category does not exist.',
+            'img_path.image' => 'Main image must be a valid image file.',
+            'img_path.mimes' => 'Main image must be JPG, PNG or GIF format.',
+            'img_path.max' => 'Main image cannot exceed 2MB.',
+            'img_path.dimensions' => 'Main image must be at least 100x100 pixels.',
+            'images.*.image' => 'Gallery images must be valid image files.',
+            'images.*.mimes' => 'Gallery images must be JPG, PNG or GIF format.',
+            'images.*.max' => 'Each gallery image cannot exceed 2MB.',
+            'images.*.dimensions' => 'Gallery images must be at least 100x100 pixels.',
         ]);
 
         // Handle main product image

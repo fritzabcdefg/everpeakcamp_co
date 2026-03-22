@@ -3,8 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\EmailVerificationToken;
+use App\Mail\VerifyEmailMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -88,8 +93,16 @@ class UserController extends Controller
         $validated = $request->validate([
             'phone' => 'required|string|max:50',
             'address' => 'required|string|max:1000',
-            // add additional profile fields here if you extend the users table
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        // Handle photo upload
+        if ($request->hasFile('photo')) {
+            if ($user->photo) {
+                Storage::disk('public')->delete($user->photo);
+            }
+            $validated['photo'] = $request->file('photo')->store('users/profiles', 'public');
+        }
 
         $user->update($validated);
 
@@ -113,7 +126,16 @@ class UserController extends Controller
         $validated = $request->validate([
             'phone' => 'required|string|max:50',
             'address' => 'required|string|max:1000',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        // Handle photo upload
+        if ($request->hasFile('photo')) {
+            if ($user->photo) {
+                Storage::disk('public')->delete($user->photo);
+            }
+            $validated['photo'] = $request->file('photo')->store('users/profiles', 'public');
+        }
 
         $user->update($validated);
         return redirect()->route('profile.index')->with('success', 'Profile updated successfully');
@@ -172,9 +194,31 @@ class UserController extends Controller
     {
         // only email/password during initial registration
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'name' => 'required|string|min:3|max:255|regex:/^[a-zA-Z\s\-\']+$/',
+            'email' => 'required|email:rfc,dns|unique:users|max:255',
+            'password' => 'required|string|min:8|max:255|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|confirmed',
+            'password_confirmation' => 'required|string|same:password',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=100,min_height=100',
+        ], [
+            'name.required' => 'Full name is required.',
+            'name.min' => 'Full name must be at least 3 characters long.',
+            'name.max' => 'Full name cannot exceed 255 characters.',
+            'name.regex' => 'Full name can only contain letters, spaces, hyphens, and apostrophes.',
+            'email.required' => 'Email address is required.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.unique' => 'This email address is already registered.',
+            'email.max' => 'Email address cannot exceed 255 characters.',
+            'password.required' => 'Password is required.',
+            'password.min' => 'Password must be at least 8 characters long.',
+            'password.max' => 'Password cannot exceed 255 characters.',
+            'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&).',
+            'password.confirmed' => 'Passwords do not match.',
+            'password_confirmation.required' => 'Password confirmation is required.',
+            'password_confirmation.same' => 'Passwords do not match.',
+            'photo.image' => 'Photo must be a valid image file.',
+            'photo.mimes' => 'Photo must be JPG, PNG or GIF format.',
+            'photo.max' => 'Photo cannot exceed 2MB.',
+            'photo.dimensions' => 'Photo must be at least 100x100 pixels.',
         ]);
 
         $userData = [
@@ -182,17 +226,31 @@ class UserController extends Controller
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
             'role' => 'customer',
+            'status' => 'active',
+            'email_verified_at' => null, // Not verified yet
         ];
 
-        // create user with empty profile values
+        // Handle photo upload
+        if ($request->hasFile('photo')) {
+            $userData['photo'] = $request->file('photo')->store('users/profiles', 'public');
+        }
+
+        // create user with profile data
         $user = User::create($userData);
 
-        // log them in so they can complete profile
-        Auth::login($user);
+        // Generate verification token
+        $token = Str::random(64);
+        EmailVerificationToken::create([
+            'user_id' => $user->id,
+            'token' => $token,
+            'created_at' => now(),
+        ]);
 
-        // redirect to profile creation page immediately
-        return redirect()->route('profile.create')
-                         ->with('success', 'Registration successful! Please complete your profile.');
+        // Send verification email
+        Mail::send(new VerifyEmailMail($user, $token));
+
+        return redirect()->route('login')
+                         ->with('success', 'Registration successful! A verification link has been sent to your email. Please check your inbox.');
     }
 
     /**
@@ -212,6 +270,15 @@ class UserController extends Controller
             'email' => 'required|email',
             'password' => 'required|string',
         ]);
+
+        // First check if user exists and get their email verification status
+        $user = User::where('email', $credentials['email'])->first();
+        
+        if ($user && is_null($user->email_verified_at)) {
+            return back()->withErrors([
+                'email' => 'Please verify your email before logging in. Check your inbox for the verification link.',
+            ])->onlyInput('email');
+        }
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
@@ -247,5 +314,103 @@ class UserController extends Controller
         $request->session()->regenerateToken();
         
         return redirect()->route('home')->with('success', 'You have been logged out successfully.');
+    }
+
+    /**
+     * Verify user email with token.
+     */
+    public function verifyEmail($token)
+    {
+        $verificationToken = EmailVerificationToken::where('token', $token)->first();
+
+        if (!$verificationToken) {
+            return redirect()->route('login')->withErrors(['email' => 'Invalid verification link.']);
+        }
+
+        if (!$verificationToken->isValid()) {
+            // Delete expired token
+            $verificationToken->delete();
+            return redirect()->route('login')->withErrors(['email' => 'Verification link has expired. Please register again or request a new verification link.']);
+        }
+
+        // Get user and mark email as verified
+        $user = $verificationToken->user;
+        $user->update(['email_verified_at' => now()]);
+
+        // Delete the verification token
+        $verificationToken->delete();
+
+        // Log the user in
+        Auth::login($user);
+
+        return redirect()->route('profile.create')
+                         ->with('success', 'Email verified successfully! Please complete your profile.');
+    }
+
+    /**
+     * Resend verification email.
+     */
+    public function resendVerification(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email|exists:users',
+        ]);
+
+        $user = User::where('email', $validated['email'])->first();
+
+        // Only allow resend for unverified users
+        if ($user->email_verified_at) {
+            return back()->with('info', 'This email is already verified.');
+        }
+
+        // Delete old tokens
+        EmailVerificationToken::where('user_id', $user->id)->delete();
+
+        // Generate new verification token
+        $token = Str::random(64);
+        EmailVerificationToken::create([
+            'user_id' => $user->id,
+            'token' => $token,
+            'created_at' => now(),
+        ]);
+
+        // Send verification email
+        Mail::send(new VerifyEmailMail($user, $token));
+
+        return back()->with('success', 'A new verification link has been sent to your email.');
+    }
+
+    /**
+     * Update user role via form submission
+     */
+    public function updateRole(Request $request, User $user)
+    {
+        if (!auth()->check() || auth()->user()->role !== 'admin' || auth()->user()->id === $user->id) {
+            return redirect()->route('users.index')->with('error', 'Unauthorized action');
+        }
+
+        $validated = $request->validate([
+            'role' => 'required|in:admin,customer',
+        ]);
+
+        $user->update(['role' => $validated['role']]);
+        return redirect()->route('users.index')->with('success', 'User role updated successfully');
+    }
+
+    /**
+     * Update user status via form submission
+     */
+    public function updateStatus(Request $request, User $user)
+    {
+        if (!auth()->check() || auth()->user()->role !== 'admin' || auth()->user()->id === $user->id) {
+            return redirect()->route('users.index')->with('error', 'Unauthorized action');
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $user->update(['status' => $validated['status']]);
+        return redirect()->route('users.index')->with('success', 'User status updated successfully');
     }
 }

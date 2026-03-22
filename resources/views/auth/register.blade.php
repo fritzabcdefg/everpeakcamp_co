@@ -16,13 +16,18 @@
                 <div class="card-body p-4">
                     <p class="text-muted text-center mb-4">Join EverPeak Camp and start your outdoor adventure!</p>
                     
-                    <form method="POST" action="{{ route('register') }}">
+                    <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data" id="registerForm" novalidate>
                         @csrf
 
                         <div class="form-group mb-3">
-                            <label for="name" class="form-label">{{ __('Full Name') }}</label>
+                            <label for="name" class="form-label">{{ __('Full Name') }} <span class="text-danger">*</span></label>
                             <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" 
-                                   name="name" value="{{ old('name') }}" placeholder="John Doe" required autocomplete="name" autofocus>
+                                   name="name" value="{{ old('name') }}" placeholder="John Doe" required 
+                                   minlength="3" maxlength="255"
+                                   pattern="^[a-zA-Z\s\-']+$"
+                                   title="Name can only contain letters, spaces, hyphens, and apostrophes"
+                                   autocomplete="name" autofocus>
+                            <small class="text-muted">3-255 characters, letters only</small>
                             @error('name')
                                 <div class="invalid-feedback d-block">
                                     <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
@@ -31,9 +36,12 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="email" class="form-label">{{ __('Email Address') }}</label>
+                            <label for="email" class="form-label">{{ __('Email Address') }} <span class="text-danger">*</span></label>
                             <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" 
-                                   name="email" value="{{ old('email') }}" placeholder="your@email.com" required autocomplete="email">
+                                   name="email" value="{{ old('email') }}" placeholder="your@email.com" required 
+                                   maxlength="255"
+                                   autocomplete="email">
+                            <small class="text-muted">We'll never share your email</small>
                             @error('email')
                                 <div class="invalid-feedback d-block">
                                     <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
@@ -42,21 +50,48 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="password" class="form-label">{{ __('Password') }}</label>
+                            <label for="photo" class="form-label">{{ __('Profile Photo') }}</label>
+                            <input id="photo" type="file" class="form-control @error('photo') is-invalid @enderror" 
+                                   name="photo" accept="image/*" onchange="previewPhoto(event)">
+                            <small class="text-muted">Optional - JPG, PNG (Max 2MB, at least 100x100px)</small>
+                            <div id="photoPreview" class="mt-2"></div>
+                            @error('photo')
+                                <div class="invalid-feedback d-block">
+                                    <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="password" class="form-label">{{ __('Password') }} <span class="text-danger">*</span></label>
                             <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" 
-                                   name="password" placeholder="••••••••" required autocomplete="new-password">
+                                   name="password" placeholder="••••••••" required minlength="8" maxlength="255"
+                                   pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$"
+                                   title="Password must contain: uppercase, lowercase, number, and special character (@$!%*?&)"
+                                   autocomplete="new-password"
+                                   oninput="validatePassword()">
+                            <div id="passwordStrength" class="mt-2"></div>
+                            <small class="text-muted d-block mt-2">
+                                ✓ At least 8 characters<br>
+                                ✓ Uppercase letter (A-Z)<br>
+                                ✓ Lowercase letter (a-z)<br>
+                                ✓ Number (0-9)<br>
+                                ✓ Special character (@$!%*?&)
+                            </small>
                             @error('password')
                                 <div class="invalid-feedback d-block">
                                     <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
                                 </div>
                             @enderror
-                            <small class="text-muted">Use at least 8 characters with mix of letters, numbers & symbols</small>
                         </div>
 
                         <div class="form-group mb-4">
-                            <label for="password-confirm" class="form-label">{{ __('Confirm Password') }}</label>
+                            <label for="password-confirm" class="form-label">{{ __('Confirm Password') }} <span class="text-danger">*</span></label>
                             <input id="password-confirm" type="password" class="form-control" 
-                                   name="password_confirmation" placeholder="••••••••" required autocomplete="new-password">
+                                   name="password_confirmation" placeholder="••••••••" required minlength="8" maxlength="255"
+                                   autocomplete="new-password"
+                                   oninput="validatePassword()">
+                            <div id="passwordMatch" class="mt-2"></div>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 mb-3" style="padding: 0.75rem;">
@@ -82,4 +117,96 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Registration form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('registerForm');
+        
+        form.addEventListener('submit', function(e) {
+            if (!form.checkValidity() === false) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+
+    function validatePassword() {
+        const password = document.getElementById('password').value;
+        const confirm = document.getElementById('password-confirm').value;
+        const strength = document.getElementById('passwordStrength');
+        const match = document.getElementById('passwordMatch');
+
+        let checks = {
+            length: password.length >= 8,
+            upper: /[A-Z]/.test(password),
+            lower: /[a-z]/.test(password),
+            number: /\d/.test(password),
+            special: /[@$!%*?&]/.test(password)
+        };
+
+        // Password strength indicator
+        if (password.length > 0) {
+            let score = Object.values(checks).filter(Boolean).length;
+            let strengthText = '';
+            let strengthClass = '';
+
+            if (score <= 2) {
+                strengthText = '<small class="text-danger"><i class="fas fa-times-circle"></i> Weak</small>';
+                strengthClass = 'text-danger';
+            } else if (score === 3 || score === 4) {
+                strengthText = '<small class="text-warning"><i class="fas fa-exclamation-circle"></i> Medium</small>';
+                strengthClass = 'text-warning';
+            } else {
+                strengthText = '<small class="text-success"><i class="fas fa-check-circle"></i> Strong</small>';
+                strengthClass = 'text-success';
+            }
+            strength.innerHTML = strengthText;
+        } else {
+            strength.innerHTML = '';
+        }
+
+        // Password match indicator
+        if (confirm.length > 0) {
+            if (password === confirm) {
+                match.innerHTML = '<small class="text-success"><i class="fas fa-check-circle"></i> Passwords match</small>';
+            } else {
+                match.innerHTML = '<small class="text-danger"><i class="fas fa-times-circle"></i> Passwords do not match</small>';
+            }
+        } else {
+            match.innerHTML = '';
+        }
+    }
+
+    function previewPhoto(event) {
+        const preview = document.getElementById('photoPreview');
+        const file = event.target.files[0];
+        
+        if (file) {
+            // Validate file size
+            if (file.size > 2048 * 1024) {
+                alert('Photo cannot exceed 2MB');
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    if (this.width < 100 || this.height < 100) {
+                        alert('Photo must be at least 100x100 pixels');
+                        event.target.value = '';
+                        preview.innerHTML = '';
+                        return;
+                    }
+                    preview.innerHTML = `<img src="${e.target.result}" style="max-width: 150px; max-height: 150px; border-radius: 8px;" class="img-thumbnail">`;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
 @endsection

@@ -4,8 +4,15 @@
     <div class="container mt-4">
         @include('layouts.flash-messages')
 
-        <div class="d-flex justify-content-between align-items-center mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="fas fa-chart-line"></i> Dashboard</h2>
+            <!-- Date Range Filter -->
+            <form method="GET" action="{{ route('dashboard') }}" class="d-flex gap-2">
+                <input type="date" name="start_date" value="{{ $startDate }}" class="form-control form-control-sm" style="width: 150px;">
+                <input type="date" name="end_date" value="{{ $endDate }}" class="form-control form-control-sm" style="width: 150px;">
+                <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter me-1"></i> Filter</button>
+                <a href="{{ route('dashboard') }}" class="btn btn-sm btn-secondary"><i class="fas fa-redo me-1"></i> Reset</a>
+            </form>
         </div>
 
         <!-- Stats Cards Row with Quick Actions -->

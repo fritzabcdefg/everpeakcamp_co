@@ -60,6 +60,7 @@
                                 <a class="dropdown-item" href="{{ route('products.index') }}"><i class="fas fa-box me-2" style="color: var(--accent-green);"></i> Manage Products</a>
                                 <a class="dropdown-item" href="{{ route('categories.index') }}"><i class="fas fa-folder me-2" style="color: var(--terracotta);"></i> Manage Categories</a>
                                 <a class="dropdown-item" href="{{ route('orders.index') }}"><i class="fas fa-receipt me-2" style="color: var(--danger);"></i> Manage Orders</a>
+                                <a class="dropdown-item" href="{{ route('reviews.index') }}"><i class="fas fa-star me-2" style="color: #FFD700;"></i> Manage Reviews</a>
                                 <hr class="dropdown-divider" style="margin: 0.5rem 0;">
                             @else
                                 <a class="dropdown-item" href="{{ route('profile.index') }}"><i class="fas fa-user me-2" style="color: var(--primary-green-light);"></i> My Profile</a>

@@ -10,7 +10,7 @@
                 </div>
 
                 <div class="card-body">
-                    <form method="POST" action="{{ route('profile.update') }}">
+                    <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -27,6 +27,27 @@
 
                             <div class="col-md-6">
                                 <input id="email" type="email" class="form-control" name="email" value="{{ Auth::user()->email }}" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="photo" class="col-md-4 col-form-label text-md-end">{{ __('Profile Photo') }}</label>
+
+                            <div class="col-md-6">
+                                @if(Auth::user()->photo)
+                                    <div class="mb-2">
+                                        <img src="{{ Storage::url(Auth::user()->photo) }}" alt="Profile" style="max-width: 150px; max-height: 150px; border-radius: 8px;" class="img-thumbnail">
+                                    </div>
+                                @endif
+                                <input id="photo" type="file" class="form-control @error('photo') is-invalid @enderror" name="photo" accept="image/*" onchange="previewEditProfilePhoto(event)">
+                                <small class="text-muted">Optional - JPG, PNG (Max 2MB)</small>
+                                <div id="photoPreview" class="mt-2"></div>
+
+                                @error('photo')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
                             </div>
                         </div>
 
@@ -74,4 +95,19 @@
         </div>
     </div>
 </div>
+
+<script>
+    function previewEditProfilePhoto(event) {
+        const preview = document.getElementById('photoPreview');
+        const file = event.target.files[0];
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = `<img src="${e.target.result}" style="max-width: 150px; max-height: 150px; border-radius: 8px;" class="img-thumbnail">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
 @endsection

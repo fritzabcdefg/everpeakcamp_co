@@ -20,6 +20,11 @@ class IsAdmin
             return redirect()->route('login')->with('error', 'Please log in to continue.');
         }
 
+        if (is_null(Auth::user()->email_verified_at)) {
+            Auth::logout();
+            return redirect()->route('login')->with('error', 'Your email must be verified to access admin features.');
+        }
+
         if (Auth::user()->role !== 'admin') {
             return redirect()->route('home')->with('error', 'You do not have permission to access this page.');
         }
