@@ -134,7 +134,7 @@
         const form = document.getElementById('registerForm');
         
         form.addEventListener('submit', function(e) {
-            if (!form.checkValidity() === false) {
+            if (!form.checkValidity()) {
                 e.preventDefault();
                 e.stopPropagation();
             }
