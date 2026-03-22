@@ -11,9 +11,26 @@ class HomeController extends Controller
     /**
      * Show the application homepage.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with('category', 'stock')->where('deleted_at', null)->paginate(12);
-        return view('home', ['products' => $products]);
+        $search = trim((string) $request->query('search', ''));
+        $perPage = 12;
+
+        if ($search === '') {
+            $products = Product::with('category', 'stock')
+                ->whereNull('deleted_at')
+                ->paginate($perPage)
+                ->withQueryString();
+        } else {
+            $products = Product::search($search)
+                ->query(fn ($query) => $query->with('category', 'stock')->whereNull('deleted_at'))
+                ->paginate($perPage)
+                ->withQueryString();
+        }
+
+        return view('home', [
+            'products' => $products,
+            'search' => $search,
+        ]);
     }
 }

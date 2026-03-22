@@ -8,7 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class OrderPlaced extends Mailable
+class OrderStatusUpdated extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -31,8 +31,8 @@ class OrderPlaced extends Mailable
             'order' => $this->order,
         ]);
 
-        return $this->subject('Order Confirmation #' . $this->order->order_id)
-                    ->view('emails.order_summary')
+        return $this->subject('Order Status Updated #' . $this->order->order_id)
+                    ->view('emails.order_status')
                     ->with(['order' => $this->order])
                     ->attachData(
                         $pdf->output(),

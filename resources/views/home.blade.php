@@ -15,6 +15,38 @@
 
 <!-- Products Section -->
 <div class="container my-5">
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <form action="{{ url()->current() }}" method="GET" class="row g-2 align-items-center">
+                <div class="col-md-6">
+                    <label for="search" class="form-label fw-semibold mb-1">Search products</label>
+                    <input
+                        type="text"
+                        name="search"
+                        id="search"
+                        class="form-control"
+                        placeholder="Search by product name or description"
+                        value="{{ $search ?? request('search') }}"
+                    >
+                </div>
+                <div class="col-md-6 d-flex gap-2 align-self-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-1"></i> Search
+                    </button>
+                    @if (!empty($search))
+                        <a href="{{ url()->current() }}" class="btn btn-outline-secondary">Clear</a>
+                    @endif
+                </div>
+            </form>
+
+            @if (!empty($search))
+                <p class="text-muted mb-0 mt-3">
+                    Showing results for: <strong>{{ $search }}</strong>
+                </p>
+            @endif
+        </div>
+    </div>
+
     @if ($products->count() > 0)
         <div class="product-grid">
             @foreach ($products as $product)
@@ -43,7 +75,7 @@
                         @endif
                         <h5 class="product-name">{{ $product->name }}</h5>
                         <p class="product-description">{{ \Illuminate\Support\Str::limit($product->description, 80) }}</p>
-                        
+
                         <div class="product-price">
                             <span class="price-current">₱{{ number_format($product->sell_price, 2) }}</span>
                         </div>
@@ -104,8 +136,12 @@
     @else
         <div style="text-align: center; padding: 80px 20px;">
             <i class="fas fa-inbox" style="font-size: 4rem; color: #ddd; margin-bottom: 20px; display: block;"></i>
-            <h3 style="color: var(--primary-green-dark); font-weight: 600;">No Products Available</h3>
-            <p style="color: var(--gray-text);">Check back soon for amazing outdoor & camping gear!</p>
+            <h3 style="color: var(--primary-green-dark); font-weight: 600;">
+                {{ !empty($search) ? 'No Matching Products Found' : 'No Products Available' }}
+            </h3>
+            <p style="color: var(--gray-text);">
+                {{ !empty($search) ? 'Try a different keyword and search again.' : 'Check back soon for amazing outdoor & camping gear!' }}
+            </p>
         </div>
     @endif
 </div>

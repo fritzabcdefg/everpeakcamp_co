@@ -16,12 +16,12 @@ class DatabaseSeeder extends Seeder
     {
         // Run seeders in correct order (dependencies first)
         $this->call([
-            UserSeeder::class,        // Create users first
-            ProductSeeder::class,     // Create categories, products, and stock
-            CartItemSeeder::class,    // Create cart items (depends on users and products)
-            OrderSeeder::class,       // Create customers and orders (depends on users and products)
-            ReviewSeeder::class,      // Create reviews (depends on users and products)
+            UserSeeder::class,          // Create users first
+            ProductSeeder::class,       // Create categories, products, and stock
+            ProductImageSeeder::class,  // Create product image records after products exist
+            CartItemSeeder::class,      // Create cart items (depends on users and products)
+            OrderSeeder::class,         // Create customers and orders (depends on users and products)
+            ReviewSeeder::class,        // Create reviews (depends on users and products)
         ]);
     }
 }
-

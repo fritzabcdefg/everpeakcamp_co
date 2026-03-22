@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderPlaced;
+use App\Mail\OrderStatusUpdated;
 use App\Models\Order;
 use App\Models\CartItem;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
@@ -109,7 +112,7 @@ class OrderController extends Controller
                 'user_id' => $userId,
                 'customer_id' => $customer->customer_id,
                 'shipping_fee' => $validated['shipping_fee'],
-                'status' => 'processing',
+                'status' => 'completed',
                 'order_date' => now(),
             ]);
 
@@ -129,7 +132,7 @@ class OrderController extends Controller
 
             // send confirmation email (Mailtrap credentials should be in env; we send using configured mailer)
             try {
-                \Illuminate\Support\Facades\Mail::to($validated['email'])->send(new \App\Mail\OrderPlaced($order));
+                Mail::to($validated['email'])->send(new OrderPlaced($order));
             } catch (\Exception $mailEx) {
                 // swallow mail exceptions for now
             }
@@ -169,7 +172,22 @@ class OrderController extends Controller
             'status' => 'sometimes|in:pending,processing,completed,cancelled',
         ]);
 
+        $previousStatus = $order->status;
         $order->update($validated);
+        $order->load('customer', 'orderItems.product');
+
+        if (
+            array_key_exists('status', $validated) &&
+            $validated['status'] !== $previousStatus &&
+            !empty($order->customer?->email)
+        ) {
+            try {
+                Mail::to($order->customer->email)->send(new OrderStatusUpdated($order));
+            } catch (\Exception $mailEx) {
+                // swallow mail exceptions for now
+            }
+        }
+
         return redirect()->route('orders.show', $order)->with('success', 'Order updated successfully');
     }
 

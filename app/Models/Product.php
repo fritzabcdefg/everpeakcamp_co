@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Searchable;
 
 class Product extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Searchable;
 
     protected $table = 'products';
     protected $primaryKey = 'product_id';
@@ -76,5 +78,34 @@ class Product extends Model
     public function stock(): HasMany
     {
         return $this->hasMany(Stock::class, 'product_id', 'product_id');
+    }
+
+    /**
+     * Scope a query to search products by keyword.
+     */
+    public function scopeSearch(Builder $query, ?string $term): Builder
+    {
+        $term = trim((string) $term);
+
+        if ($term === '') {
+            return $query;
+        }
+
+        return $query->where(function (Builder $builder) use ($term) {
+            $builder->where('name', 'LIKE', "%{$term}%")
+                ->orWhere('description', 'LIKE', "%{$term}%");
+        });
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'product_id' => $this->product_id,
+            'name' => $this->name,
+            'description' => $this->description,
+        ];
     }
 }

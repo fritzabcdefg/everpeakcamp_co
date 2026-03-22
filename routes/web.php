@@ -2,6 +2,7 @@
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReviewController;
@@ -9,18 +10,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
 
-// Home Route - Welcome Page with Featured Products
-Route::get('/', function () {
-    $categories = \App\Models\Category::all();
-    $products = \App\Models\Product::limit(4)->get();
-    return view('welcome', ['categories' => $categories, 'products' => $products]);
-});
-
-Route::get('/home', function () {
-    $categories = \App\Models\Category::all();
-    $products = \App\Models\Product::limit(4)->get();
-    return view('welcome', ['categories' => $categories, 'products' => $products]);
-})->name('home');
+// Home Route - Product listing with search
+Route::get('/', [HomeController::class, 'index']);
+Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 // Authentication Routes
 Route::get('/register', [UserController::class, 'createRegister'])->name('register');
@@ -124,5 +116,3 @@ Route::middleware('auth')->group(function () {
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
     Route::get('/products/{product}/reviews', [ReviewController::class, 'productReviews'])->name('product.reviews');
 });
-
-
