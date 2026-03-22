@@ -5,17 +5,32 @@
         @include('layouts.flash-messages')
         
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Outdoor & Camping Gears</h2>
-            @if (Auth::check() && Auth::user()->role === 'admin')
-                <a class="btn btn-primary" href="{{ route('products.create') }}" role="button">
-                    <i class="fas fa-plus"></i> Add New Gear
-                </a>
-            @endif
+            <h2>Product & Service Management</h2>
+            <div class="btn-group">
+                @if (Auth::check() && Auth::user()->role === 'admin')
+                    <a class="btn btn-primary" href="{{ route('products.create') }}" role="button">
+                        <i class="fas fa-plus"></i> Add New Product
+                    </a>
+                    <a class="btn btn-info" href="{{ route('products.importForm') }}" role="button">
+                        <i class="fas fa-upload"></i> Import Excel
+                    </a>
+                @endif
+            </div>
         </div>
 
         <div class="card mb-3">
             <div class="card-body">
-                <input type="text" id="productSearch" class="form-control" placeholder="Search products by name...">
+                <div class="row">
+                    <div class="col-md-8">
+                        <input type="text" id="productSearch" class="form-control" placeholder="Search products by name...">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" id="includeTrashed">
+                            <span class="form-check-label">Show Deleted</span>
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -23,81 +38,70 @@
             <table id="productsTable" class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>Product ID</th>
+                        <th>ID</th>
                         <th>Image</th>
                         <th>Product Name</th>
                         <th>Category</th>
-                        <th>Description</th>
                         <th>Cost Price</th>
                         <th>Sell Price</th>
                         <th>Stock</th>
+                        <th>Photos</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($products as $product)
-                        <tr>
-                            <td>#{{ $product->product_id }}</td>
-                            <td>
-                                @if ($product->img_path)
-                                    <img src="{{ Storage::url($product->img_path) }}" alt="{{ $product->name }}" 
-                                         width="50" height="50" class="img-thumbnail">
-                                @else
-                                    <span class="badge bg-secondary">No Image</span>
-                                @endif
-                            </td>
-                            <td>{{ $product->name }}</td>
-                            <td>
-                                @if ($product->category)
-                                    <span class="badge bg-info">{{ $product->category->name }}</span>
-                                @else
-                                    <span class="badge bg-secondary">Uncategorized</span>
-                                @endif
-                            </td>
-                            <td>{{ Str::limit($product->description, 50) }}</td>
-                            <td>₱{{ number_format($product->cost_price, 2) }}</td>
-                            <td><strong>₱{{ number_format($product->sell_price, 2) }}</strong></td>
-                            <td>
-                                @if ($product->stock->sum('quantity') > 0)
-                                    <span class="badge bg-success">{{ $product->stock->sum('quantity') }}</span>
-                                @else
-                                    <span class="badge bg-danger">Out of Stock</span>
-                                @endif
-                            </td>
-                            <td>
-                                <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-info" title="View">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                @if (Auth::check() && Auth::user()->role === 'admin')
-                                    <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-warning" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline;">
-                                        @method('DELETE')
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-danger" title="Delete" 
-                                                onclick="return confirm('Are you sure?')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="9" class="text-center text-muted">No products found</td>
-                        </tr>
-                    @endforelse
                 </tbody>
             </table>
         </div>
-
-        <div class="d-flex justify-content-center">
-            {{ $products->links() }}
-        </div>
     </div>
 
+    <!-- Link DataTables CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
     <script>
+        $(document).ready(function() {
+            // Initialize DataTable
+            let table = $('#productsTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('products.datatable') }}",
+                    type: "GET",
+                    data: function(d) {
+                        d.include_trashed = $('#includeTrashed').is(':checked') ? 'true' : 'false';
+                    }
+                },
+                columns: [
+                    { data: 'product_id' },
+                    { data: 'image', orderable: false, searchable: false },
+                    { data: 'name' },
+                    { data: 'category' },
+                    { data: 'cost_price' },
+                    { data: 'sell_price' },
+                    { data: 'stock', orderable: false, searchable: false },
+                    { data: 'photos', orderable: false, searchable: false },
+                    { data: 'status', orderable: false, searchable: false },
+                    { data: 'actions', orderable: false, searchable: false },
+                ],
+                pageLength: 15,
+                lengthMenu: [[10, 15, 25, 50], [10, 15, 25, 50]]
+            });
+
+            // Search functionality
+            $('#productSearch').on('keyup', function() {
+                table.search($(this).val()).draw(false);
+            });
+
+            // Toggle trashed products
+            $('#includeTrashed').on('change', function() {
+                table.ajax.reload();
+            });
+        });
+    </script>
+@endsection
         document.getElementById('productSearch').addEventListener('keyup', function(e) {
             const searchTerm = e.target.value.toLowerCase();
             const rows = document.querySelectorAll('#productsTable tbody tr');

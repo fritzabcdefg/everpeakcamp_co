@@ -35,11 +35,16 @@ Route::middleware(['auth', 'admin'])->get('/dashboard', [DashboardController::cl
 Route::middleware(['auth', 'admin'])->group(function () {
     // Product Management
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    Route::get('/products/datatable', [ProductController::class, 'datatable'])->name('products.datatable');
     Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');
     Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
     Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+    Route::get('/products/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
+    Route::delete('/products-image/{imageId}', [ProductController::class, 'deleteImage'])->name('products.deleteImage');
+    Route::get('/products/import/form', [ProductController::class, 'importForm'])->name('products.importForm');
+    Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
 
     // Category Management
     Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
