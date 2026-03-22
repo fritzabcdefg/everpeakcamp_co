@@ -5,8 +5,8 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-lg">
-                <div class="card-header text-white" style="background: linear-gradient(135deg, #1a472a 0%, #2d5f3f 100%);">
-                    <h4 class="mb-0 text-center">{{ __('Edit Profile') }}</h4>
+                <div class="card-header" style="background: linear-gradient(135deg, #1a472a 0%, #2d5f3f 100%); color: #ffffff;">
+                    <h4 class="mb-0 text-center" style="color: #ffffff; font-weight: 600;">{{ __('Edit Profile') }}</h4>
                 </div>
 
                 <div class="card-body">

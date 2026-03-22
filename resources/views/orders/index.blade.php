@@ -5,8 +5,8 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
-                    <div class="card-header text-white" style="background: linear-gradient(135deg, #1a472a 0%, #2d5f3f 100%);">
-                        <h4 class="mb-0"><i class="fas fa-receipt"></i> My Orders</h4>
+                    <div class="card-header text-white" style="color: var(--cream); background: linear-gradient(135deg, #1a472a 0%, #2d5f3f 100%);">
+                        <h4 class="mb-0"><i class="fas fa-receipt"></i> Orders</h4>
                     </div>
                     <div class="card-body">
                         @if ($orders->count() > 0)

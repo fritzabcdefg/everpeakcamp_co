@@ -8,8 +8,9 @@
             <h2><i class="fas fa-chart-line"></i> Dashboard</h2>
         </div>
 
-        <!-- Stats Cards Row -->
+        <!-- Stats Cards Row with Quick Actions -->
         <div class="row g-3 mb-5">
+            <!-- Total Users -->
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
@@ -27,8 +28,13 @@
                         View Users <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
+                <!-- Quick Action for Users -->
+                <a href="{{ route('users.create') }}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 mt-2">
+                    <i class="fas fa-plus"></i> Add User
+                </a>
             </div>
 
+            <!-- Total Products -->
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
@@ -46,8 +52,13 @@
                         View Products <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
+                <!-- Quick Action for Products -->
+                <a href="{{ route('products.create') }}" class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2 mt-2">
+                    <i class="fas fa-plus"></i> Add Product
+                </a>
             </div>
 
+            <!-- Total Categories -->
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
@@ -65,8 +76,13 @@
                         View Categories <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
+                <!-- Quick Action for Categories -->
+                <a href="{{ route('categories.create') }}" class="btn btn-info w-100 d-flex align-items-center justify-content-center gap-2 mt-2">
+                    <i class="fas fa-plus"></i> Add Category
+                </a>
             </div>
 
+            <!-- Total Orders -->
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
@@ -84,6 +100,10 @@
                         View Orders <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
+                <!-- Quick Action for Orders -->
+                <a href="{{ route('orders.create') }}" class="btn btn-warning w-100 d-flex align-items-center justify-content-center gap-2 mt-2">
+                    <i class="fas fa-plus"></i> Create Order
+                </a>
             </div>
         </div>
 
@@ -109,39 +129,6 @@
                         </div>
                         <h2 class="text-danger mb-2">{{ $stats['pending_orders'] }}</h2>
                         <p class="text-muted small mb-0">Orders waiting to be processed</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title mb-4"><i class="fas fa-tasks"></i> Quick Actions</h5>
-                        <div class="row g-2">
-                            <div class="col-md-3 col-sm-6">
-                                <a href="{{ route('products.create') }}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
-                                    <i class="fas fa-plus"></i> Add Product
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <a href="{{ route('categories.create') }}" class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2">
-                                    <i class="fas fa-plus"></i> Add Category
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <a href="{{ route('users.create') }}" class="btn btn-info w-100 d-flex align-items-center justify-content-center gap-2">
-                                    <i class="fas fa-plus"></i> Add User
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <a href="{{ route('orders.create') }}" class="btn btn-warning w-100 d-flex align-items-center justify-content-center gap-2">
-                                    <i class="fas fa-plus"></i> Create Order
-                                </a>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
