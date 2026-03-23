@@ -90,6 +90,16 @@
                                 @enderror
                             </div>
 
+                            <div class="mb-3">
+                                <label for="stocks" class="form-label">Stock Quantity</label>
+                                <input type="number" class="form-control @error('stocks') is-invalid @enderror" 
+                                       id="stocks" name="stocks" value="{{ old('stocks', $product->stock->first()->quantity ?? 0) }}" min="0" step="1" required>
+                                <small class="form-text text-muted">Set the product inventory quantity</small>
+                                @error('stocks')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <!-- Main Product Image -->
                             <div class="mb-3">
                                 <label for="img_path" class="form-label">Main Product Image</label>
@@ -278,10 +288,4 @@
             validatePrices();
         });
     </script>
-@endsection
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection

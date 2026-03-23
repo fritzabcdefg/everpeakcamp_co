@@ -20,15 +20,23 @@
 
         <div class="card mb-3">
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-8">
+                <div class="row align-items-center">
+                    <div class="col-md-6 mb-2 mb-md-0">
                         <input type="text" id="productSearch" class="form-control" placeholder="Search products by name...">
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-check">
+                    <div class="col-md-3 mb-2 mb-md-0 d-flex justify-content-center">
+                        <label class="form-check mb-0">
                             <input type="checkbox" class="form-check-input" id="includeTrashed">
                             <span class="form-check-label">Show Deleted</span>
                         </label>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="itemsPerPage" class="form-select">
+                            <option value="10">10 items</option>
+                            <option value="15" selected>15 items</option>
+                            <option value="25">25 items</option>
+                            <option value="50">50 items</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -56,11 +64,7 @@
         </div>
     </div>
 
-    <!-- Link DataTables CSS & JS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-
+    @push('scripts')
     <script>
         $(document).ready(function() {
             // Initialize DataTable
@@ -71,7 +75,7 @@
                     url: "{{ route('products.datatable') }}",
                     type: "GET",
                     data: function(d) {
-                        d.include_trashed = $('#includeTrashed').is(':checked') ? 'true' : 'false';
+                        d.include_trashed = 'false'; // no custom checkbox anymore
                     }
                 },
                 columns: [
@@ -87,28 +91,12 @@
                     { data: 'actions', orderable: false, searchable: false },
                 ],
                 pageLength: 15,
-                lengthMenu: [[10, 15, 25, 50], [10, 15, 25, 50]]
-            });
+                lengthMenu: [[10, 15, 25, 50], [10, 15, 25, 50]],
 
-            // Search functionality
-            $('#productSearch').on('keyup', function() {
-                table.search($(this).val()).draw(false);
-            });
-
-            // Toggle trashed products
-            $('#includeTrashed').on('change', function() {
-                table.ajax.reload();
+                // Disable the default search box and "Show entries" dropdown
+                dom: 't<"d-flex justify-content-between"ip>'
             });
         });
     </script>
-@endsection
-        document.getElementById('productSearch').addEventListener('keyup', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('#productsTable tbody tr');
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
-        });
-    </script>
+    @endpush
 @endsection

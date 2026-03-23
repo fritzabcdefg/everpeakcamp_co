@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\Category;
+use App\Models\Stock;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ProductsImport;
 use Illuminate\Http\Request;
@@ -84,7 +85,7 @@ class ProductController extends Controller
      */
     private function renderActions($product)
     {
-        $actions = '<div class="btn-group btn-group-sm" role="group">';
+        $actions = '<div class="btn-group btn-group-sm" role="group" aria-label="Product actions">';
         
         $actions .= '<a href="' . route('products.show', $product) . '" class="btn btn-info" title="View"><i class="fas fa-eye"></i></a>';
         
@@ -95,13 +96,18 @@ class ProductController extends Controller
                 $actions .= '<a href="' . route('products.restore', $product->product_id) . '" class="btn btn-success" title="Restore"><i class="fas fa-undo"></i></a>';
             }
             
-            $actions .= '<form action="' . route('products.destroy', $product) . '" method="POST" style="display:inline;">';
-            $actions .= '@method("DELETE")@csrf';
-            $actions .= '<button type="submit" class="btn btn-danger" title="Delete" onclick="return confirm(\'Are you sure?\')\"><i class="fas fa-trash"></i></button>';
-            $actions .= '</form>';
+            $actions .= '<button type="button" class="btn btn-danger" title="Delete" onclick="if(confirm(\'Are you sure?\')) { document.getElementById(\'delete-product-' . $product->product_id . '\').submit(); }"><i class="fas fa-trash"></i></button>';
         }
         
         $actions .= '</div>';
+
+        if (auth()->check() && auth()->user()->role === 'admin') {
+            $actions .= '<form id="delete-product-' . $product->product_id . '" action="' . route('products.destroy', $product) . '" method="POST" style="display:none;">';
+            $actions .= '<input type="hidden" name="_method" value="DELETE">';
+            $actions .= '<input type="hidden" name="_token" value="' . csrf_token() . '">';
+            $actions .= '</form>';
+        }
+
         return $actions;
     }
 
@@ -125,6 +131,7 @@ class ProductController extends Controller
             'cost_price' => 'required|numeric|min:0|max:999999.99',
             'sell_price' => 'required|numeric|min:0|max:999999.99|gte:cost_price',
             'category_id' => 'nullable|exists:categories,category_id',
+            'stocks' => 'nullable|integer|min:0',
             'img_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=100,min_height=100',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=100,min_height=100',
         ], [
@@ -161,6 +168,13 @@ class ProductController extends Controller
         }
 
         $product = Product::create($validated);
+
+        if ($request->filled('stocks')) {
+            Stock::create([
+                'product_id' => $product->product_id,
+                'quantity' => (int) $request->input('stocks'),
+            ]);
+        }
 
         // Handle multiple images
         if ($request->hasFile('images')) {
@@ -219,6 +233,7 @@ class ProductController extends Controller
             'cost_price' => 'required|numeric|min:0|max:999999.99',
             'sell_price' => 'required|numeric|min:0|max:999999.99|gte:cost_price',
             'category_id' => 'nullable|exists:categories,category_id',
+            'stocks' => 'nullable|integer|min:0',
             'img_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=100,min_height=100',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=100,min_height=100',
         ], [
@@ -258,6 +273,15 @@ class ProductController extends Controller
         }
 
         $product->update($validated);
+
+        if ($request->filled('stocks')) {
+            $stock = $product->stock()->first();
+            if ($stock) {
+                $stock->update(['quantity' => (int) $request->input('stocks')]);
+            } else {
+                $product->stock()->create(['quantity' => (int) $request->input('stocks')]);
+            }
+        }
 
         // Handle additional images
         if ($request->hasFile('images')) {

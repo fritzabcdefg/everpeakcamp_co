@@ -10,15 +10,15 @@
             <form method="GET" action="{{ route('dashboard') }}" class="d-flex gap-2">
                 <input type="date" name="start_date" value="{{ $startDate }}" class="form-control form-control-sm" style="width: 150px;">
                 <input type="date" name="end_date" value="{{ $endDate }}" class="form-control form-control-sm" style="width: 150px;">
-                <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter me-1"></i> Filter</button>
-                <a href="{{ route('dashboard') }}" class="btn btn-sm btn-secondary"><i class="fas fa-redo me-1"></i> Reset</a>
+                <button type="submit" class="btn btn-sm btn-primary" style="min-width: 110px;"> <i class="fas fa-filter me-1"></i> Filter</button>
+                <a href="{{ route('dashboard') }}" class="btn btn-sm btn-secondary" style="min-width: 110px;"> <i class="fas fa-redo me-1"></i> Reset</a>
             </form>
         </div>
 
         <!-- Stats Cards Row with Quick Actions -->
-        <div class="row g-3 mb-5">
+        <div class="row g-4 mb-5">
             <!-- Total Users -->
-            <div class="col-md-6 col-lg-3">
+            <div class="col-md-6 col-lg-3 mb-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
@@ -42,7 +42,7 @@
             </div>
 
             <!-- Total Products -->
-            <div class="col-md-6 col-lg-3">
+            <div class="col-md-6 col-lg-3 mb-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
@@ -66,7 +66,7 @@
             </div>
 
             <!-- Total Categories -->
-            <div class="col-md-6 col-lg-3">
+            <div class="col-md-6 col-lg-3 mb-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
@@ -90,7 +90,7 @@
             </div>
 
             <!-- Total Orders -->
-            <div class="col-md-6 col-lg-3">
+            <div class="col-md-6 col-lg-3 mb-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
@@ -115,7 +115,7 @@
         </div>
 
         <!-- Revenue & Pending Orders Row -->
-        <div class="row g-3 mb-5">
+        <div class="row g-4 mb-5">
             <div class="col-md-6">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
@@ -142,7 +142,7 @@
         </div>
 
         <!-- Charts Section -->
-        <div class="row g-3 mb-5">
+        <div class="row g-4 mb-5">
             <!-- Yearly Sales Chart -->
             <div class="col-lg-8">
                 <div class="card border-0 shadow-sm">
@@ -176,7 +176,10 @@
                 // Yearly Sales Bar Chart
                 const yearlySalesCtx = document.getElementById('yearlySalesChart');
                 if (yearlySalesCtx) {
-                    const yearlySalesData = @json($yearlySales ?? collect([['year' => '2025', 'total' => 1000], ['year' => '2026', 'total' => 1500]]));
+                    const yearlySalesData = @json($yearlySales) || [
+                        {year: '2025', total: 1000},
+                        {year: '2026', total: 1500}
+                    ];
 
                     new Chart(yearlySalesCtx.getContext('2d'), {
                         type: 'bar',
@@ -214,7 +217,9 @@
                 // Product Sales Percentage Pie Chart
                 const productSalesCtx = document.getElementById('productSalesChart');
                 if (productSalesCtx) {
-                    const productSalesData = @json($productSales ?? collect([['product_name' => 'Test Product', 'percentage' => 100]]));
+                    const productSalesData = @json($productSales) || [
+                        {product_name: 'Test Product', percentage: 100}
+                    ];
 
                     new Chart(productSalesCtx.getContext('2d'), {
                         type: 'pie',

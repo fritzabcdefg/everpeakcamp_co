@@ -38,7 +38,7 @@ class DashboardController extends Controller
             ->groupByRaw('YEAR(order_date)')
             ->orderBy('year')
             ->get()
-            ->map(function($item) {
+            ->map(function($item) use ($startDate, $endDate) {
                 // Calculate product sales for this year
                 $productTotal = Order::whereYear('order_date', $item->year)
                     ->whereBetween('order_date', [$startDate, $endDate])

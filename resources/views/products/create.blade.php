@@ -98,6 +98,16 @@
                                 @enderror
                             </div>
 
+                            <div class="mb-3">
+                                <label for="stocks" class="form-label">Initial Stock</label>
+                                <input type="number" class="form-control @error('stocks') is-invalid @enderror" 
+                                       id="stocks" name="stocks" value="{{ old('stocks', 0) }}" min="0" step="1" required>
+                                <small class="form-text text-muted">Enter starting inventory quantity</small>
+                                @error('stocks')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <!-- Main Product Image -->
                             <div class="mb-3">
                                 <label for="img_path" class="form-label">Main Product Image</label>
@@ -154,7 +164,7 @@
 
             // Form submit validation
             form.addEventListener('submit', function(e) {
-                if (!form.checkValidity() === false) {
+                if (!form.checkValidity()) {
                     e.preventDefault();
                     e.stopPropagation();
                 }
@@ -221,62 +231,4 @@
             });
         }
     </script>
-@endsection
-                                               id="sell_price" name="sell_price" step="0.01" min="0" 
-                                               value="{{ old('sell_price') }}" required>
-                                        @error('sell_price')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="stocks" class="form-label">Stocks</label>
-                                        <input type="number" class="form-control @error('stocks') is-invalid @enderror" 
-                                               id="stocks" name="stocks" step="1" min="0" 
-                                               value="{{ old('stocks') }}" required>
-                                        @error('stocks')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                            <div class="mb-3">
-                                <label for="category_id" class="form-label">Category</label>
-                                <select class="form-control @error('category_id') is-invalid @enderror" 
-                                        id="category_id" name="category_id">
-                                    <option value="">-- Select Category --</option>
-                                    @foreach (\App\Models\Category::all() as $category)
-                                        <option value="{{ $category->category_id }}" 
-                                                {{ old('category_id') == $category->category_id ? 'selected' : '' }}>
-                                            {{ $category->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('category_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="img_path" class="form-label">Product Image</label>
-                                <input type="file" class="form-control @error('img_path') is-invalid @enderror" 
-                                       id="img_path" name="img_path" accept="image/*">
-                                <small class="form-text text-muted">Accepted formats: JPG, PNG, GIF (Max 2MB)</small>
-                                @error('img_path')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                <a href="{{ route('products.index') }}" class="btn btn-secondary">Cancel</a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Add Product
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
