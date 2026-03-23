@@ -35,8 +35,8 @@ class ProductSeeder extends Seeder
         // Products linked to categories
         $products = [
             [
-                'name' => 'Dome Camping Tent 4-Person',
-                'description' => 'Spacious 4-person dome tent with waterproof coating.',
+                'name' => 'Family Camping Tent 6-Person',
+                'description' => 'Spacious 6-person dome tent with waterproof coating.',
                 'cost_price' => 4400.00,
                 'sell_price' => 8250.00,
                 'category_id' => $createdCategories[0]->category_id,
