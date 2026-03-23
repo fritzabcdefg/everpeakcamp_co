@@ -7,6 +7,7 @@ use App\Mail\OrderStatusUpdated;
 use App\Models\Order;
 use App\Models\CartItem;
 use App\Models\OrderItem;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -18,10 +19,21 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $userId = $request->user()?->id ?? auth()->id();
-        $orders = Order::where('user_id', $userId)
-            ->with('orderItems.product')
-            ->paginate(15);
+        $user = auth()->user();
+        
+        // Admins see all orders, customers see only their own
+        if ($user && $user->role === 'admin') {
+            $orders = Order::with('orderItems.product', 'customer')
+                ->orderBy('order_date', 'desc')
+                ->paginate(15);
+        } else {
+            $userId = $request->user()?->id ?? auth()->id();
+            $orders = Order::where('user_id', $userId)
+                ->with('orderItems.product', 'customer')
+                ->orderBy('order_date', 'desc')
+                ->paginate(15);
+        }
+        
         return view('orders.index', ['orders' => $orders]);
     }
 
@@ -57,6 +69,13 @@ class OrderController extends Controller
      */
     public function checkoutForm(Request $request)
     {
+        $user = auth()->user();
+        
+        // Prevent admins from accessing checkout
+        if ($user && $user->role === 'admin') {
+            return redirect()->route('home')->with('error', 'Admins cannot create orders.');
+        }
+
         $userId = $request->user()?->id ?? auth()->id();
         $cartItems = CartItem::where('user_id', $userId)->with('product')->get();
 
@@ -64,14 +83,11 @@ class OrderController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty');
         }
 
-        // Get authenticated user's profile data
+        // Get authenticated user's profile data for pre-filling the form
         $user = auth()->user();
 
-        // Check if user has completed their profile
-        if (empty($user->phone) || empty($user->address)) {
-            return redirect()->route('profile.create')
-                         ->with('error', 'Please complete your profile (phone and address) before checkout.');
-        }
+        // Allow checkout even if profile is incomplete - the form will collect the info
+        // (Removed the profile completion requirement since checkout form collects the data)
 
         // default flat shipping fee (can be adjusted in UI)
         $shippingFee = 5.00;
@@ -88,6 +104,13 @@ class OrderController extends Controller
      */
     public function checkout(Request $request)
     {
+        $user = auth()->user();
+        
+        // Prevent admins from creating orders
+        if ($user && $user->role === 'admin') {
+            return redirect()->route('home')->with('error', 'Admins cannot create orders.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
@@ -111,6 +134,15 @@ class OrderController extends Controller
                 ['name' => $validated['name'], 'phone' => $validated['phone'] ?? null, 'address' => $validated['address']]
             );
 
+            // Update user's profile if not already set
+            $user = auth()->user();
+            if ($user && (empty($user->phone) || empty($user->address))) {
+                $user->update([
+                    'phone' => $validated['phone'] ?? $user->phone,
+                    'address' => $validated['address'] ?? $user->address,
+                ]);
+            }
+
             $order = Order::create([
                 'user_id' => $userId,
                 'customer_id' => $customer->customer_id,
@@ -133,11 +165,24 @@ class OrderController extends Controller
 
             DB::commit();
 
-            // send confirmation email (Mailtrap credentials should be in env; we send using configured mailer)
+            // Send confirmation email synchronously for testing
             try {
-                Mail::to($validated['email'])->send(new OrderPlaced($order));
+                $recipientEmail = $validated['email'] ?: ($order->customer->email ?? $order->user->email ?? null);
+                if ($recipientEmail) {
+                    Mail::to($recipientEmail)->send(new OrderPlaced($order));
+                    \Log::info("Order confirmation email sent", [
+                        'order_id' => $order->order_id,
+                        'customer_email' => $recipientEmail
+                    ]);
+                } else {
+                    \Log::warning("Order confirmation email address not found", ['order_id' => $order->order_id]);
+                }
             } catch (\Exception $mailEx) {
-                // swallow mail exceptions for now
+                \Log::error("Failed to send order confirmation email", [
+                    'order_id' => $order->order_id,
+                    'error' => $mailEx->getMessage()
+                ]);
+                // Don't fail the order for email issues
             }
 
             return redirect()->route('orders.show', $order)->with('success', 'Order placed successfully');
@@ -154,6 +199,37 @@ class OrderController extends Controller
     {
         $order->load('user', 'customer', 'orderItems.product');
         return view('orders.show', ['order' => $order]);
+    }
+
+    /**
+     * Show the review prompt for a completed order.
+     */
+    public function review(Order $order)
+    {
+        $user = auth()->user();
+
+        // Prevent admins from reviewing orders
+        if (!$user || $user->role === 'admin' || $order->user_id !== $user->id) {
+            abort(403);
+        }
+
+        if ($order->status !== 'completed') {
+            return redirect()->route('orders.index')->with('error', 'Reviews are available only for completed orders.');
+        }
+
+        $order->load('orderItems.product');
+
+        $orderItemProductIds = $order->orderItems->pluck('product_id');
+        $reviewedProductIds = Review::where('user_id', $user->id)
+            ->whereIn('product_id', $orderItemProductIds)
+            ->pluck('product_id')
+            ->toArray();
+
+        return view('orders.review', [
+            'order' => $order,
+            'orderItems' => $order->orderItems,
+            'reviewedProductIds' => $reviewedProductIds,
+        ]);
     }
 
     /**
@@ -186,12 +262,51 @@ class OrderController extends Controller
         ) {
             try {
                 Mail::to($order->customer->email)->send(new OrderStatusUpdated($order));
+                // Log successful email send
+                \Log::info("Order status update email sent", [
+                    'order_id' => $order->order_id,
+                    'new_status' => $validated['status'],
+                    'customer_email' => $order->customer->email
+                ]);
             } catch (\Exception $mailEx) {
-                // swallow mail exceptions for now
+                // Log email failure but don't fail the update
+                \Log::error("Failed to send order status update email", [
+                    'order_id' => $order->order_id,
+                    'error' => $mailEx->getMessage()
+                ]);
             }
         }
 
         return redirect()->route('orders.show', $order)->with('success', 'Order updated successfully');
+    }
+
+    /**
+     * Download receipt as PDF.
+     */
+    public function downloadReceipt(Request $request, Order $order)
+    {
+        // Check if the request has a valid signature (for public access via email)
+        if ($request->hasValidSignature()) {
+            // Allow download for signed URLs (from email)
+        } else {
+            // For authenticated access, check permissions
+            $user = auth()->user();
+            if (!$user) {
+                abort(403, 'Authentication required');
+            }
+            
+            // Ensure user has permission to download this receipt (owner or admin)
+            if ($user->role !== 'admin' && $order->user_id !== $user->id) {
+                abort(403, 'Unauthorized');
+            }
+        }
+
+        $order->load('orderItems.product', 'customer');
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.receipt_pdf', [
+            'order' => $order,
+        ]);
+
+        return $pdf->download('receipt-order-' . $order->order_id . '.pdf');
     }
 
     /**

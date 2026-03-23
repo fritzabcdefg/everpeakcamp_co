@@ -54,4 +54,17 @@
     </table>
 
     <p>If you have any questions, reply to this email.</p>
+
+    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+        <table style="width: 100%; margin: 20px 0;">
+            <tr>
+                <td style="text-align: center;">
+                    <a href="{{ $receiptDownloadUrl }}" 
+                       style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #1a472a 0%, #2d5f3f 100%); color: white; text-decoration: none; border-radius: 5px; font-weight: 600;">
+                        📥 Download Receipt
+                    </a>
+                </td>
+            </tr>
+        </table>
+    </div>
 </div>
