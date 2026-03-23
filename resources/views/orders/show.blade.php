@@ -137,6 +137,9 @@
                                 <i class="fas fa-edit"></i> Edit
                             </a>
                         @endif
+                        <a href="{{ route('orders.downloadReceipt', $order) }}" class="btn btn-primary" target="_blank">
+                            <i class="fas fa-download"></i> Download Receipt
+                        </a>
                         <a href="{{ route('orders.index') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Back
                         </a>

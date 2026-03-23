@@ -83,14 +83,11 @@ class OrderController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty');
         }
 
-        // Get authenticated user's profile data
+        // Get authenticated user's profile data for pre-filling the form
         $user = auth()->user();
 
-        // Check if user has completed their profile
-        if (empty($user->phone) || empty($user->address)) {
-            return redirect()->route('profile.create')
-                         ->with('error', 'Please complete your profile (phone and address) before checkout.');
-        }
+        // Allow checkout even if profile is incomplete - the form will collect the info
+        // (Removed the profile completion requirement since checkout form collects the data)
 
         // default flat shipping fee (can be adjusted in UI)
         $shippingFee = 5.00;
@@ -137,6 +134,15 @@ class OrderController extends Controller
                 ['name' => $validated['name'], 'phone' => $validated['phone'] ?? null, 'address' => $validated['address']]
             );
 
+            // Update user's profile if not already set
+            $user = auth()->user();
+            if ($user && (empty($user->phone) || empty($user->address))) {
+                $user->update([
+                    'phone' => $validated['phone'] ?? $user->phone,
+                    'address' => $validated['address'] ?? $user->address,
+                ]);
+            }
+
             $order = Order::create([
                 'user_id' => $userId,
                 'customer_id' => $customer->customer_id,
@@ -159,15 +165,20 @@ class OrderController extends Controller
 
             DB::commit();
 
-            // Queue confirmation email for faster checkout
+            // Send confirmation email synchronously for testing
             try {
-                Mail::to($validated['email'])->queue(new OrderPlaced($order));
-                \Log::info("Order confirmation email queued", [
-                    'order_id' => $order->order_id,
-                    'customer_email' => $validated['email']
-                ]);
+                $recipientEmail = $validated['email'] ?: ($order->customer->email ?? $order->user->email ?? null);
+                if ($recipientEmail) {
+                    Mail::to($recipientEmail)->send(new OrderPlaced($order));
+                    \Log::info("Order confirmation email sent", [
+                        'order_id' => $order->order_id,
+                        'customer_email' => $recipientEmail
+                    ]);
+                } else {
+                    \Log::warning("Order confirmation email address not found", ['order_id' => $order->order_id]);
+                }
             } catch (\Exception $mailEx) {
-                \Log::error("Failed to queue order confirmation email", [
+                \Log::error("Failed to send order confirmation email", [
                     'order_id' => $order->order_id,
                     'error' => $mailEx->getMessage()
                 ]);
@@ -272,13 +283,22 @@ class OrderController extends Controller
     /**
      * Download receipt as PDF.
      */
-    public function downloadReceipt(Order $order)
+    public function downloadReceipt(Request $request, Order $order)
     {
-        $user = auth()->user();
-
-        // Ensure user has permission to download this receipt (owner or admin)
-        if ($user->role !== 'admin' && $order->user_id !== $user->id) {
-            abort(403, 'Unauthorized');
+        // Check if the request has a valid signature (for public access via email)
+        if ($request->hasValidSignature()) {
+            // Allow download for signed URLs (from email)
+        } else {
+            // For authenticated access, check permissions
+            $user = auth()->user();
+            if (!$user) {
+                abort(403, 'Authentication required');
+            }
+            
+            // Ensure user has permission to download this receipt (owner or admin)
+            if ($user->role !== 'admin' && $order->user_id !== $user->id) {
+                abort(403, 'Unauthorized');
+            }
         }
 
         $order->load('orderItems.product', 'customer');

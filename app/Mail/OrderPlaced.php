@@ -33,10 +33,13 @@ class OrderPlaced extends Mailable
             'order' => $this->order,
         ]);
 
-        $receiptDownloadUrl = url('/orders/' . $this->order->order_id . '/download-receipt');
+        // Create a signed URL for downloading the receipt
+        $receiptDownloadUrl = \Illuminate\Support\Facades\URL::signedRoute(
+            'orders.downloadReceipt',
+            ['order' => $this->order->order_id]
+        );
 
-        return $this->to($this->order->user->email)
-                    ->subject('Order Confirmation #' . $this->order->order_id)
+        return $this->subject('Order Confirmation #' . $this->order->order_id)
                     ->view('emails.order_summary')
                     ->with([
                         'order' => $this->order,
