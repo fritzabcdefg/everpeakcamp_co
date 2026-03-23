@@ -15,38 +15,6 @@
 
 <!-- Products Section -->
 <div class="container my-5">
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body">
-            <form action="{{ url()->current() }}" method="GET" class="row g-2 align-items-center">
-                <div class="col-md-6">
-                    <label for="search" class="form-label fw-semibold mb-1">Search products</label>
-                    <input
-                        type="text"
-                        name="search"
-                        id="search"
-                        class="form-control"
-                        placeholder="Search by product name or description"
-                        value="{{ $search ?? request('search') }}"
-                    >
-                </div>
-                <div class="col-md-6 d-flex gap-2 align-self-end">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search me-1"></i> Search
-                    </button>
-                    @if (!empty($search))
-                        <a href="{{ url()->current() }}" class="btn btn-outline-secondary">Clear</a>
-                    @endif
-                </div>
-            </form>
-
-            @if (!empty($search))
-                <p class="text-muted mb-0 mt-3">
-                    Showing results for: <strong>{{ $search }}</strong>
-                </p>
-            @endif
-        </div>
-    </div>
-
     @if ($products->count() > 0)
         <div class="product-grid">
             @foreach ($products as $product)

@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Stock;
+use App\Models\ProductImage;
 
 class ProductSeeder extends Seeder
 {
@@ -32,7 +33,7 @@ class ProductSeeder extends Seeder
             $createdCategories->push(Category::create($category));
         }
 
-        // Products linked to categories
+        // Products linked to categories with image paths
         $products = [
             [
                 'name' => 'Family Camping Tent 6-Person',
@@ -40,7 +41,10 @@ class ProductSeeder extends Seeder
                 'cost_price' => 4400.00,
                 'sell_price' => 8250.00,
                 'category_id' => $createdCategories[0]->category_id,
-                'img_path' => null,
+                'img_path' => 'products/6person tent.png',
+                'gallery_images' => [
+                    'products/6person tent 2.png',
+                ],
             ],
             [
                 'name' => 'Winter Sleeping Bag -15°C',
@@ -48,7 +52,10 @@ class ProductSeeder extends Seeder
                 'cost_price' => 6600.00,
                 'sell_price' => 13750.00,
                 'category_id' => $createdCategories[1]->category_id,
-                'img_path' => null,
+                'img_path' => 'products/sleeping bag.png',
+                'gallery_images' => [
+                    'products/sleeping bag 2.png',
+                ],
             ],
             [
                 'name' => 'Day Hike Backpack 25L',
@@ -56,7 +63,10 @@ class ProductSeeder extends Seeder
                 'cost_price' => 2750.00,
                 'sell_price' => 6600.00,
                 'category_id' => $createdCategories[2]->category_id,
-                'img_path' => null,
+                'img_path' => 'products/backpack.png',
+                'gallery_images' => [
+                    'products/backpack2.png',
+                ],
             ],
             [
                 'name' => 'Portable Camping Stove',
@@ -64,7 +74,10 @@ class ProductSeeder extends Seeder
                 'cost_price' => 1650.00,
                 'sell_price' => 3300.00,
                 'category_id' => $createdCategories[3]->category_id,
-                'img_path' => null,
+                'img_path' => 'products/camping stove.png',
+                'gallery_images' => [
+                    'products/camping stove 2.png',
+                ],
             ],
             [
                 'name' => 'LED Camping Lantern',
@@ -72,19 +85,31 @@ class ProductSeeder extends Seeder
                 'cost_price' => 1375.00,
                 'sell_price' => 3300.00,
                 'category_id' => $createdCategories[4]->category_id,
-                'img_path' => null,
+                'img_path' => 'products/LED Camping Lantern.png',
+                'gallery_images' => [
+                    'products/LED Camping Lanteren 2.png',
+                ],
             ],
         ];
 
-        // Insert products and stock
-        foreach ($products as $product) {
-            $createdProduct = Product::create($product);
+        foreach ($products as $productData) {
+            $galleryImages = $productData['gallery_images'] ?? [];
+            unset($productData['gallery_images']);
+
+            $createdProduct = Product::create($productData);
 
             Stock::create([
                 'product_id' => $createdProduct->product_id,
                 'quantity' => rand(5, 50),
                 'warehouse_location' => 'Warehouse ' . chr(65 + rand(0, 3)),
             ]);
+
+            foreach ($galleryImages as $imagePath) {
+                ProductImage::create([
+                    'product_id' => $createdProduct->product_id,
+                    'img_path' => $imagePath,
+                ]);
+            }
         }
     }
 }

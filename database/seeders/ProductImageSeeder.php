@@ -21,24 +21,24 @@ class ProductImageSeeder extends Seeder
 
         $imageSets = [
             [
-                'products/tent-dome-main.jpg',
-                'products/tent-dome-side.jpg',
+                'products/6person tent.png',
+                'products/6person tent 2.png',
             ],
             [
-                'products/sleeping-bag-main.jpg',
-                'products/sleeping-bag-packed.jpg',
+                'products/sleeping bag.png',
+                'products/sleeping bag 2.png',
             ],
             [
-                'products/backpack-main.jpg',
-                'products/backpack-detail.jpg',
+                'products/backpack.png',
+                'products/backpack2.png',
             ],
             [
-                'products/stove-main.jpg',
-                'products/stove-in-use.jpg',
+                'products/camping stove.png',
+                'products/camping stove 2.png',
             ],
             [
-                'products/lantern-main.jpg',
-                'products/lantern-night.jpg',
+                'products/LED Camping Lantern.png',
+                'products/LED Camping Lanteren 2.png',
             ],
         ];
 
