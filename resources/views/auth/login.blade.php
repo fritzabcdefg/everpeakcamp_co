@@ -32,13 +32,8 @@
 
                         <div class="form-group mb-3">
                             <label for="password" class="form-label">{{ __('Password') }}</label>
-                            <div class="input-group">
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" 
-                                       name="password" placeholder="••••••••" required autocomplete="current-password">
-                                <button class="btn btn-outline-secondary" type="button" id="togglePassword" onclick="togglePasswordVisibility('password', 'togglePassword')" style="border-color: var(--border-color);">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
+                            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" 
+                                   name="password" placeholder="••••••••" required autocomplete="current-password">
                             @error('password')
                                 <div class="invalid-feedback d-block">
                                     <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
@@ -141,24 +136,5 @@
         </div>
     </div>
 @endif
-
-<script>
-    // Toggle password visibility
-    function togglePasswordVisibility(inputId, buttonId) {
-        const input = document.getElementById(inputId);
-        const button = document.getElementById(buttonId);
-        const icon = button.querySelector('i');
-
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
-        }
-    }
-</script>
 
 @endsection
