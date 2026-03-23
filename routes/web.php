@@ -96,10 +96,6 @@ Route::middleware('auth')->group(function () {
     // Customer orders (view only)
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-    Route::get('/orders/{order}/review', [OrderController::class, 'review'])->name('orders.review');
-
-    // Review creation from product page
-    Route::get('/products/{product}/reviews/create', [ReviewController::class, 'create'])->name('product.review.create');
 
     // User Profile (generic) – used by admin and other links
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
@@ -120,6 +116,3 @@ Route::middleware('auth')->group(function () {
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
     Route::get('/products/{product}/reviews', [ReviewController::class, 'productReviews'])->name('product.reviews');
 });
-
-// Public receipt download (with signed URL validation)
-Route::get('/orders/{order}/download-receipt', [OrderController::class, 'downloadReceipt'])->name('orders.downloadReceipt');

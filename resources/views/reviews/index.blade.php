@@ -78,6 +78,11 @@
                         @endforeach
                     </tbody>
                 </table>
+
+                <!-- Pagination -->
+                <div class="d-flex justify-content-center mt-4">
+                    {{ $reviews->links() }}
+                </div>
             @else
                 <p class="text-center text-muted py-5">
                     <i class="fas fa-inbox fa-3x mb-3"></i><br>

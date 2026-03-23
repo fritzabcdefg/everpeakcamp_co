@@ -25,27 +25,20 @@ class OrderSeeder extends Seeder
             return;
         }
 
-        // Create customers based on user data from UserSeeder
+        // Create customers
         $customers = [
-            ['name' => 'Lorraine', 'email' => 'lorrainefrancesdesagun19@gmail.com', 'phone' => '555-0001', 'address' => 'Admin Office - Denver, CO'],
-            ['name' => 'Fritzie', 'email' => 'fritziecadao@gmail.com', 'phone' => '555-0002', 'address' => 'Admin Office - Denver, CO'],
-            ['name' => 'Raymund Turallo', 'email' => 'raymund@gmail.com', 'phone' => null, 'address' => null],
-            ['name' => 'Elijah Gallardo', 'email' => 'elijah@gmail.com', 'phone' => null, 'address' => null],
-            ['name' => 'Francis Balbin', 'email' => 'francis@gmail.com', 'phone' => null, 'address' => null],
-            ['name' => 'Donn Torres', 'email' => 'donn@gmail.com', 'phone' => null, 'address' => null],
+            ['name' => 'Juan dela Cruz', 'email' => 'juan.delacruz@example.com', 'phone' => '+63 912 345 6789', 'address' => '123 Makati Ave, Makati City'],
+            ['name' => 'Maria Santos', 'email' => 'maria.santos@example.com', 'phone' => '+63 917 654 3210', 'address' => '456 BGC Taguig, Metro Manila'],
+            ['name' => 'Miguel Reyes', 'email' => 'miguel.reyes@example.com', 'phone' => '+63 918 765 4321', 'address' => '789 Quezon City, NCR'],
         ];
 
         $createdCustomers = collect();
         foreach ($customers as $customer) {
-            $createdCustomers->push(Customer::updateOrCreate(
-                ['email' => $customer['email']],
-                $customer
-            ));
+            $createdCustomers->push(Customer::create($customer));
         }
 
-        // Create orders - exclude admin users
-        $nonAdminUsers = $users->where('role', '!=', 'admin');
-        foreach ($nonAdminUsers->take(4) as $user) {
+        // Create orders
+        foreach ($users->take(5) as $user) {
             for ($i = 0; $i < rand(2, 4); $i++) {
                 // create order with random shipping fee and compute items later
                 $shippingFee = rand(250, 500); // PHP currency

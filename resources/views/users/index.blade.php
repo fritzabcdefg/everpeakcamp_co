@@ -85,19 +85,16 @@
                                         <a href="{{ route('users.edit', $user) }}" class="btn btn-warning" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button type="submit" form="delete-user-{{ $user->id }}" class="btn btn-danger" title="Delete"
-                                                onclick="return confirm('Are you sure?')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                        <form action="{{ route('users.destroy', $user) }}" method="POST" style="display:inline;">
+                                            @method('DELETE')
+                                            @csrf
+                                            <button type="submit" class="btn btn-danger" title="Delete" 
+                                                    onclick="return confirm('Are you sure?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
                                     @endif
                                 </div>
-
-                                @if (Auth::check() && Auth::user()->role === 'admin' && Auth::user()->id !== $user->id)
-                                    <form id="delete-user-{{ $user->id }}" action="{{ route('users.destroy', $user) }}" method="POST" class="d-none">
-                                        @method('DELETE')
-                                        @csrf
-                                    </form>
-                                @endif
                             </td>
                         </tr>
                     @empty

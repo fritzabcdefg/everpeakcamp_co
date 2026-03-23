@@ -16,9 +16,6 @@
                                         <tr>
                                             <th>Order ID</th>
                                             <th>Order Date</th>
-                                            @if (Auth::check() && Auth::user()->role === 'admin')
-                                                <th>Customer</th>
-                                            @endif
                                             <th>Total Amount</th>
                                             <th>Status</th>
                                             <th>Items</th>
@@ -30,9 +27,6 @@
                                             <tr>
                                                 <td><strong>#{{ $order->order_id }}</strong></td>
                                                 <td>{{ $order->order_date->format('M d, Y') }}</td>
-                                                @if (Auth::check() && Auth::user()->role === 'admin')
-                                                    <td>{{ $order->customer->name ?? 'N/A' }}<br><small class="text-muted">{{ $order->customer->email ?? 'N/A' }}</small></td>
-                                                @endif
                                                 @php $rowTotal = $order->orderItems->sum(fn($it) => $it->quantity * $it->unit_price) + ($order->shipping_fee ?? 0); @endphp
                                                 <td>₱{{ number_format($rowTotal, 2) }}</td>
                                                 <td>
@@ -55,16 +49,9 @@
                                                 </td>
                                                 <td>{{ $order->orderItems->count() }} items</td>
                                                 <td>
-                                                    <div class="btn-group btn-group-sm" role="group">
-                                                        <a href="{{ route('orders.show', $order) }}" class="btn btn-info">
-                                                            <i class="fas fa-eye"></i> View
-                                                        </a>
-                                                        @if ($order->status === 'completed' && (!Auth::check() || Auth::user()->role !== 'admin'))
-                                                            <a href="{{ route('orders.review', $order) }}" class="btn btn-success">
-                                                                <i class="fas fa-star"></i> Review
-                                                            </a>
-                                                        @endif
-                                                    </div>
+                                                    <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-info">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>
                                                 </td>
                                             </tr>
                                         @endforeach
