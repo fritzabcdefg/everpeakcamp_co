@@ -35,6 +35,28 @@
                                 </button>
                             </div>
 
+                            <!-- Search Method Selector (for testing different implementations) -->
+                            <div class="mb-4 p-3" style="background-color: #f8f9fa; border-radius: 8px;">
+                                <label class="form-label text-muted fw-bold" style="font-size: 0.85rem;">
+                                    <i class="fas fa-cog me-1"></i> Search Method
+                                </label>
+                                <select name="search_method" class="form-select form-select-sm" style="border-color: #1a472a;" onchange="document.getElementById('filterForm').submit()">
+                                    <option value="like" {{ $searchMethod == 'like' ? 'selected' : '' }}>LIKE Query (8pts)</option>
+                                    <option value="model" {{ $searchMethod == 'model' ? 'selected' : '' }}>Model Search (10pts)</option>
+                                    <option value="scout" {{ $searchMethod == 'scout' ? 'selected' : '' }}>Scout Search (15pts)</option>
+                                </select>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    @if($searchMethod == 'like')
+                                        Using LIKE queries for search
+                                    @elseif($searchMethod == 'model')
+                                        Using Model scope search method
+                                    @else
+                                        Using Laravel Scout search engine
+                                    @endif
+                                </small>
+                            </div>
+
                             <h6 class="fw-bold mb-3" style="color: #1a472a;">
                                 <i class="fas fa-folder me-2"></i>Categories
                             </h6>
@@ -167,7 +189,7 @@
 
                                     <!-- Stock Status -->
                                     @php
-                                        $stockQuantity = $product->stock ? ($product->stock->first()->quantity ?? 0) : 0;
+                                        $stockQuantity = $product->stock->sum('quantity');
                                     @endphp
                                     <div class="mb-3">
                                         @if($stockQuantity > 0)
