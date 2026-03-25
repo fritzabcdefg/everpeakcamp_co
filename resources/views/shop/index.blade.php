@@ -1,6 +1,6 @@
 @extends('layouts.base')
 @section('title')
-    laravel shopping cart
+    Shopping cart
 @endsection
 @section('body')
     @include('layouts.flash-messages')

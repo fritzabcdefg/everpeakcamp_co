@@ -34,7 +34,7 @@ class ProductController extends Controller
             $query->withTrashed();
         }
 
-        // Search functionality
+        // Search functionalty
         if ($request->has('search') && $request->get('search') != '') {
             $search = $request->get('search')['value'];
             $query->where(function($q) use ($search) {

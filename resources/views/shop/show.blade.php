@@ -24,7 +24,6 @@
                     </h5>
                 </div>
                 <div class="card-body p-3">
-                    <!-- Search + Filter Form -->
                     <div class="mb-4">
                         <form action="{{ route('shop.show') }}" method="GET" id="filterForm">
                             <div class="input-group mb-4">
