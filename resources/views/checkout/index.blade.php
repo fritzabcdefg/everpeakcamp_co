@@ -14,11 +14,11 @@
                         @csrf
                         <div class="mb-2">
                             <label class="form-label">Name</label>
-                            <input type="text" name="name" class="form-control" value="{{ old('name', $user->name ?? '') }}" required>
+                            <input type="text" name="name" class="form-control" value="{{ old('name', $user->name ?? '') }}">
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control" value="{{ old('email', $user->email ?? '') }}" required>
+                            <input type="email" name="email" class="form-control" value="{{ old('email', $user->email ?? '') }}">
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Phone</label>
@@ -26,7 +26,7 @@
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Address</label>
-                            <textarea name="address" class="form-control" rows="3" required>{{ old('address', $user->address ?? '') }}</textarea>
+                            <textarea name="address" class="form-control" rows="3">{{ old('address', $user->address ?? '') }}</textarea>
                         </div>
 
                         <input type="hidden" name="shipping_fee" id="shipping_fee" value="{{ number_format($shippingFee, 2, '.', '') }}">

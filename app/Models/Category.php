@@ -19,6 +19,10 @@ class Category extends Model
         'description',
     ];
 
+    protected $casts = [
+        'category_id' => 'int',
+    ];
+
     /**
      * Get the products for the category.
      */

@@ -30,7 +30,7 @@
                     <div class="form-group mb-3">
                         <label for="commentInput" class="form-label">Your Comment</label>
                         <textarea id="commentInput" class="form-control" name="comment" rows="4" 
-                                  placeholder="Share your experience with this product..." maxlength="1000"></textarea>
+                                  placeholder="Share your experience with this product..."></textarea>
                         <small class="text-muted d-block mt-1"><span id="charCount">0</span>/1000 characters</small>
                     </div>
                 </div>

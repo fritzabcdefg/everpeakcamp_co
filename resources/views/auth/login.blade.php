@@ -22,7 +22,7 @@
                         <div class="form-group mb-3">
                             <label for="email" class="form-label">{{ __('Email Address') }}</label>
                             <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" 
-                                   name="email" value="{{ old('email') }}" placeholder="your@email.com" required autocomplete="email" autofocus>
+                                   name="email" value="{{ old('email') }}" placeholder="your@email.com" autocomplete="email" autofocus>
                             @error('email')
                                 <div class="invalid-feedback d-block">
                                     <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
@@ -34,7 +34,7 @@
                             <label for="password" class="form-label">{{ __('Password') }}</label>
                             <div class="input-group">
                                 <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" 
-                                       name="password" placeholder="••••••••" required autocomplete="current-password">
+                                       name="password" placeholder="••••••••" autocomplete="current-password">
                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword" onclick="togglePasswordVisibility('password', 'togglePassword')" style="border-color: var(--border-color);">
                                     <i class="fas fa-eye"></i>
                                 </button>
@@ -124,23 +124,7 @@
     </div>
 </div>
 
-@if (session('success'))
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11; right: 20px; bottom: 20px;">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    </div>
-@endif
-
-@if (session('info'))
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11; right: 20px; bottom: 20px;">
-        <div class="alert alert-info alert-dismissible fade show" role="alert">
-            {{ session('info') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    </div>
-@endif
+{{-- flash messages are handled in header component --}}
 
 <script>
     // Toggle password visibility

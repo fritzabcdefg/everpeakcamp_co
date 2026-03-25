@@ -22,10 +22,7 @@
                         <div class="form-group mb-3">
                             <label for="name" class="form-label">{{ __('Full Name') }} <span class="text-danger">*</span></label>
                             <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" 
-                                   name="name" value="{{ old('name') }}" placeholder="John Doe" required 
-                                   minlength="3" maxlength="255"
-                                   pattern="^[a-zA-Z\s\-']+$"
-                                   title="Name can only contain letters, spaces, hyphens, and apostrophes"
+                                   name="name" value="{{ old('name') }}" placeholder="John Doe"
                                    autocomplete="name" autofocus>
                             <small class="text-muted">3-255 characters, letters only</small>
                             @error('name')
@@ -38,8 +35,7 @@
                         <div class="form-group mb-3">
                             <label for="email" class="form-label">{{ __('Email Address') }} <span class="text-danger">*</span></label>
                             <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" 
-                                   name="email" value="{{ old('email') }}" placeholder="your@email.com" required 
-                                   maxlength="255"
+                                   name="email" value="{{ old('email') }}" placeholder="your@email.com"
                                    autocomplete="email">
                             <small class="text-muted">We'll never share your email</small>
                             @error('email')
@@ -53,9 +49,7 @@
                             <label for="password" class="form-label">{{ __('Password') }} <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" 
-                                       name="password" placeholder="••••••••" required minlength="8" maxlength="255"
-                                       pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$"
-                                       title="Password must contain: uppercase, lowercase, number, and special character (@$!%*?&)"
+                                       name="password" placeholder="••••••••"
                                        autocomplete="new-password"
                                        oninput="validatePassword()">
                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword" onclick="togglePasswordVisibility('password', 'togglePassword')" style="border-color: var(--border-color);">
@@ -81,7 +75,7 @@
                             <label for="password-confirm" class="form-label">{{ __('Confirm Password') }} <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input id="password-confirm" type="password" class="form-control" 
-                                       name="password_confirmation" placeholder="••••••••" required minlength="8" maxlength="255"
+                                       name="password_confirmation" placeholder="••••••••"
                                        autocomplete="new-password"
                                        oninput="validatePassword()">
                                 <button class="btn btn-outline-secondary" type="button" id="togglePasswordConfirm" onclick="togglePasswordVisibility('password-confirm', 'togglePasswordConfirm')" style="border-color: var(--border-color);">

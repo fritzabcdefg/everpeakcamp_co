@@ -30,6 +30,7 @@ class Product extends Model
     protected $casts = [
         'cost_price' => 'decimal:2',
         'sell_price' => 'decimal:2',
+        'category_id' => 'int',
     ];
 
     /**

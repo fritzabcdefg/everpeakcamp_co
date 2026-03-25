@@ -26,74 +26,32 @@
                 <div class="card-body p-3">
                     <div class="mb-4">
                         <form action="{{ route('shop.show') }}" method="GET" id="filterForm">
+                            <!-- Search Bar at Top -->
                             <div class="input-group mb-4">
                                 <input type="text" name="search" class="form-control rounded-pill" 
-                                       placeholder="Search products or services..." value="{{ $search }}"
+                                       placeholder="Search products..." value="{{ $search }}"
                                        style="border-color: #1a472a;">
                                 <button class="btn rounded-pill" type="submit" style="background-color: #1a472a; color: white; border-color: #1a472a;">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </div>
 
-                            <!-- Search Method Selector (for testing different implementations) -->
-                            <div class="mb-4 p-3" style="background-color: #f8f9fa; border-radius: 8px;">
-                                <label class="form-label text-muted fw-bold" style="font-size: 0.85rem;">
-                                    <i class="fas fa-cog me-1"></i> Search Method
-                                </label>
-                                <select name="search_method" class="form-select form-select-sm" style="border-color: #1a472a;" onchange="document.getElementById('filterForm').submit()">
-                                    <option value="like" {{ $searchMethod == 'like' ? 'selected' : '' }}>LIKE Query (8pts)</option>
-                                    <option value="model" {{ $searchMethod == 'model' ? 'selected' : '' }}>Model Search (10pts)</option>
-                                    <option value="scout" {{ $searchMethod == 'scout' ? 'selected' : '' }}>Scout Search (15pts)</option>
-                                </select>
-                                <small class="text-muted d-block mt-2">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    @if($searchMethod == 'like')
-                                        Using LIKE queries for search
-                                    @elseif($searchMethod == 'model')
-                                        Using Model scope search method
-                                    @else
-                                        Using Laravel Scout search engine
-                                    @endif
-                                </small>
-                            </div>
-
+                            <!-- Categories with Checkboxes -->
                             <h6 class="fw-bold mb-3" style="color: #1a472a;">
                                 <i class="fas fa-folder me-2"></i>Categories
                             </h6>
                             @foreach($categories as $category)
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="category" 
+                                    <input class="form-check-input category-checkbox" type="checkbox" name="category[]" 
                                            id="category{{ $category->category_id }}" 
                                            value="{{ $category->category_id }}"
-                                           {{ $selectedCategory == $category->category_id ? 'checked' : '' }}
+                                           {{ in_array($category->category_id, $selectedCategories) ? 'checked' : '' }}
                                            onchange="document.getElementById('filterForm').submit()">
                                     <label class="form-check-label" for="category{{ $category->category_id }}">
                                         {{ $category->name }}
                                     </label>
                                 </div>
                             @endforeach
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="category" 
-                                       id="categoryAll" value=""
-                                       {{ empty($selectedCategory) ? 'checked' : '' }}
-                                       onchange="document.getElementById('filterForm').submit()">
-                                <label class="form-check-label" for="categoryAll">
-                                    <strong>All Categories</strong>
-                                </label>
-                            </div>
-
-                            <!-- Type Filter -->
-                            <hr>
-                            <h6 class="fw-bold mb-3 mt-3" style="color: #1a472a;">
-                                <i class="fas fa-layer-group me-2"></i>Category / Type
-                            </h6>
-
-                            <div class="mb-3">
-                                <input type="text" name="type" class="form-control form-control-sm"
-                                       placeholder="e.g. Tent, Backpack, Lighting" value="{{ $selectedType ?? '' }}"
-                                       style="border-color: #1a472a;">
-                                <small class="text-muted">Filter by category/type name.</small>
-                            </div>
 
                             <!-- Price Range Filter -->
                             <hr>
@@ -105,21 +63,14 @@
                                 <label for="minPrice" class="form-label text-muted" style="font-size: 0.9rem;">Min Price (₱)</label>
                                 <input type="number" id="minPrice" name="min_price" class="form-control form-control-sm" 
                                        placeholder="{{ number_format($priceStats->min_price ?? 0, 2, '.', '') }}" min="0" step="0.01" value="{{ $minPrice }}"
-                                       style="border-color: #1a472a;">
+                                       style="border-color: #1a472a;" onblur="document.getElementById('filterForm').submit()">
                             </div>
 
                             <div class="mb-3">
                                 <label for="maxPrice" class="form-label text-muted" style="font-size: 0.9rem;">Max Price (₱)</label>
                                 <input type="number" id="maxPrice" name="max_price" class="form-control form-control-sm" 
                                        placeholder="{{ number_format($priceStats->max_price ?? 0, 2, '.', '') }}" min="0" step="0.01" value="{{ $maxPrice }}"
-                                       style="border-color: #1a472a;">
-                            </div>
-
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-sm rounded-pill" 
-                                        style="background-color: #1a472a; color: white; border-color: #1a472a;">
-                                    <i class="fas fa-check me-1"></i> Apply Filters
-                                </button>
+                                       style="border-color: #1a472a;" onblur="document.getElementById('filterForm').submit()">
                             </div>
 
                             <!-- Sorting -->
@@ -144,20 +95,13 @@
                             </div>
                         </form>
                     </div>
-
-                    <!-- Clear Filters -->
-                    @if(!empty($search) || !empty($selectedCategory) || !empty($selectedType ?? '') || !empty($minPrice) || !empty($maxPrice))
-                        <a href="{{ route('shop.show') }}" class="btn btn-outline-danger btn-sm w-100 rounded-pill">
-                            <i class="fas fa-times me-1"></i> Clear Filters
-                        </a>
-                    @endif
                 </div>
             </div>
         </div>
 
         <!-- Products Grid -->
         <div class="col-lg-9">
-            @include('layouts.flash-messages')
+
 
             @if ($products->count() > 0)
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -261,7 +205,7 @@
                     <p class="text-muted mb-4">
                         @if(!empty($search))
                             We couldn't find any products matching "{{ $search }}". <br>
-                        @elseif(!empty($selectedCategory) || !empty($selectedType ?? '') || !empty($minPrice) || !empty($maxPrice))
+                        @elseif(!empty($selectedCategories) || !empty($minPrice) || !empty($maxPrice))
                             No products match the selected filters. <br>
                         @else
                             No products available at the moment. <br>

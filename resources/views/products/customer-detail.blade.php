@@ -4,7 +4,6 @@
 
 @section('content')
 <div class="container my-5">
-    @include('layouts.flash-messages')
 
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
@@ -107,7 +106,7 @@
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $product->product_id }}">
                             <div class="input-group mb-3">
-                                <input type="number" name="quantity" class="form-control" value="1" min="1" max="{{ $totalStock }}">
+                                <input type="number" name="quantity" class="form-control" value="1">
                                 <button class="btn btn-success" type="submit">
                                     <i class="fas fa-shopping-cart me-2"></i>Add to Cart
                                 </button>

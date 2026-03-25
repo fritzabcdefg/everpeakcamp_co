@@ -14,8 +14,7 @@
     </div>
 
     <div class="container my-5">
-        @include('layouts.flash-messages')
-
+        
         @if ($cartItems->count() > 0)
             <!-- Cart Items Section -->
             <div class="table-responsive mb-5">
@@ -63,7 +62,7 @@
                                             <button type="button" class="btn btn-outline-secondary btn-decrement" style="border-color: var(--border-color);">
                                                 <i class="fas fa-minus"></i>
                                             </button>
-                                            <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" 
+                                            <input type="number" name="quantity" value="{{ $item->quantity }}" 
                                                    class="form-control text-center quantity-input" style="border-color: var(--border-color);">
                                             <button type="button" class="btn btn-outline-secondary btn-increment" style="border-color: var(--border-color);">
                                                 <i class="fas fa-plus"></i>

@@ -33,7 +33,7 @@
                             <label for="phone" class="col-md-4 col-form-label text-md-end">{{ __('Phone') }} *</label>
 
                             <div class="col-md-6">
-                                <input id="phone" type="text" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{ old('phone') }}" required autocomplete="tel" autofocus>
+                                <input id="phone" type="text" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{ old('phone') }}" autocomplete="tel" autofocus>
 
                                 @error('phone')
                                     <span class="invalid-feedback" role="alert">
@@ -47,7 +47,7 @@
                             <label for="address" class="col-md-4 col-form-label text-md-end">{{ __('Shipping Address') }} *</label>
 
                             <div class="col-md-6">
-                                <textarea id="address" class="form-control @error('address') is-invalid @enderror" name="address" rows="4" required autocomplete="street-address">{{ old('address') }}</textarea>
+                                <textarea id="address" class="form-control @error('address') is-invalid @enderror" name="address" rows="4" autocomplete="street-address">{{ old('address') }}</textarea>
 
                                 @error('address')
                                     <span class="invalid-feedback" role="alert">

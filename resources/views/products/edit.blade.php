@@ -2,7 +2,6 @@
 
 @section('content')
     <div class="container mt-4">
-        @include('layouts.flash-messages')
 
         <div class="row justify-content-center">
             <div class="col-md-10">
@@ -18,9 +17,7 @@
                             <div class="mb-3">
                                 <label for="name" class="form-label">Product Name <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                       id="name" name="name" value="{{ old('name', $product->name) }}" 
-                                       minlength="3" maxlength="255" pattern="^[a-zA-Z0-9\s\-&\/.,()]+$"
-                                       title="Name can contain letters, numbers, and these symbols: - & / . , ( )" required>
+                                       id="name" name="name" value="{{ old('name', $product->name) }}">
                                 <small class="text-muted">3-255 characters, alphanumeric with allowed symbols</small>
                                 @error('name')
                                     <div class="invalid-feedback d-block"><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</div>
@@ -32,8 +29,8 @@
                                     <span id="charCount" class="text-muted float-end"><small>0/5000</small></span>
                                 </label>
                                 <textarea class="form-control @error('description') is-invalid @enderror" 
-                                          id="description" name="description" rows="5" minlength="10" maxlength="5000"
-                                          placeholder="Detailed description (10-5000 characters)" required
+                                          id="description" name="description" rows="5"
+                                          placeholder="Detailed description (10-5000 characters)"
                                           oninput="updateCharCount()">{{ old('description', $product->description) }}</textarea>
                                 <small class="text-muted">10-5000 characters required</small>
                                 @error('description')
@@ -46,9 +43,9 @@
                                     <div class="mb-3">
                                         <label for="cost_price" class="form-label">Cost Price (₱) <span class="text-danger">*</span></label>
                                         <input type="number" class="form-control @error('cost_price') is-invalid @enderror" 
-                                               id="cost_price" name="cost_price" step="0.01" min="0" max="999999.99"
+                                               id="cost_price" name="cost_price"
                                                value="{{ old('cost_price', $product->cost_price) }}" 
-                                               placeholder="0.00" required oninput="validatePrices()">
+                                               placeholder="0.00" oninput="validatePrices()">
                                         <small class="text-muted">Numeric, 0-999999.99</small>
                                         @error('cost_price')
                                             <div class="invalid-feedback d-block"><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</div>
@@ -59,9 +56,9 @@
                                     <div class="mb-3">
                                         <label for="sell_price" class="form-label">Sell Price (₱) <span class="text-danger">*</span></label>
                                         <input type="number" class="form-control @error('sell_price') is-invalid @enderror" 
-                                               id="sell_price" name="sell_price" step="0.01" min="0" max="999999.99"
+                                               id="sell_price" name="sell_price"
                                                value="{{ old('sell_price', $product->sell_price) }}" 
-                                               placeholder="0.00" required oninput="validatePrices()">
+                                               placeholder="0.00" oninput="validatePrices()">
                                         <small class="text-muted">Must be ≥ Cost Price</small>
                                         <div id="priceWarning" class="mt-2"></div>
                                         @error('sell_price')
@@ -93,7 +90,7 @@
                             <div class="mb-3">
                                 <label for="stocks" class="form-label">Stock Quantity</label>
                                 <input type="number" class="form-control @error('stocks') is-invalid @enderror" 
-                                       id="stocks" name="stocks" value="{{ old('stocks', $product->stock->first()->quantity ?? 0) }}" min="0" step="1" required>
+                                       id="stocks" name="stocks" value="{{ old('stocks', $product->stock->first()->quantity ?? 0) }}">
                                 <small class="form-text text-muted">Set the product inventory quantity</small>
                                 @error('stocks')
                                     <div class="invalid-feedback">{{ $message }}</div>

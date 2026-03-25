@@ -84,21 +84,4 @@
     </div>
 </nav>
 
-{{-- flash messages shown on every page that includes header --}}
-@if(session('success'))
-    <div class="container mt-3">
-        <div class="alert alert-success alert-dismissible fade show animate-slide-in-up" role="alert">
-            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    </div>
-@endif
-
-@if(session('error'))
-    <div class="container mt-3">
-        <div class="alert alert-danger alert-dismissible fade show animate-slide-in-up" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    </div>
-@endif
+{{-- flash messages are handled in flash-messages.blade.php component --}}

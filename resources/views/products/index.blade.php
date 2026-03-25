@@ -2,7 +2,6 @@
 
 @section('content')
     <div id="products" class="container-fluid mt-4">
-        @include('layouts.flash-messages')
         
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Product & Service Management</h2>

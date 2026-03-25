@@ -18,21 +18,18 @@ class ShopController extends Controller
     public function show(Request $request)
     {
         $search = trim((string) $request->get('search', ''));
-        $selectedCategory = $request->get('category', '');
-        $selectedType = trim((string) $request->get('type', ''));
+        // Handle multiple categories (array of category IDs)
+        $selectedCategories = $request->input('category', []);
+        if (!is_array($selectedCategories)) {
+            $selectedCategories = [];
+        }
+        $selectedCategories = array_filter(array_map('intval', $selectedCategories));
+        
         $minPrice = $request->get('min_price', '');
         $maxPrice = $request->get('max_price', '');
-        $searchMethod = $request->get('search_method', 'like'); // Default to LIKE query
 
-        // Determine which search method to use
-        if ($search !== '' && $searchMethod === 'scout') {
-            $products = $this->searchWithScout($search, $selectedCategory, $selectedType, $minPrice, $maxPrice, $request);
-        } elseif ($search !== '' && $searchMethod === 'model') {
-            $products = $this->searchWithModel($search, $selectedCategory, $selectedType, $minPrice, $maxPrice, $request);
-        } else {
-            // Default to LIKE query search
-            $products = $this->searchWithLike($search, $selectedCategory, $selectedType, $minPrice, $maxPrice, $request);
-        }
+        // Use LIKE search (simplified and reliable)
+        $products = $this->searchWithLike($search, $selectedCategories, $minPrice, $maxPrice, $request);
 
         $categories = Category::orderBy('name')->get();
 
@@ -43,21 +40,19 @@ class ShopController extends Controller
             'products' => $products,
             'categories' => $categories,
             'search' => $search,
-            'selectedCategory' => $selectedCategory,
-            'selectedType' => $selectedType,
+            'selectedCategories' => $selectedCategories,
             'minPrice' => $minPrice,
             'maxPrice' => $maxPrice,
             'sortBy' => $request->get('sort_by', 'name'),
             'sortOrder' => $request->get('sort_order', 'asc'),
             'priceStats' => $priceStats,
-            'searchMethod' => $searchMethod,
         ]);
     }
 
     /**
      * Search using LIKE queries (8pts)
      */
-    private function searchWithLike($search, $selectedCategory, $selectedType, $minPrice, $maxPrice, Request $request)
+    private function searchWithLike($search, $selectedCategories, $minPrice, $maxPrice, Request $request)
     {
         $query = Product::with('category', 'stock');
 
@@ -72,64 +67,17 @@ class ShopController extends Controller
             });
         }
 
-        return $this->applyCommonFilters($query, $selectedCategory, $selectedType, $minPrice, $maxPrice, $request);
+        return $this->applyCommonFilters($query, $selectedCategories, $minPrice, $maxPrice, $request);
     }
 
     /**
-     * Search using model scope search method (10pts)
+     * Apply common filters (category, price, sorting)
      */
-    private function searchWithModel($search, $selectedCategory, $selectedType, $minPrice, $maxPrice, Request $request)
+    private function applyCommonFilters($query, $selectedCategories, $minPrice, $maxPrice, Request $request)
     {
-        $query = Product::with('category', 'stock');
-
-        // Use the scopeSearch method from the model
-        if ($search !== '') {
-            $query->search($search);
-        }
-
-        return $this->applyCommonFilters($query, $selectedCategory, $selectedType, $minPrice, $maxPrice, $request);
-    }
-
-    /**
-     * Search using Laravel Scout (15pts)
-     */
-    private function searchWithScout($search, $selectedCategory, $selectedType, $minPrice, $maxPrice, Request $request)
-    {
-        // Perform Scout search on the Product model
-        $productIds = Product::search($search)
-            ->keys()
-            ->toArray();
-
-        // If no results from Scout, return empty paginated collection
-        if (empty($productIds)) {
-            return Product::with('category', 'stock')
-                ->whereIn('product_id', [])
-                ->paginate(12)
-                ->appends($request->query());
-        }
-
-        // Build query from Scout results
-        $query = Product::with('category', 'stock')
-            ->whereIn('product_id', $productIds);
-
-        return $this->applyCommonFilters($query, $selectedCategory, $selectedType, $minPrice, $maxPrice, $request);
-    }
-
-    /**
-     * Apply common filters (category, type, price, sorting)
-     */
-    private function applyCommonFilters($query, $selectedCategory, $selectedType, $minPrice, $maxPrice, Request $request)
-    {
-        // Handle category filter
-        if ($selectedCategory !== '') {
-            $query->where('category_id', $selectedCategory);
-        }
-
-        // Handle type filter using category name
-        if ($selectedType !== '') {
-            $query->whereHas('category', function ($categoryQuery) use ($selectedType) {
-                $categoryQuery->where('name', 'like', "%{$selectedType}%");
-            });
+        // Handle multiple category filter with OR logic (whereIn)
+        if (!empty($selectedCategories)) {
+            $query->whereIn('category_id', $selectedCategories);
         }
 
         // Handle price filter - min and max price

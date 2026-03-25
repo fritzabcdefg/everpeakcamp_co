@@ -72,6 +72,8 @@
             </div>
         </nav>
 
+        @include('layouts.flash-messages')
+
         <main class="py-4">
             @yield('content')
         </main>

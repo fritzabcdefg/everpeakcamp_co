@@ -3,8 +3,6 @@
     Shopping cart
 @endsection
 @section('body')
-    @include('layouts.flash-messages')
-
     @foreach ($items->chunk(10) as $itemChunk)
         <div class="row">
             @foreach ($itemChunk as $item)

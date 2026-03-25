@@ -1,6 +1,5 @@
 @extends('layouts.base')
 @section('body')
-    @include('layouts.flash-messages')
     <div class="row">
 
         <div class="container">

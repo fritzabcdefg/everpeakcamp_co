@@ -2,7 +2,6 @@
 
 @section('content')
     <div class="container mt-4">
-        @include('layouts.flash-messages')
 
         <div class="row justify-content-center">
             <div class="col-md-8">
@@ -34,8 +33,8 @@
                             <div class="mb-3">
                                 <label for="shipping_fee" class="form-label">Shipping Fee $ *</label>
                                 <input type="number" class="form-control @error('shipping_fee') is-invalid @enderror" 
-                                       id="shipping_fee" name="shipping_fee" step="0.01" min="0" 
-                                       value="{{ old('shipping_fee', 0) }}" required>
+                                       id="shipping_fee" name="shipping_fee"
+                                       value="{{ old('shipping_fee', 0) }}">
                                 @error('shipping_fee')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

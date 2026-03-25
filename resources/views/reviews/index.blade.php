@@ -12,8 +12,6 @@
         </div>
     </div>
 
-    @include('layouts.flash-messages')
-
     <div class="card shadow-nature rounded-nature">
         <div class="card-body p-4">
             <div class="table-responsive">

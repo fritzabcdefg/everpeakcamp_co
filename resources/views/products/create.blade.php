@@ -2,7 +2,6 @@
 
 @section('content')
     <div class="container mt-4">
-        @include('layouts.flash-messages')
 
         <div class="row justify-content-center">
             <div class="col-md-10">
@@ -17,10 +16,7 @@
                             <div class="mb-3">
                                 <label for="name" class="form-label">Product Name <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                       id="name" name="name" value="{{ old('name') }}" required 
-                                       minlength="3" maxlength="255" placeholder="Enter product name"
-                                       pattern="^[a-zA-Z0-9\s\-&\/.,()]+$"
-                                       title="Product name can contain letters, numbers, spaces, and these symbols: - & / . , ( )">
+                                       id="name" name="name" value="{{ old('name') }}" placeholder="Enter product name">
                                 <small class="form-text text-muted">3-255 characters, letters, numbers, and special characters allowed</small>
                                 @error('name')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -30,7 +26,7 @@
                             <div class="mb-3">
                                 <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
                                 <textarea class="form-control @error('description') is-invalid @enderror" 
-                                          id="description" name="description" rows="4" required minlength="10" maxlength="5000"
+                                          id="description" name="description" rows="4"
                                           placeholder="Enter detailed product description">{{ old('description') }}</textarea>
                                 <div class="d-flex justify-content-between">
                                     <small class="form-text text-muted">10-5000 characters required</small>
@@ -48,8 +44,8 @@
                                         <div class="input-group">
                                             <span class="input-group-text">₱</span>
                                             <input type="number" class="form-control @error('cost_price') is-invalid @enderror" 
-                                                   id="cost_price" name="cost_price" step="0.01" min="0" max="999999.99"
-                                                   value="{{ old('cost_price') }}" required placeholder="0.00"
+                                                   id="cost_price" name="cost_price"
+                                                   value="{{ old('cost_price') }}" placeholder="0.00"
                                                    oninput="validatePrices()">
                                         </div>
                                         <small class="form-text text-muted">Must be a positive number</small>
@@ -64,8 +60,8 @@
                                         <div class="input-group">
                                             <span class="input-group-text">₱</span>
                                             <input type="number" class="form-control @error('sell_price') is-invalid @enderror" 
-                                                   id="sell_price" name="sell_price" step="0.01" min="0" max="999999.99"
-                                                   value="{{ old('sell_price') }}" required placeholder="0.00"
+                                                   id="sell_price" name="sell_price"
+                                                   value="{{ old('sell_price') }}" placeholder="0.00"
                                                    oninput="validatePrices()">
                                         </div>
                                         <small class="form-text text-muted">Must be ≥ cost price</small>
@@ -101,7 +97,7 @@
                             <div class="mb-3">
                                 <label for="stocks" class="form-label">Initial Stock</label>
                                 <input type="number" class="form-control @error('stocks') is-invalid @enderror" 
-                                       id="stocks" name="stocks" value="{{ old('stocks', 0) }}" min="0" step="1" required>
+                                       id="stocks" name="stocks" value="{{ old('stocks', 0) }}">
                                 <small class="form-text text-muted">Enter starting inventory quantity</small>
                                 @error('stocks')
                                     <div class="invalid-feedback">{{ $message }}</div>
