@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\Facades\DataTables;
 
 class ReviewController extends Controller
 {
@@ -33,11 +34,61 @@ class ReviewController extends Controller
             return redirect()->route('home')->with('error', 'Unauthorized access.');
         }
 
-        $reviews = Review::with(['user', 'product'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        return view('reviews.index');
+    }
 
-        return view('reviews.index', ['reviews' => $reviews]);
+    /**
+     * Get reviews data for DataTables (API endpoint)
+     */
+    public function datatable(Request $request)
+    {
+        // Admin only
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $query = Review::with(['user', 'product']);
+
+        return DataTables::of($query)
+            ->addColumn('product', function ($review) {
+                return $review->product?->name ?? 'N/A';
+            })
+            ->addColumn('customer', function ($review) {
+                return $review->user?->name ?? 'N/A';
+            })
+            ->addColumn('rating', function ($review) {
+                $stars = str_repeat('⭐', $review->rating) . ' ' . $review->rating . '/5';
+                return '<span class="badge bg-warning text-dark">' . $stars . '</span>';
+            })
+            ->addColumn('comment', function ($review) {
+                return '<small>' . \Illuminate\Support\Str::limit($review->comment ?? '', 50) . '</small>';
+            })
+            ->addColumn('date', function ($review) {
+                return $review->created_at->format('M d, Y');
+            })
+            ->addColumn('actions', function ($review) {
+                $actions = '<form action="' . route('reviews.destroy', $review) . '" method="POST" style="display:inline;">';
+                $actions .= '<input type="hidden" name="_method" value="DELETE">';
+                $actions .= '<input type="hidden" name="_token" value="' . csrf_token() . '">';
+                $actions .= '<button type="submit" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm(\'Are you sure?\')"><i class="fas fa-trash"></i> Delete</button>';
+                $actions .= '</form>';
+                return $actions;
+            })
+            ->filterColumn('product', function ($query, $keyword) {
+                $query->whereHas('product', function($pq) use ($keyword) {
+                    $pq->where('name', 'like', "%{$keyword}%");
+                });
+            })
+            ->filterColumn('customer', function ($query, $keyword) {
+                $query->whereHas('user', function($uq) use ($keyword) {
+                    $uq->where('name', 'like', "%{$keyword}%")
+                       ->orWhere('email', 'like', "%{$keyword}%");
+                })
+                ->orWhere('comment', 'like', "%{$keyword}%");
+            })
+            ->orderBy('created_at', 'desc')
+            ->rawColumns(['rating', 'comment', 'actions'])
+            ->make(true);
     }
 
     /**

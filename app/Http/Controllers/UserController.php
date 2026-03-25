@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
@@ -18,8 +19,88 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(15);
-        return view('users.index', ['users' => $users]);
+        return view('users.index');
+    }
+
+    /**
+     * Get users data for DataTables (API endpoint)
+     */
+    public function datatable(Request $request)
+    {
+        $query = User::query();
+
+        return DataTables::of($query)
+            ->addColumn('photo', function ($user) {
+                return $user->photo 
+                    ? '<img src="' . Storage::url($user->photo) . '" alt="' . $user->name . '" width="40" height="40" class="img-thumbnail rounded-circle">'
+                    : '<span class="badge bg-secondary">No Photo</span>';
+            })
+            ->addColumn('role', function ($user) {
+                if (auth()->check() && auth()->user()->role === 'admin' && auth()->user()->id !== $user->id) {
+                    return '<form action="' . route('users.updateRole', $user) . '" method="POST" style="display:inline;">
+                        ' . csrf_field() . method_field('PUT') . '
+                        <select name="role" class="form-select form-select-sm" onchange="this.form.submit()" style="width: 120px;">
+                            <option value="customer" ' . ($user->role === 'customer' ? 'selected' : '') . '>Customer</option>
+                            <option value="admin" ' . ($user->role === 'admin' ? 'selected' : '') . '>Admin</option>
+                        </select>
+                    </form>';
+                } else {
+                    return '<span class="badge bg-' . ($user->role === 'admin' ? 'danger' : 'primary') . '">' . ucfirst($user->role) . '</span>';
+                }
+            })
+            ->addColumn('status', function ($user) {
+                if (auth()->check() && auth()->user()->role === 'admin' && auth()->user()->id !== $user->id) {
+                    return '<form action="' . route('users.updateStatus', $user) . '" method="POST" style="display:inline;">
+                        ' . csrf_field() . method_field('PUT') . '
+                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()" style="width: 120px;">
+                            <option value="active" ' . ($user->status === 'active' ? 'selected' : '') . '>Active</option>
+                            <option value="inactive" ' . ($user->status === 'inactive' ? 'selected' : '') . '>Inactive</option>
+                        </select>
+                    </form>';
+                } else {
+                    return '<span class="badge bg-' . ($user->status === 'active' ? 'success' : 'warning') . '">' . ucfirst($user->status) . '</span>';
+                }
+            })
+            ->addColumn('created', function ($user) {
+                return $user->created_at->format('M d, Y');
+            })
+            ->addColumn('actions', function ($user) {
+                return $this->renderUserActions($user);
+            })
+            ->filterColumn('name', function ($query, $keyword) {
+                $query->where('name', 'like', "%{$keyword}%")
+                      ->orWhere('email', 'like', "%{$keyword}%")
+                      ->orWhere('phone', 'like', "%{$keyword}%");
+            })
+            ->orderBy('created_at', 'desc')
+            ->rawColumns(['photo', 'role', 'status', 'actions'])
+            ->make(true);
+    }
+
+    /**
+     * Render action buttons for users
+     */
+    private function renderUserActions($user)
+    {
+        $actions = '<div class="btn-group btn-group-sm" role="group">';
+        
+        $actions .= '<a href="' . route('users.show', $user) . '" class="btn btn-info" title="View"><i class="fas fa-eye"></i></a>';
+        
+        if (auth()->check() && auth()->user()->role === 'admin' && auth()->user()->id !== $user->id) {
+            $actions .= '<a href="' . route('users.edit', $user) . '" class="btn btn-warning" title="Edit"><i class="fas fa-edit"></i></a>';
+            $actions .= '<button type="button" class="btn btn-danger" title="Delete" onclick="if(confirm(\'Are you sure?\')) { document.getElementById(\'delete-user-' . $user->id . '\').submit(); }"><i class="fas fa-trash"></i></button>';
+        }
+        
+        $actions .= '</div>';
+
+        if (auth()->check() && auth()->user()->role === 'admin' && auth()->user()->id !== $user->id) {
+            $actions .= '<form id="delete-user-' . $user->id . '" action="' . route('users.destroy', $user) . '" method="POST" style="display:none;">';
+            $actions .= '<input type="hidden" name="_method" value="DELETE">';
+            $actions .= '<input type="hidden" name="_token" value="' . csrf_token() . '">';
+            $actions .= '</form>';
+        }
+
+        return $actions;
     }
 
     /**

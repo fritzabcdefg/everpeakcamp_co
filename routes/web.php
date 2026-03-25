@@ -60,6 +60,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // User Management
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::put('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.updateRole');
@@ -68,6 +69,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // Review Management
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
+    Route::get('/reviews/datatable', [ReviewController::class, 'datatable'])->name('reviews.datatable');
 });
 
 // Public product routes (show only) - AFTER create/edit routes above

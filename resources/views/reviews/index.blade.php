@@ -12,28 +12,12 @@
         </div>
     </div>
 
-    @if ($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            <strong>Error!</strong>
-            @foreach ($errors->all() as $error)
-                <div>{{ $error }}</div>
-            @endforeach
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
+    @include('layouts.flash-messages')
 
     <div class="card shadow-nature rounded-nature">
         <div class="card-body p-4">
-            @if ($reviews->count() > 0)
-                <table class="table table-striped table-hover">
+            <div class="table-responsive">
+                <table id="reviews-table" class="table table-striped table-hover">
                     <thead style="background-color: rgba(76, 175, 80, 0.1);">
                         <tr>
                             <th>Product</th>
@@ -45,51 +29,37 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($reviews as $review)
-                            <tr>
-                                <td>
-                                    <strong>{{ $review->product->name ?? 'N/A' }}</strong>
-                                </td>
-                                <td>{{ $review->user->name ?? 'N/A' }}</td>
-                                <td>
-                                    <span class="badge bg-warning text-dark">
-                                        @for ($i = 0; $i < $review->rating; $i++)
-                                            ⭐
-                                        @endfor
-                                        {{ $review->rating }}/5
-                                    </span>
-                                </td>
-                                <td>
-                                    <small>{{ Str::limit($review->comment ?? '', 50) }}</small>
-                                </td>
-                                <td>
-                                    <small class="text-muted">{{ $review->created_at->format('M d, Y') }}</small>
-                                </td>
-                                <td>
-                                    <form action="{{ route('reviews.destroy', $review) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this review?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" title="Delete Review">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
                     </tbody>
                 </table>
-
-                <!-- Pagination -->
-                <div class="d-flex justify-content-center mt-4">
-                    {{ $reviews->links() }}
-                </div>
-            @else
-                <p class="text-center text-muted py-5">
-                    <i class="fas fa-inbox fa-3x mb-3"></i><br>
-                    No reviews found.
-                </p>
-            @endif
+            </div>
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
+<script>
+    $(document).ready(function() {
+        $('#reviews-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('reviews.datatable') }}",
+            columns: [
+                { data: 'product' },
+                { data: 'customer' },
+                { data: 'rating', render: function(data) { return data; }, orderable: false },
+                { data: 'comment' },
+                { data: 'date' },
+                { data: 'actions', render: function(data) { return data; }, orderable: false, searchable: false }
+            ],
+            pageLength: 10,
+            lengthMenu: [10, 15, 25, 50, 100],
+            order: [[4, 'desc']],
+        });
+    });
+</script>
+@endpush
 @endsection

@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ProductsImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\Facades\DataTables;
 
 class ProductController extends Controller
 {
@@ -27,57 +28,37 @@ class ProductController extends Controller
      */
     public function datatable(Request $request)
     {
-        $query = Product::with('category', 'stock', 'images');
-        
-        // Include soft deleted products if requested
-        if ($request->get('include_trashed') == 'true') {
-            $query->withTrashed();
-        }
+        $query = Product::with('category', 'stock', 'images')->withTrashed();
 
-        // Search functionalty
-        if ($request->has('search') && $request->get('search') != '') {
-            $search = $request->get('search')['value'];
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
-
-        $total = $query->count();
-        
-        // Pagination
-        $start = $request->get('start', 0);
-        $length = $request->get('length', 10);
-        
-        $products = $query->skip($start)
-                         ->take($length)
-                         ->get();
-
-        $data = $products->map(function($product) {
-            $stock = $product->stock->sum('quantity');
-            $mainImage = $product->img_path ? Storage::url($product->img_path) : asset('images/no-image.png');
-            $photoCount = $product->images->count();
-            
-            return [
-                'product_id' => $product->product_id,
-                'name' => $product->name,
-                'image' => '<img src="' . $mainImage . '" alt="' . $product->name . '" width="50" height="50" class="img-thumbnail">',
-                'category' => $product->category ? $product->category->name : 'Uncategorized',
-                'cost_price' => number_format($product->cost_price, 2),
-                'sell_price' => number_format($product->sell_price, 2),
-                'stock' => $stock > 0 ? '<span class="badge bg-success">' . $stock . '</span>' : '<span class="badge bg-danger">Out of Stock</span>',
-                'photos' => '<span class="badge bg-info">' . $photoCount . '</span>',
-                'status' => $product->deleted_at ? '<span class="badge bg-secondary">Deleted</span>' : '<span class="badge bg-success">Active</span>',
-                'actions' => $this->renderActions($product),
-            ];
-        });
-
-        return response()->json([
-            'draw' => $request->get('draw', 1),
-            'recordsTotal' => $total,
-            'recordsFiltered' => $total,
-            'data' => $data,
-        ]);
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->editColumn('img_path', function ($product) {
+                $mainImage = $product->img_path ? Storage::url($product->img_path) : asset('images/no-image.png');
+                return '<img src="' . $mainImage . '" alt="' . $product->name . '" width="50" height="50" class="img-thumbnail">';
+            })
+            ->addColumn('category_name', function ($product) {
+                return $product->category ? $product->category->name : 'Uncategorized';
+            })
+            ->addColumn('stock_quantity', function ($product) {
+                $stock = $product->stock->sum('quantity');
+                return $stock > 0 ? '<span class="badge bg-success">' . $stock . '</span>' : '<span class="badge bg-danger">Out of Stock</span>';
+            })
+            ->addColumn('photo_count', function ($product) {
+                return '<span class="badge bg-info">' . $product->images->count() . '</span>';
+            })
+            ->addColumn('status', function ($product) {
+                return $product->deleted_at ? '<span class="badge bg-secondary">Deleted</span>' : '<span class="badge bg-success">Active</span>';
+            })
+            ->addColumn('actions', function ($product) {
+                return $this->renderActions($product);
+            })
+            ->filterColumn('name', function ($query, $keyword) {
+                $query->where('name', 'like', "%{$keyword}%")
+                      ->orWhere('description', 'like', "%{$keyword}%");
+            })
+            ->orderBy('deleted_at', 'asc')
+            ->rawColumns(['img_path', 'stock_quantity', 'photo_count', 'status', 'actions'])
+            ->make(true);
     }
 
     /**
