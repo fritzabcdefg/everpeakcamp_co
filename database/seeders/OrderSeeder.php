@@ -43,23 +43,55 @@ class OrderSeeder extends Seeder
 
         $statuses = ['completed', 'completed', 'completed', 'processing', 'pending', 'cancelled'];
         
+        // Generate all orders in chronological order (oldest to newest)
+        $allOrders = [];
+        
         // Create orders from 2024 (full year - Jan to Dec)
-        $this->createOrdersForYear($users, $products, $createdCustomers, 2024, 1, 1, 12, 31, 10, 14, $statuses);
+        $orders2024 = $this->generateOrdersForYear($users, $products, $createdCustomers, 2024, 1, 1, 12, 31, 10, 14, $statuses);
+        $allOrders = array_merge($allOrders, $orders2024);
         
         // Create orders from 2025 (Jan to Mar 26)
-        $this->createOrdersForYear($users, $products, $createdCustomers, 2025, 1, 1, 3, 26, 8, 12, $statuses);
+        $orders2025 = $this->generateOrdersForYear($users, $products, $createdCustomers, 2025, 1, 1, 3, 26, 8, 12, $statuses);
+        $allOrders = array_merge($allOrders, $orders2025);
+        
+        // Sort all orders by date (oldest to newest)
+        usort($allOrders, function($a, $b) {
+            return $a['order_date']->timestamp - $b['order_date']->timestamp;
+        });
+        
+        // Create orders in chronological order
+        foreach ($allOrders as $orderData) {
+            $order = Order::create([
+                'user_id' => $orderData['user_id'],
+                'customer_id' => $orderData['customer_id'],
+                'shipping_fee' => $orderData['shipping_fee'],
+                'status' => $orderData['status'],
+                'order_date' => $orderData['order_date'],
+            ]);
+
+            // Add order items
+            foreach ($orderData['items'] as $item) {
+                OrderItem::create([
+                    'order_id' => $order->order_id,
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $item['unit_price'],
+                ]);
+            }
+        }
     }
 
     /**
-     * Create orders for a specific month range
+     * Generate orders for a specific month range (returns array instead of creating)
      */
-    private function createOrdersForYear($users, $products, $createdCustomers, $year, $startMonth, $startDay, $endMonth, $endDay, $minOrders, $maxOrders, $statuses)
+    private function generateOrdersForYear($users, $products, $createdCustomers, $year, $startMonth, $startDay, $endMonth, $endDay, $minOrders, $maxOrders, $statuses)
     {
+        $orders = [];
         $startDate = Carbon::create($year, $startMonth, $startDay, 0, 0, 0);
         $endDate = Carbon::create($year, $endMonth, $endDay, 23, 59, 59);
         $daysInRange = $startDate->diffInDays($endDate);
         
-        // Create orders per user
+        // Generate orders per user
         foreach ($users->take(5) as $user) {
             $orderCount = rand($minOrders, $maxOrders);
             
@@ -70,27 +102,30 @@ class OrderSeeder extends Seeder
                 
                 $shippingFee = rand(250, 500);
                 
-                $order = Order::create([
+                // Generate order items
+                $items = [];
+                $itemCount = rand(1, 3);
+                $randomProducts = $products->random($itemCount);
+                
+                foreach ($randomProducts as $product) {
+                    $items[] = [
+                        'product_id' => $product->product_id,
+                        'quantity' => rand(1, 3),
+                        'unit_price' => $product->sell_price,
+                    ];
+                }
+                
+                $orders[] = [
                     'user_id' => $user->id,
                     'customer_id' => $createdCustomers->random()->customer_id,
                     'shipping_fee' => $shippingFee,
                     'status' => $statuses[array_rand($statuses)],
                     'order_date' => $randomDate,
-                ]);
-
-                // Add 1-3 random products to order
-                $itemCount = rand(1, 3);
-                $randomProducts = $products->random($itemCount);
-                
-                foreach ($randomProducts as $product) {
-                    OrderItem::create([
-                        'order_id' => $order->order_id,
-                        'product_id' => $product->product_id,
-                        'quantity' => rand(1, 3),
-                        'unit_price' => $product->sell_price,
-                    ]);
-                }
+                    'items' => $items,
+                ];
             }
         }
+        
+        return $orders;
     }
 }

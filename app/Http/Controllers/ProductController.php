@@ -28,37 +28,52 @@ class ProductController extends Controller
      */
     public function datatable(Request $request)
     {
-        $query = Product::with('category', 'stock', 'images')->withTrashed();
+        try {
+            \Log::info('ProductController::datatable called - User: ' . (auth()->check() ? auth()->user()->id : 'NOT_AUTHENTICATED'));
+            
+            if (!auth()->check()) {
+                \Log::warning('Unauthorized datatable access - user not authenticated');
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+            
+            if (auth()->user()->role !== 'admin') {
+                \Log::warning('Unauthorized datatable access - user not admin');
+                return response()->json(['error' => 'Forbidden'], 403);
+            }
+            
+            $query = Product::with('category', 'stock', 'images')->withTrashed()->orderBy('deleted_at', 'asc');
 
-        return DataTables::of($query)
-            ->addIndexColumn()
-            ->editColumn('img_path', function ($product) {
-                $mainImage = $product->img_path ? Storage::url($product->img_path) : asset('images/no-image.png');
-                return '<img src="' . $mainImage . '" alt="' . $product->name . '" width="50" height="50" class="img-thumbnail">';
-            })
-            ->addColumn('category_name', function ($product) {
-                return $product->category ? $product->category->name : 'Uncategorized';
-            })
-            ->addColumn('stock_quantity', function ($product) {
-                $stock = $product->stock->sum('quantity');
-                return $stock > 0 ? '<span class="badge bg-success">' . $stock . '</span>' : '<span class="badge bg-danger">Out of Stock</span>';
-            })
-            ->addColumn('photo_count', function ($product) {
-                return '<span class="badge bg-info">' . $product->images->count() . '</span>';
-            })
-            ->addColumn('status', function ($product) {
-                return $product->deleted_at ? '<span class="badge bg-secondary">Deleted</span>' : '<span class="badge bg-success">Active</span>';
-            })
-            ->addColumn('actions', function ($product) {
-                return $this->renderActions($product);
-            })
-            ->filterColumn('name', function ($query, $keyword) {
-                $query->where('name', 'like', "%{$keyword}%")
-                      ->orWhere('description', 'like', "%{$keyword}%");
-            })
-            ->orderBy('deleted_at', 'asc')
-            ->rawColumns(['img_path', 'stock_quantity', 'photo_count', 'status', 'actions'])
-            ->make(true);
+            return DataTables::of($query)
+                ->editColumn('img_path', function ($product) {
+                    $mainImage = $product->img_path ? Storage::url($product->img_path) : asset('images/no-image.png');
+                    return '<img src="' . $mainImage . '" alt="' . $product->name . '" width="50" height="50" class="img-thumbnail">';
+                })
+                ->addColumn('category_name', function ($product) {
+                    return $product->category ? $product->category->name : 'Uncategorized';
+                })
+                ->addColumn('stock_quantity', function ($product) {
+                    $stock = $product->stock->sum('quantity');
+                    return $stock > 0 ? '<span class="badge bg-success">' . $stock . '</span>' : '<span class="badge bg-danger">Out of Stock</span>';
+                })
+                ->addColumn('photo_count', function ($product) {
+                    return '<span class="badge bg-info">' . $product->images->count() . '</span>';
+                })
+                ->addColumn('status', function ($product) {
+                    return $product->deleted_at ? '<span class="badge bg-secondary">Deleted</span>' : '<span class="badge bg-success">Active</span>';
+                })
+                ->addColumn('actions', function ($product) {
+                    return $this->renderActions($product);
+                })
+                ->filterColumn('name', function ($query, $keyword) {
+                    $query->where('name', 'like', "%{$keyword}%")
+                          ->orWhere('description', 'like', "%{$keyword}%");
+                })
+                ->rawColumns(['img_path', 'stock_quantity', 'photo_count', 'status', 'actions'])
+                ->make(true);
+        } catch (\Exception $e) {
+            \Log::error('DataTable error: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'Server error: ' . $e->getMessage()], 500);
+        }
     }
 
     /**

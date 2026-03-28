@@ -7,7 +7,7 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header bg-info text-white">
-                        <h4 class="mb-0"><i class="fas fa-folder"></i> {{ $category->name }}</h4>
+                        <h4 class="mb-0" style="color: var(--cream);"><i class="fas fa-folder"></i> {{ $category->name }}</h4>
                     </div>
                     <div class="card-body">
                         <p><strong>Description:</strong></p>

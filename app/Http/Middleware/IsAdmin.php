@@ -17,15 +17,24 @@ class IsAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if (!Auth::check()) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Unauthenticated'], 401);
+            }
             return redirect()->route('login')->with('error', 'Please log in to continue.');
         }
 
         if (is_null(Auth::user()->email_verified_at)) {
             Auth::logout();
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Email not verified'], 403);
+            }
             return redirect()->route('login')->with('error', 'Your email must be verified to access admin features.');
         }
 
         if (Auth::user()->role !== 'admin') {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Forbidden'], 403);
+            }
             return redirect()->route('home')->with('error', 'You do not have permission to access this page.');
         }
 

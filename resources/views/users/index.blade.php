@@ -43,7 +43,21 @@
             $('#users-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('users.datatable') }}",
+                ajax: {
+                    url: "{{ route('users.datatable') }}",
+                    type: 'GET',
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        'Accept': 'application/json'
+                    },
+                    error: function(xhr, error, thrown) {
+                        console.error('DataTable AJAX Error:', error);
+                        console.error('Status:', xhr.status);
+                        console.error('Response:', xhr.responseText);
+                        console.error('Thrown:', thrown);
+                    }
+                },
                 columns: [
                     { data: 'id' },
                     { data: 'photo', render: function(data) { return data; }, orderable: false },

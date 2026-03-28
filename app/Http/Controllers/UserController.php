@@ -27,54 +27,74 @@ class UserController extends Controller
      */
     public function datatable(Request $request)
     {
-        $query = User::query();
+        try {
+            \Log::info('UserController::datatable called - User: ' . (auth()->check() ? auth()->user()->id : 'NOT_AUTHENTICATED'));
+            
+            if (!auth()->check()) {
+                \Log::warning('Unauthorized datatable access - user not authenticated');
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+            
+            if (auth()->user()->role !== 'admin') {
+                \Log::warning('Unauthorized datatable access - user not admin');
+                return response()->json(['error' => 'Forbidden'], 403);
+            }
+            
+            $query = User::query()->orderBy('created_at', 'desc');
 
-        return DataTables::of($query)
-            ->addColumn('photo', function ($user) {
-                return $user->photo 
-                    ? '<img src="' . Storage::url($user->photo) . '" alt="' . $user->name . '" width="40" height="40" class="img-thumbnail rounded-circle">'
-                    : '<span class="badge bg-secondary">No Photo</span>';
-            })
-            ->addColumn('role', function ($user) {
-                if (auth()->check() && auth()->user()->role === 'admin' && auth()->user()->id !== $user->id) {
-                    return '<form action="' . route('users.updateRole', $user) . '" method="POST" style="display:inline;">
-                        ' . csrf_field() . method_field('PUT') . '
-                        <select name="role" class="form-select form-select-sm" onchange="this.form.submit()" style="width: 120px;">
-                            <option value="customer" ' . ($user->role === 'customer' ? 'selected' : '') . '>Customer</option>
-                            <option value="admin" ' . ($user->role === 'admin' ? 'selected' : '') . '>Admin</option>
-                        </select>
-                    </form>';
-                } else {
-                    return '<span class="badge bg-' . ($user->role === 'admin' ? 'danger' : 'primary') . '">' . ucfirst($user->role) . '</span>';
-                }
-            })
-            ->addColumn('status', function ($user) {
-                if (auth()->check() && auth()->user()->role === 'admin' && auth()->user()->id !== $user->id) {
-                    return '<form action="' . route('users.updateStatus', $user) . '" method="POST" style="display:inline;">
-                        ' . csrf_field() . method_field('PUT') . '
-                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()" style="width: 120px;">
-                            <option value="active" ' . ($user->status === 'active' ? 'selected' : '') . '>Active</option>
-                            <option value="inactive" ' . ($user->status === 'inactive' ? 'selected' : '') . '>Inactive</option>
-                        </select>
-                    </form>';
-                } else {
-                    return '<span class="badge bg-' . ($user->status === 'active' ? 'success' : 'warning') . '">' . ucfirst($user->status) . '</span>';
-                }
-            })
-            ->addColumn('created', function ($user) {
-                return $user->created_at->format('M d, Y');
-            })
-            ->addColumn('actions', function ($user) {
-                return $this->renderUserActions($user);
-            })
-            ->filterColumn('name', function ($query, $keyword) {
-                $query->where('name', 'like', "%{$keyword}%")
-                      ->orWhere('email', 'like', "%{$keyword}%")
-                      ->orWhere('phone', 'like', "%{$keyword}%");
-            })
-            ->orderBy('created_at', 'desc')
-            ->rawColumns(['photo', 'role', 'status', 'actions'])
-            ->make(true);
+            return DataTables::of($query)
+                ->addColumn('name', function ($user) {
+                    return $user->first_name . ' ' . $user->last_name;
+                })
+                ->addColumn('photo', function ($user) {
+                    return $user->photo 
+                        ? '<img src="' . Storage::url($user->photo) . '" alt="' . $user->first_name . ' ' . $user->last_name . '" width="40" height="40" class="img-thumbnail rounded-circle">'
+                        : '<span class="badge bg-secondary">No Photo</span>';
+                })
+                ->addColumn('role', function ($user) {
+                    if (auth()->check() && auth()->user()->role === 'admin' && auth()->user()->id !== $user->id) {
+                        return '<form action="' . route('users.updateRole', $user) . '" method="POST" style="display:inline;">
+                            ' . csrf_field() . method_field('PUT') . '
+                            <select name="role" class="form-select form-select-sm" onchange="this.form.submit()" style="width: 120px;">
+                                <option value="customer" ' . ($user->role === 'customer' ? 'selected' : '') . '>Customer</option>
+                                <option value="admin" ' . ($user->role === 'admin' ? 'selected' : '') . '>Admin</option>
+                            </select>
+                        </form>';
+                    } else {
+                        return '<span class="badge bg-' . ($user->role === 'admin' ? 'danger' : 'primary') . '">' . ucfirst($user->role) . '</span>';
+                    }
+                })
+                ->addColumn('status', function ($user) {
+                    if (auth()->check() && auth()->user()->role === 'admin' && auth()->user()->id !== $user->id) {
+                        return '<form action="' . route('users.updateStatus', $user) . '" method="POST" style="display:inline;">
+                            ' . csrf_field() . method_field('PUT') . '
+                            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()" style="width: 120px;">
+                                <option value="active" ' . ($user->status === 'active' ? 'selected' : '') . '>Active</option>
+                                <option value="inactive" ' . ($user->status === 'inactive' ? 'selected' : '') . '>Inactive</option>
+                            </select>
+                        </form>';
+                    } else {
+                        return '<span class="badge bg-' . ($user->status === 'active' ? 'success' : 'warning') . '">' . ucfirst($user->status) . '</span>';
+                    }
+                })
+                ->addColumn('created', function ($user) {
+                    return $user->created_at->format('M d, Y');
+                })
+                ->addColumn('actions', function ($user) {
+                    return $this->renderUserActions($user);
+                })
+                ->filterColumn('name', function ($query, $keyword) {
+                    $query->where('first_name', 'like', "%{$keyword}%")
+                          ->orWhere('last_name', 'like', "%{$keyword}%")
+                          ->orWhere('email', 'like', "%{$keyword}%")
+                          ->orWhere('phone', 'like', "%{$keyword}%");
+                })
+                ->rawColumns(['photo', 'role', 'status', 'actions'])
+                ->make(true);
+        } catch (\Exception $e) {
+            \Log::error('DataTable error: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'Server error: ' . $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -117,7 +137,8 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'phone' => 'nullable|string|max:50',
@@ -236,7 +257,8 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
+            'first_name' => 'sometimes|string|max:255',
+            'last_name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:users,email,' . $user->id,
             'password' => 'sometimes|string|min:8|confirmed',
             'phone' => 'nullable|string|max:50',
@@ -275,16 +297,21 @@ class UserController extends Controller
     {
         // only email/password during initial registration
         $validated = $request->validate([
-            'name' => 'required|string|min:3|max:255|regex:/^[a-zA-Z\s\-\']+$/',
+            'first_name' => 'required|string|min:2|max:255|regex:/^[a-zA-Z\s\-\']+$/',
+            'last_name' => 'required|string|min:2|max:255|regex:/^[a-zA-Z\s\-\']+$/',
             'email' => 'required|email:rfc,dns|unique:users|max:255',
             'password' => 'required|string|min:8|max:255|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|confirmed',
             'password_confirmation' => 'required|string|same:password',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=100,min_height=100',
         ], [
-            'name.required' => 'Full name is required.',
-            'name.min' => 'Full name must be at least 3 characters long.',
-            'name.max' => 'Full name cannot exceed 255 characters.',
-            'name.regex' => 'Full name can only contain letters, spaces, hyphens, and apostrophes.',
+            'first_name.required' => 'First name is required.',
+            'first_name.min' => 'First name must be at least 2 characters long.',
+            'first_name.max' => 'First name cannot exceed 255 characters.',
+            'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and apostrophes.',
+            'last_name.required' => 'Last name is required.',
+            'last_name.min' => 'Last name must be at least 2 characters long.',
+            'last_name.max' => 'Last name cannot exceed 255 characters.',
+            'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and apostrophes.',
             'email.required' => 'Email address is required.',
             'email.email' => 'Please enter a valid email address.',
             'email.unique' => 'This email address is already registered.',
@@ -303,7 +330,8 @@ class UserController extends Controller
         ]);
 
         $userData = [
-            'name' => $validated['name'],
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated['last_name'],
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
             'role' => 'customer',
@@ -371,7 +399,7 @@ class UserController extends Controller
 
             // normal customer: check profile completeness
             $user = Auth::user();
-            if (empty($user->phone) || empty($user->address) || empty($user->name)) {
+            if (empty($user->phone) || empty($user->address) || empty($user->first_name) || empty($user->last_name)) {
                 return redirect()->route('profile.create')
                              ->with('success', 'Please complete your profile before placing orders.');
             }

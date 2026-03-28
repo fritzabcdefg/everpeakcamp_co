@@ -7,7 +7,7 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header bg-info text-white">
-                        <h4 class="mb-0"><i class="fas fa-receipt"></i> Order #{{ $order->order_id }}</h4>
+                        <h4 class="mb-0" style="color: var(--cream);"><i class="fas fa-receipt"></i> Order #{{ $order->order_id }}</h4>
                     </div>
                     <div class="card-body">
                         <div class="row mb-4">

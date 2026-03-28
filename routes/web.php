@@ -52,6 +52,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // Order Management
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/datatable', [OrderController::class, 'datatable'])->name('orders.datatable');
     Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');

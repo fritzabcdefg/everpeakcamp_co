@@ -6,7 +6,7 @@
 <!-- Hero Section -->
 <div class="hero-section">
     <div class="container">
-        <h1 class="title animate-slide-in-up" style="font-size: 3.5rem;">
+        <h1 class="title animate-slide-in-up" style="font-size: 3.5rem; color: var(--cream);">
             <i class="fas fa-campfire me-2" style="color: var(--cream);"></i>EverPeak Camp Co.
         </h1>
         <p class="lead animate-slide-in-up">Your trusted source for premium outdoor & camping gear</p>

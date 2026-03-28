@@ -146,7 +146,7 @@
             <div class="col-lg-8">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Yearly Sales Revenue</h5>
+                        <h5 class="mb-0" style="color: var(--cream);"><i class="fas fa-chart-bar me-2"></i>Yearly Sales Revenue</h5>
                     </div>
                     <div class="card-body">
                         <canvas id="yearlySalesChart" width="400" height="200"></canvas>
@@ -158,7 +158,7 @@
             <div class="col-lg-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-success text-white">
-                        <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Product Sales Distribution</h5>
+                        <h5 class="mb-0" style="color: var(--cream);"><i class="fas fa-chart-pie me-2"></i>Product Sales Distribution</h5>
                     </div>
                     <div class="card-body">
                         <canvas id="productSalesChart" width="300" height="300"></canvas>

@@ -18,6 +18,7 @@
                 <table id="reviews-table" class="table table-striped table-hover">
                     <thead style="background-color: rgba(76, 175, 80, 0.1);">
                         <tr>
+                            <th>Product ID</th>
                             <th>Product</th>
                             <th>Customer</th>
                             <th>Rating</th>
@@ -44,8 +45,23 @@
         $('#reviews-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('reviews.datatable') }}",
+            ajax: {
+                url: "{{ route('reviews.datatable') }}",
+                type: 'GET',
+                dataType: 'json',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'Accept': 'application/json'
+                },
+                error: function(xhr, error, thrown) {
+                    console.error('DataTable AJAX Error:', error);
+                    console.error('Status:', xhr.status);
+                    console.error('Response:', xhr.responseText);
+                    console.error('Thrown:', thrown);
+                }
+            },
             columns: [
+                { data: 'product_id' },
                 { data: 'product' },
                 { data: 'customer' },
                 { data: 'rating', render: function(data) { return data; }, orderable: false },

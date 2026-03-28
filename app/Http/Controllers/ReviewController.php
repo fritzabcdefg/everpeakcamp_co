@@ -42,53 +42,63 @@ class ReviewController extends Controller
      */
     public function datatable(Request $request)
     {
-        // Admin only
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
+        try {
+            // Admin only - explicit logging
+            \Log::info('ReviewController::datatable called - User: ' . (auth()->check() ? auth()->user()->id : 'NOT_AUTHENTICATED'));
+            
+            if (!Auth::check() || Auth::user()->role !== 'admin') {
+                \Log::warning('Unauthorized datatable access on reviews endpoint');
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
 
-        $query = Review::with(['user', 'product']);
+            $query = Review::with(['user', 'product'])->orderBy('created_at', 'desc');
 
-        return DataTables::of($query)
-            ->addColumn('product', function ($review) {
-                return $review->product?->name ?? 'N/A';
-            })
-            ->addColumn('customer', function ($review) {
-                return $review->user?->name ?? 'N/A';
-            })
-            ->addColumn('rating', function ($review) {
-                $stars = str_repeat('⭐', $review->rating) . ' ' . $review->rating . '/5';
-                return '<span class="badge bg-warning text-dark">' . $stars . '</span>';
-            })
-            ->addColumn('comment', function ($review) {
-                return '<small>' . \Illuminate\Support\Str::limit($review->comment ?? '', 50) . '</small>';
-            })
-            ->addColumn('date', function ($review) {
-                return $review->created_at->format('M d, Y');
-            })
-            ->addColumn('actions', function ($review) {
-                $actions = '<form action="' . route('reviews.destroy', $review) . '" method="POST" style="display:inline;">';
-                $actions .= '<input type="hidden" name="_method" value="DELETE">';
-                $actions .= '<input type="hidden" name="_token" value="' . csrf_token() . '">';
-                $actions .= '<button type="submit" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm(\'Are you sure?\')"><i class="fas fa-trash"></i> Delete</button>';
-                $actions .= '</form>';
-                return $actions;
-            })
-            ->filterColumn('product', function ($query, $keyword) {
-                $query->whereHas('product', function($pq) use ($keyword) {
-                    $pq->where('name', 'like', "%{$keyword}%");
-                });
-            })
-            ->filterColumn('customer', function ($query, $keyword) {
-                $query->whereHas('user', function($uq) use ($keyword) {
-                    $uq->where('name', 'like', "%{$keyword}%")
-                       ->orWhere('email', 'like', "%{$keyword}%");
+            return DataTables::of($query)
+                ->addColumn('product_id', function ($review) {
+                    return $review->product_id ?? 'N/A';
                 })
-                ->orWhere('comment', 'like', "%{$keyword}%");
-            })
-            ->orderBy('created_at', 'desc')
-            ->rawColumns(['rating', 'comment', 'actions'])
-            ->make(true);
+                ->addColumn('product', function ($review) {
+                    return $review->product?->name ?? 'N/A';
+                })
+                ->addColumn('customer', function ($review) {
+                    return $review->user?->name ?? 'N/A';
+                })
+                ->addColumn('rating', function ($review) {
+                    $stars = str_repeat('⭐', $review->rating) . ' ' . $review->rating . '/5';
+                    return '<span class="badge bg-warning text-dark">' . $stars . '</span>';
+                })
+                ->addColumn('comment', function ($review) {
+                    return '<small>' . \Illuminate\Support\Str::limit($review->comment ?? '', 50) . '</small>';
+                })
+                ->addColumn('date', function ($review) {
+                    return $review->created_at->format('M d, Y');
+                })
+                ->addColumn('actions', function ($review) {
+                    $actions = '<form action="' . route('reviews.destroy', $review) . '" method="POST" style="display:inline;">';
+                    $actions .= '<input type="hidden" name="_method" value="DELETE">';
+                    $actions .= '<input type="hidden" name="_token" value="' . csrf_token() . '">';
+                    $actions .= '<button type="submit" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm(\'Are you sure?\')"><i class="fas fa-trash"></i> Delete</button>';
+                    $actions .= '</form>';
+                    return $actions;
+                })
+                ->filterColumn('product', function ($query, $keyword) {
+                    $query->whereHas('product', function($pq) use ($keyword) {
+                        $pq->where('name', 'like', "%{$keyword}%");
+                    });
+                })
+                ->filterColumn('customer', function ($query, $keyword) {
+                    $query->whereHas('user', function($uq) use ($keyword) {
+                        $uq->where('name', 'like', "%{$keyword}%")
+                           ->orWhere('email', 'like', "%{$keyword}%");
+                    })
+                    ->orWhere('comment', 'like', "%{$keyword}%");
+                })
+                ->rawColumns(['rating', 'comment', 'actions'])
+                ->make(true);
+        } catch (\Exception $e) {
+            \Log::error('DataTable error: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'Server error: ' . $e->getMessage()], 500);
+        }
     }
 
     /**

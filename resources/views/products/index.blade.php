@@ -73,19 +73,30 @@
                 ajax: {
                     url: "{{ route('products.datatable') }}",
                     type: "GET",
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        'Accept': 'application/json'
+                    },
                     data: function(d) {
                         d.include_trashed = 'false'; // no custom checkbox anymore
+                    },
+                    error: function(xhr, error, thrown) {
+                        console.error('DataTable AJAX Error:', error);
+                        console.error('Status:', xhr.status);
+                        console.error('Response:', xhr.responseText);
+                        console.error('Thrown:', thrown);
                     }
                 },
                 columns: [
                     { data: 'product_id' },
-                    { data: 'image', orderable: false, searchable: false },
+                    { data: 'img_path', orderable: false, searchable: false },
                     { data: 'name' },
-                    { data: 'category' },
+                    { data: 'category_name' },
                     { data: 'cost_price' },
                     { data: 'sell_price' },
-                    { data: 'stock', orderable: false, searchable: false },
-                    { data: 'photos', orderable: false, searchable: false },
+                    { data: 'stock_quantity', orderable: false, searchable: false },
+                    { data: 'photo_count', orderable: false, searchable: false },
                     { data: 'status', orderable: false, searchable: false },
                     { data: 'actions', orderable: false, searchable: false },
                 ],

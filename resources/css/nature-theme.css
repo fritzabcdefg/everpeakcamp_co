@@ -61,6 +61,11 @@ h1, h2, h3, h4, h5, h6 {
     letter-spacing: 0.5px;
 }
 
+h1.text-white, h2.text-white, h3.text-white, h4.text-white, h5.text-white, h6.text-white,
+p.text-white, span.text-white, label.text-white {
+    color: #ffffff !important;
+}
+
 h1 { font-size: 2.5rem; }
 h2 { font-size: 2rem; }
 h3 { font-size: 1.5rem; }
@@ -96,10 +101,11 @@ a:hover {
 .navbar-brand {
     font-size: 1.4rem !important;
     font-weight: 700 !important;
-    color: white !important;
+    color: #ffffff !important;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     transition: transform 0.3s ease;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .navbar-brand:hover {
@@ -107,8 +113,9 @@ a:hover {
 }
 
 .navbar-brand i {
-    color: var(--terracotta);
+    color: #ffd700;
     margin-right: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .nav-link {

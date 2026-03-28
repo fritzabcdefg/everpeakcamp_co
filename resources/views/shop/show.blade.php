@@ -6,8 +6,7 @@
 <!-- Shop Header -->
 <div class="bg-dark text-white py-5" style="background: linear-gradient(135deg, #1a472a 0%, #2d5f3f 100%);">
     <div class="container py-4 text-center">
-        <h1 class="display-4 fw-bold mb-2">
-            <i class="fas fa-shopping-bag text-warning"></i> Shop All Products
+        <h1 class="display-4 fw-bold mb-2 text-white">Shop All Products
         </h1>
         <p class="lead text-light">Browse our complete collection of outdoor & camping gear</p>
     </div>
@@ -15,28 +14,46 @@
 
 <div class="container my-5">
     <div class="row g-4">
-        <!-- Sidebar Filters -->
+        <!-- LEFT COLUMN: Search & Categories -->
         <div class="col-lg-3">
-            <div class="card rounded-3 shadow-sm" style="border: none; sticky: top; top: 20px;">
+            <div class="card rounded-3 shadow-sm" style="border: none; position: sticky; top: 20px;">
                 <div style="background: linear-gradient(135deg, #1a472a 0%, #2d5f3f 100%); color: white; padding: 1.5rem; border-radius: 12px 12px 0 0;">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-filter me-2"></i>Filters
+                    <h5 class="mb-0 fw-bold text-white">
+                        <i class="fas fa-search me-2"></i>Search & Category
                     </h5>
                 </div>
                 <div class="card-body p-3">
+                    <!-- Search Bar (Separate Form) -->
                     <div class="mb-4">
-                        <form action="{{ route('shop.show') }}" method="GET" id="filterForm">
-                            <!-- Search Bar at Top -->
-                            <div class="input-group mb-4">
-                                <input type="text" name="search" class="form-control rounded-pill" 
+                        <form action="{{ route('shop.show') }}" method="GET" id="searchForm">
+                            <input type="hidden" name="sort_by" value="{{ $sortBy }}">
+                            <input type="hidden" name="sort_order" value="{{ $sortOrder }}">
+                            <input type="hidden" name="min_price" value="{{ $minPrice }}">
+                            <input type="hidden" name="max_price" value="{{ $maxPrice }}">
+                            @foreach($selectedCategories as $catId)
+                                <input type="hidden" name="category[]" value="{{ $catId }}">
+                            @endforeach
+                            <div class="input-group">
+                                <input type="text" name="search" class="form-control rounded-start" 
                                        placeholder="Search products..." value="{{ $search }}"
                                        style="border-color: #1a472a;">
-                                <button class="btn rounded-pill" type="submit" style="background-color: #1a472a; color: white; border-color: #1a472a;">
+                                <button class="btn" type="submit" style="background-color: #1a472a; color: white; border-color: #1a472a;">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </div>
+                        </form>
+                    </div>
 
-                            <!-- Categories with Checkboxes -->
+                    <!-- Categories with Checkboxes (Separate Form) -->
+                    <form action="{{ route('shop.show') }}" method="GET" id="categoryForm">
+                        <!-- Preserve search term, sort, and price -->
+                        <input type="hidden" name="search" value="{{ $search }}">
+                        <input type="hidden" name="sort_by" value="{{ $sortBy }}">
+                        <input type="hidden" name="sort_order" value="{{ $sortOrder }}">
+                        <input type="hidden" name="min_price" value="{{ $minPrice }}">
+                        <input type="hidden" name="max_price" value="{{ $maxPrice }}">
+                        
+                        <div>
                             <h6 class="fw-bold mb-3" style="color: #1a472a;">
                                 <i class="fas fa-folder me-2"></i>Categories
                             </h6>
@@ -45,62 +62,27 @@
                                     <input class="form-check-input category-checkbox" type="checkbox" name="category[]" 
                                            id="category{{ $category->category_id }}" 
                                            value="{{ $category->category_id }}"
-                                           {{ in_array($category->category_id, $selectedCategories) ? 'checked' : '' }}
-                                           onchange="document.getElementById('filterForm').submit()">
+                                           @checked(in_array($category->category_id, $selectedCategories))
+                                           onchange="document.getElementById('categoryForm').submit()">
                                     <label class="form-check-label" for="category{{ $category->category_id }}">
                                         {{ $category->name }}
                                     </label>
                                 </div>
                             @endforeach
+                        </div>
+                    </form>
 
-                            <!-- Price Range Filter -->
-                            <hr>
-                            <h6 class="fw-bold mb-3 mt-3" style="color: #1a472a;">
-                                <i class="fas fa-tag me-2"></i>Price Range
-                            </h6>
-                            
-                            <div class="mb-3">
-                                <label for="minPrice" class="form-label text-muted" style="font-size: 0.9rem;">Min Price (₱)</label>
-                                <input type="number" id="minPrice" name="min_price" class="form-control form-control-sm" 
-                                       placeholder="{{ number_format($priceStats->min_price ?? 0, 2, '.', '') }}" min="0" step="0.01" value="{{ $minPrice }}"
-                                       style="border-color: #1a472a;" onblur="document.getElementById('filterForm').submit()">
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="maxPrice" class="form-label text-muted" style="font-size: 0.9rem;">Max Price (₱)</label>
-                                <input type="number" id="maxPrice" name="max_price" class="form-control form-control-sm" 
-                                       placeholder="{{ number_format($priceStats->max_price ?? 0, 2, '.', '') }}" min="0" step="0.01" value="{{ $maxPrice }}"
-                                       style="border-color: #1a472a;" onblur="document.getElementById('filterForm').submit()">
-                            </div>
-
-                            <!-- Sorting -->
-                            <hr>
-                            <h6 class="fw-bold mb-3 mt-3" style="color: #1a472a;">
-                                <i class="fas fa-sort me-2"></i>Sort By
-                            </h6>
-                            
-                            <div class="mb-2">
-                                <select name="sort_by" class="form-select form-select-sm" style="border-color: #1a472a;" onchange="document.getElementById('filterForm').submit()">
-                                    <option value="name" {{ $sortBy == 'name' ? 'selected' : '' }}>Product Name</option>
-                                    <option value="sell_price" {{ $sortBy == 'sell_price' ? 'selected' : '' }}>Price</option>
-                                    <option value="created_at" {{ $sortBy == 'created_at' ? 'selected' : '' }}>Newest</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <select name="sort_order" class="form-select form-select-sm" style="border-color: #1a472a;" onchange="document.getElementById('filterForm').submit()">
-                                    <option value="asc" {{ $sortOrder == 'asc' ? 'selected' : '' }}>Ascending</option>
-                                    <option value="desc" {{ $sortOrder == 'desc' ? 'selected' : '' }}>Descending</option>
-                                </select>
-                            </div>
-                        </form>
-                    </div>
+                    <!-- Clear Filters Button -->
+                    <hr class="my-3">
+                    <a href="{{ route('shop.show') }}" class="btn btn-outline-danger btn-sm w-100 rounded-pill">
+                        <i class="fas fa-times me-1"></i> Clear Filters
+                    </a>
                 </div>
             </div>
         </div>
 
-        <!-- Products Grid -->
-        <div class="col-lg-9">
+            <!-- MIDDLE COLUMN: Products -->
+            <div class="col-lg-6">
 
 
             @if ($products->count() > 0)
@@ -218,8 +200,86 @@
                     </a>
                 </div>
             @endif
+            </div>
+
+            <!-- RIGHT COLUMN: Price Range & Sort By -->
+            <div class="col-lg-3">
+                <div class="card rounded-3 shadow-sm" style="border: none; position: sticky; top: 20px;">
+                    <div style="background: linear-gradient(135deg, #1a472a 0%, #2d5f3f 100%); color: white; padding: 1.5rem; border-radius: 12px 12px 0 0;">
+                        <h5 class="mb-0 fw-bold text-white">
+                            <i class="fas fa-sliders me-2"></i>Price & Sort
+                        </h5>
+                    </div>
+                    <div class="card-body p-3">
+                        <!-- Price Range Form -->
+                        <form action="{{ route('shop.show') }}" method="GET" id="priceForm">
+                            <!-- Preserve search term, categories, and sort -->
+                            <input type="hidden" name="search" value="{{ $search }}">
+                            @foreach($selectedCategories as $catId)
+                                <input type="hidden" name="category[]" value="{{ $catId }}">
+                            @endforeach
+                            <input type="hidden" name="sort_by" value="{{ $sortBy }}">
+                            <input type="hidden" name="sort_order" value="{{ $sortOrder }}">
+
+                            <!-- Price Range Filter -->
+                            <div class="mb-4">
+                                <h6 class="fw-bold mb-3" style="color: #1a472a;">
+                                    <i class="fas fa-tag me-2"></i>Price Range
+                                </h6>
+                                
+                                <div class="mb-3">
+                                    <label for="minPrice" class="form-label text-muted" style="font-size: 0.9rem;">Min Price (₱)</label>
+                                    <input type="number" id="minPrice" name="min_price" class="form-control form-control-sm" 
+                                           placeholder="{{ number_format($priceStats->min_price ?? 0, 2, '.', '') }}" min="0" step="0.01" value="{{ $minPrice }}"
+                                           style="border-color: #1a472a;" onblur="document.getElementById('priceForm').submit()">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="maxPrice" class="form-label text-muted" style="font-size: 0.9rem;">Max Price (₱)</label>
+                                    <input type="number" id="maxPrice" name="max_price" class="form-control form-control-sm" 
+                                           placeholder="{{ number_format($priceStats->max_price ?? 0, 2, '.', '') }}" min="0" step="0.01" value="{{ $maxPrice }}"
+                                           style="border-color: #1a472a;" onblur="document.getElementById('priceForm').submit()">
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Sorting Form -->
+                        <form action="{{ route('shop.show') }}" method="GET" id="sortForm">
+                            <!-- Preserve search term, categories, and price -->
+                            <input type="hidden" name="search" value="{{ $search }}">
+                            @foreach($selectedCategories as $catId)
+                                <input type="hidden" name="category[]" value="{{ $catId }}">
+                            @endforeach
+                            <input type="hidden" name="min_price" value="{{ $minPrice }}">
+                            <input type="hidden" name="max_price" value="{{ $maxPrice }}">
+
+                            <!-- Sorting -->
+                            <hr>
+                            <div class="mt-3">
+                                <h6 class="fw-bold mb-3" style="color: #1a472a;">
+                                    <i class="fas fa-sort me-2"></i>Sort By
+                                </h6>
+                                
+                                <div class="mb-2">
+                                    <select name="sort_by" class="form-select form-select-sm" style="border-color: #1a472a;" onchange="document.getElementById('sortForm').submit()">
+                                        <option value="name" {{ $sortBy == 'name' ? 'selected' : '' }}>Product Name</option>
+                                        <option value="sell_price" {{ $sortBy == 'sell_price' ? 'selected' : '' }}>Price</option>
+                                        <option value="created_at" {{ $sortBy == 'created_at' ? 'selected' : '' }}>Newest</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <select name="sort_order" class="form-select form-select-sm" style="border-color: #1a472a;" onchange="document.getElementById('sortForm').submit()">
+                                        <option value="asc" {{ $sortOrder == 'asc' ? 'selected' : '' }}>Ascending</option>
+                                        <option value="desc" {{ $sortOrder == 'desc' ? 'selected' : '' }}>Descending</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
 </div>
 
 <style>

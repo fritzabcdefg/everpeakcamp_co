@@ -10,6 +10,7 @@ use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Yajra\DataTables\Facades\DataTables;
 
 class OrderController extends Controller
 {
@@ -23,6 +24,64 @@ class OrderController extends Controller
             ->with('orderItems.product')
             ->paginate(15);
         return view('orders.index', ['orders' => $orders]);
+    }
+
+    /**
+     * Get orders data for DataTables (API endpoint)
+     */
+    public function datatable(Request $request)
+    {
+        try {
+            \Log::info('OrderController::datatable called - User: ' . (auth()->check() ? auth()->user()->id : 'NOT_AUTHENTICATED'));
+            
+            if (!auth()->check()) {
+                \Log::warning('Unauthorized datatable access - user not authenticated');
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+            
+            if (auth()->user()->role !== 'admin') {
+                \Log::warning('Unauthorized datatable access - user not admin');
+                return response()->json(['error' => 'Forbidden'], 403);
+            }
+
+            $query = Order::with('orderItems.product', 'user')->orderBy('order_date', 'desc');
+
+            return DataTables::of($query)
+                ->addColumn('order_id', function ($order) {
+                    return '#' . $order->order_id;
+                })
+                ->addColumn('order_date', function ($order) {
+                    return $order->order_date->format('M d, Y');
+                })
+                ->addColumn('customer_name', function ($order) {
+                    return $order->user?->name ?? 'N/A';
+                })
+                ->addColumn('total_amount', function ($order) {
+                    $total = $order->orderItems->sum(fn($item) => $item->quantity * $item->unit_price) + ($order->shipping_fee ?? 0);
+                    return '₱' . number_format($total, 2);
+                })
+                ->addColumn('item_count', function ($order) {
+                    return $order->orderItems->count() . ' items';
+                })
+                ->addColumn('status', function ($order) {
+                    $statusColors = [
+                        'pending' => 'warning text-dark',
+                        'processing' => 'info',
+                        'completed' => 'success',
+                        'cancelled' => 'danger'
+                    ];
+                    $color = $statusColors[$order->status] ?? 'secondary';
+                    return '<span class="badge bg-' . $color . '">' . ucfirst($order->status) . '</span>';
+                })
+                ->addColumn('actions', function ($order) {
+                    return '<a href="' . route('orders.show', $order) . '" class="btn btn-sm btn-info"><i class="fas fa-eye"></i> View</a>';
+                })
+                ->rawColumns(['status', 'actions'])
+                ->make(true);
+        } catch (\Exception $e) {
+            \Log::error('DataTable error: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'Server error: ' . $e->getMessage()], 500);
+        }
     }
 
     /**

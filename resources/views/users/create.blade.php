@@ -7,7 +7,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0"><i class="fas fa-user-plus"></i> Add New User</h4>
+                        <h4 class="mb-0" style="color: var(--cream);"><i class="fas fa-user-plus"></i> Add New User</h4>
                     </div>
                     <div class="card-body">
                         <form action="{{ route('users.store') }}" method="POST">
