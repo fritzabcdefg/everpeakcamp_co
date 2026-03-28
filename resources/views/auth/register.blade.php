@@ -19,17 +19,35 @@
                     <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data" id="registerForm" novalidate>
                         @csrf
 
-                        <div class="form-group mb-3">
-                            <label for="name" class="form-label">{{ __('Full Name') }} <span class="text-danger">*</span></label>
-                            <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" 
-                                   name="name" value="{{ old('name') }}" placeholder="John Doe"
-                                   autocomplete="name" autofocus>
-                            <small class="text-muted">3-255 characters, letters only</small>
-                            @error('name')
-                                <div class="invalid-feedback d-block">
-                                    <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="first_name" class="form-label">{{ __('First Name') }} <span class="text-danger">*</span></label>
+                                    <input id="first_name" type="text" class="form-control @error('first_name') is-invalid @enderror" 
+                                           name="first_name" value="{{ old('first_name') }}" placeholder="John"
+                                           autocomplete="given-name" autofocus>
+                                    <small class="text-muted">2-255 characters, letters only</small>
+                                    @error('first_name')
+                                        <div class="invalid-feedback d-block">
+                                            <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                        </div>
+                                    @enderror
                                 </div>
-                            @enderror
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="last_name" class="form-label">{{ __('Last Name') }} <span class="text-danger">*</span></label>
+                                    <input id="last_name" type="text" class="form-control @error('last_name') is-invalid @enderror" 
+                                           name="last_name" value="{{ old('last_name') }}" placeholder="Doe"
+                                           autocomplete="family-name">
+                                    <small class="text-muted">2-255 characters, letters only</small>
+                                    @error('last_name')
+                                        <div class="invalid-feedback d-block">
+                                            <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                        </div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-group mb-3">
