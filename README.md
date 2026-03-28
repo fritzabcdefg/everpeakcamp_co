@@ -76,7 +76,7 @@ MAIL_USERNAME=ad3f31aa582735
 MAIL_PASSWORD=****f446
 MAIL_ENCRYPTION=null
 MAIL_FROM_ADDRESS=no-reply@everpeakcamp.test
-MAIL_FROM_NAME="EverPeak Camp Co."
+MAIL_FROM_NAME="Everpeak Camp Co"
 ```
 
 You can choose any port supported by Mailtrap (25, 465, 587 or 2525). TLS/STARTTLS is optional.

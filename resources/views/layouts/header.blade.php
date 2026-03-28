@@ -2,7 +2,7 @@
     <div class="container-fluid px-3 px-lg-4">
         <!-- Brand -->
         <a class="navbar-brand" href="{{ route('home') }}">
-            <i class="fas fa-campfire me-2"></i> EverPeak Camp Co.
+            <i class="fas fa-campfire me-2"></i> Everpeak Camp Co
         </a>
 
         <!-- Toggler Button -->
@@ -42,19 +42,42 @@
                     </a>
                 @endif
 
-                <!-- Account Dropdown -->
-                <div class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-user-circle me-1"></i>
-                        {{ Auth::check() ? \Illuminate\Support\Str::limit(Auth::user()->name, 15) : 'Account' }}
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end rounded-3" style="border: 1px solid var(--border-color);" aria-labelledby="navbarDropdown">
-                        @auth
-                            @if (Auth::user()->role === 'admin')
-                                <h6 class="dropdown-header fw-bold" style="background: linear-gradient(135deg, var(--primary-green-light) 0%, var(--accent-green) 100%); color: white;">
-                                    <i class="fas fa-shield-alt me-2"></i>Admin Panel
-                                </h6>
+                <!-- Profile Photo Dropdown (Only for authenticated users) -->
+                @auth
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle p-0" href="#" id="profileDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="My Profile">
+                            @if(Auth::user()->photo)
+                                <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="{{ Auth::user()->first_name }}" 
+                                     class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover; border: 2px solid var(--accent-green);">
+                            @else
+                                <div class="rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-green-light) 0%, var(--accent-green) 100%); color: white; font-weight: bold; font-size: 18px;">
+                                    {{ substr(Auth::user()->first_name, 0, 1) }}{{ substr(Auth::user()->last_name, 0, 1) }}
+                                </div>
+                            @endif
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end rounded-3" style="border: 1px solid var(--border-color); min-width: 220px;" aria-labelledby="profileDropdown">
+                            <div class="dropdown-header" style="background: linear-gradient(135deg, var(--primary-green-light) 0%, var(--accent-green) 100%); color: white; border-radius: 8px 8px 0 0;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    @if(Auth::user()->photo)
+                                        <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="{{ Auth::user()->first_name }}" 
+                                             class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;">
+                                    @else
+                                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                             style="width: 35px; height: 35px; background: rgba(255,255,255,0.3); color: white; font-weight: bold; font-size: 16px;">
+                                            {{ substr(Auth::user()->first_name, 0, 1) }}{{ substr(Auth::user()->last_name, 0, 1) }}
+                                        </div>
+                                    @endif
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600;">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</div>
+                                        <div style="font-size: 12px; opacity: 0.9;">{{ Auth::user()->email }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="dropdown-divider" style="margin: 0.5rem 0;">
+                            @if(Auth::user()->role === 'admin')
+                                <h6 class="dropdown-subheader" style="color: var(--primary-green-dark); font-size: 12px; font-weight: 700;">ADMIN</h6>
                                 <a class="dropdown-item" href="{{ route('dashboard') }}"><i class="fas fa-chart-line me-2" style="color: var(--primary-green-light);"></i> Dashboard</a>
                                 <a class="dropdown-item" href="{{ route('users.index') }}"><i class="fas fa-users me-2" style="color: var(--info);"></i> Manage Users</a>
                                 <a class="dropdown-item" href="{{ route('products.index') }}"><i class="fas fa-box me-2" style="color: var(--accent-green);"></i> Manage Products</a>
@@ -65,6 +88,9 @@
                             @else
                                 <a class="dropdown-item" href="{{ route('profile.index') }}"><i class="fas fa-user me-2" style="color: var(--primary-green-light);"></i> My Profile</a>
                                 <a class="dropdown-item" href="{{ route('orders.index') }}"><i class="fas fa-receipt me-2" style="color: var(--accent-green);"></i> My Orders</a>
+                                @if(!Auth::user()->photo)
+                                    <a class="dropdown-item" href="{{ route('profile.index') }}"><i class="fas fa-camera me-2" style="color: var(--terracotta);"></i> Upload Photo</a>
+                                @endif
                                 <hr class="dropdown-divider" style="margin: 0.5rem 0;">
                             @endif
                             <form action="{{ route('logout') }}" method="POST" style="display:inline;">
@@ -73,12 +99,9 @@
                                     <i class="fas fa-sign-out-alt me-2"></i> Logout
                                 </button>
                             </form>
-                        @else
-                            <a class="dropdown-item" href="{{ route('register') }}"><i class="fas fa-user-plus me-2" style="color: var(--accent-green);"></i> Register</a>
-                            <a class="dropdown-item fw-bold" href="{{ route('login') }}"><i class="fas fa-sign-in-alt me-2" style="color: var(--primary-green-light);"></i> Login</a>
-                        @endauth
+                        </div>
                     </div>
-                </div>
+                @endauth
             </div>
         </div>
     </div>

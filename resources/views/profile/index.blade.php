@@ -22,7 +22,7 @@
                                     <i class="fas fa-user fa-5x text-muted"></i>
                                 </div>
                             @endif
-                            <h5 class="mt-3" style="color: var(--primary-green-light);">{{ Auth::user()->name }}</h5>
+                            <h5 class="mt-3" style="color: var(--primary-green-light);">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</h5>
                             @if (Auth::user()->email_verified_at)
                                 <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Email Verified</span>
                             @else
@@ -35,7 +35,7 @@
                         <table class="table table-borderless">
                             <tr>
                                 <th width="30%">Name:</th>
-                                <td>{{ Auth::user()->name }}</td>
+                                <td>{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</td>
                             </tr>
                             <tr>
                                 <th>Email:</th>

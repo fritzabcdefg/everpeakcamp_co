@@ -1,6 +1,6 @@
 @extends('layouts.base')
 
-@section('title', 'Shopping Cart - EverPeak Camp Co.')
+@section('title', 'Shopping Cart - Everpeak Camp Co')
 
 @section('content')
     <!-- Cart Header -->
@@ -55,7 +55,7 @@
                                     </span>
                                 </td>
                                 <td class="text-center py-4 align-middle">
-                                    <form action="{{ route('cart.update', $item) }}" method="POST" class="d-inline-block quantity-form">
+                                    <form action="{{ route('cart.update', $item->product_id) }}" method="POST" class="d-inline-block quantity-form">
                                         @csrf
                                         @method('PUT')
                                         <div class="input-group input-group-sm" style="width: 120px;">
@@ -76,7 +76,7 @@
                                     </strong>
                                 </td>
                                 <td class="text-center py-4 align-middle">
-                                    <form action="{{ route('cart.destroy', $item) }}" method="POST" style="display:inline;">
+                                    <form action="{{ route('cart.destroy', $item->product_id) }}" method="POST" style="display:inline;">
                                         @method('DELETE')
                                         @csrf
                                         <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle" 
@@ -151,36 +151,6 @@
                     Explore our amazing collection of outdoor gear and get ready for your next adventure!
                 </p>
             </div>
-
-            <!-- Browse Categories Section -->
-            <div class="mb-5">
-                <h4 class="text-center fw-bold mb-4" style="color: var(--primary-green-dark);">
-                    <i class="fas fa-compass me-2"></i>Browse By Category
-                </h4>
-                <div class="row g-4">
-                    @forelse($categories as $category)
-                        <div class="col-md-6 col-lg-3">
-                            <a href="{{ route('categories.show', $category->category_id) }}" class="text-decoration-none">
-                                <div class="card h-100 shadow-nature animate-fade-in" style="transition: transform 0.3s ease;">
-                                    <div class="card-body text-center py-5" style="background: linear-gradient(135deg, rgba(173, 213, 168, 0.1) 0%, rgba(184, 245, 168, 0.1) 100%);">
-                                        <i class="fas fa-campground fa-3x mb-3" style="color: var(--accent-green);"></i>
-                                        <h5 class="card-title fw-bold" style="color: var(--primary-green-dark);">{{ $category->name }}</h5>
-                                        <p class="card-text text-muted small">{{ $category->description ?? 'Explore our collection' }}</p>
-                                        <span class="badge badge-success mt-2">
-                                            <i class="fas fa-arrow-right me-1"></i>Explore
-                                        </span>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    @empty
-                        <div class="col-12">
-                            <p class="text-center text-muted">No categories available yet.</p>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-
             <!-- Call to Action -->
             <div class="text-center py-3">
                 <a href="{{ route('shop.show') }}" class="btn btn-primary btn-lg rounded-pill">

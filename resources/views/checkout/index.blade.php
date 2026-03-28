@@ -1,6 +1,6 @@
 @extends('layouts.base')
 
-@section('title', 'Checkout - EverPeak Camp Co.')
+@section('title', 'Checkout - Everpeak Camp Co')
 
 @section('content')
 <div class="container my-5">
@@ -14,7 +14,7 @@
                         @csrf
                         <div class="mb-2">
                             <label class="form-label">Name</label>
-                            <input type="text" name="name" class="form-control" value="{{ old('name', $user->name ?? '') }}">
+                            <input type="text" name="name" class="form-control" value="{{ old('name', $user->first_name . ' ' . $user->last_name) }}">
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Email</label>

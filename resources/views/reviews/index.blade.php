@@ -18,7 +18,7 @@
                 <table id="reviews-table" class="table table-striped table-hover">
                     <thead style="background-color: rgba(76, 175, 80, 0.1);">
                         <tr>
-                            <th>Product ID</th>
+                            <th>Review ID</th>
                             <th>Product</th>
                             <th>Customer</th>
                             <th>Rating</th>
@@ -61,7 +61,14 @@
                 }
             },
             columns: [
-                { data: 'product_id' },
+                { 
+                    data: 'review_id', 
+                    orderable: false, 
+                    searchable: false,
+                    createdCell: function(td, cellData) {
+                        $(td).html(cellData);
+                    }
+                },
                 { data: 'product' },
                 { data: 'customer' },
                 { data: 'rating', render: function(data) { return data; }, orderable: false },
@@ -71,7 +78,7 @@
             ],
             pageLength: 10,
             lengthMenu: [10, 15, 25, 50, 100],
-            order: [[4, 'desc']],
+            order: [[5, 'desc']]
         });
     });
 </script>

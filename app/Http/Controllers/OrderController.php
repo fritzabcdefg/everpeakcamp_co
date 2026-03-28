@@ -54,7 +54,7 @@ class OrderController extends Controller
                     return $order->order_date->format('M d, Y');
                 })
                 ->addColumn('customer_name', function ($order) {
-                    return $order->user?->name ?? 'N/A';
+                    return ($order->user ? $order->user->first_name . ' ' . $order->user->last_name : 'N/A');
                 })
                 ->addColumn('total_amount', function ($order) {
                     $total = $order->orderItems->sum(fn($item) => $item->quantity * $item->unit_price) + ($order->shipping_fee ?? 0);
@@ -116,8 +116,17 @@ class OrderController extends Controller
      */
     public function checkoutForm(Request $request)
     {
-        $userId = $request->user()?->id ?? auth()->id();
-        $cartItems = CartItem::where('user_id', $userId)->with('product')->get();
+        // Require authentication
+        if (!auth()->check()) {
+            return redirect()->route('login')->with('info', 'Please log in to proceed with checkout');
+        }
+
+        // Prevent admins from accessing checkout form
+        if (auth()->user()->role === 'admin') {
+            return redirect()->route('cart.index')->with('error', 'Admins cannot place orders');
+        }
+
+        $cartItems = CartItem::where('user_id', auth()->id())->with('product')->get();
 
         if ($cartItems->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty');
@@ -147,6 +156,16 @@ class OrderController extends Controller
      */
     public function checkout(Request $request)
     {
+        // Require authentication
+        if (!auth()->check()) {
+            return redirect()->route('login')->with('info', 'Please log in to proceed with checkout');
+        }
+
+        // Prevent admins from placing orders
+        if (auth()->user()->role === 'admin') {
+            return redirect()->route('cart.index')->with('error', 'Admins cannot place orders');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
@@ -155,7 +174,7 @@ class OrderController extends Controller
             'shipping_fee' => 'required|numeric|min:0',
         ]);
 
-        $userId = $request->user()?->id ?? auth()->id();
+        $userId = auth()->id();
         $cartItems = CartItem::where('user_id', $userId)->with('product')->get();
 
         if ($cartItems->isEmpty()) {

@@ -91,8 +91,13 @@ class OrderSeeder extends Seeder
         $endDate = Carbon::create($year, $endMonth, $endDay, 23, 59, 59);
         $daysInRange = $startDate->diffInDays($endDate);
         
+        // Filter out admin users - only create orders for customers
+        $customerUsers = $users->filter(function($user) {
+            return $user->role !== 'admin';
+        })->take(5);
+        
         // Generate orders per user
-        foreach ($users->take(5) as $user) {
+        foreach ($customerUsers as $user) {
             $orderCount = rand($minOrders, $maxOrders);
             
             for ($i = 0; $i < $orderCount; $i++) {

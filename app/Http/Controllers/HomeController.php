@@ -28,9 +28,12 @@ class HomeController extends Controller
                 ->withQueryString();
         }
 
+        $categories = Category::orderBy('name')->get();
+
         return view('home', [
             'products' => $products,
             'search' => $search,
+            'categories' => $categories,
         ]);
     }
 }

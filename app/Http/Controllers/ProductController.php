@@ -41,9 +41,10 @@ class ProductController extends Controller
                 return response()->json(['error' => 'Forbidden'], 403);
             }
             
-            $query = Product::with('category', 'stock', 'images')->withTrashed()->orderBy('deleted_at', 'asc');
+            $query = Product::select('products.*')->selectRaw('product_id as id')->with('category', 'stock', 'images')->withTrashed()->orderBy('products.product_id', 'desc');
 
             return DataTables::of($query)
+                ->setRowId('product_id')
                 ->editColumn('img_path', function ($product) {
                     $mainImage = $product->img_path ? Storage::url($product->img_path) : asset('images/no-image.png');
                     return '<img src="' . $mainImage . '" alt="' . $product->name . '" width="50" height="50" class="img-thumbnail">';

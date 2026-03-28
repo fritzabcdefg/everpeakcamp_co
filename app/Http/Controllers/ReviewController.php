@@ -51,17 +51,18 @@ class ReviewController extends Controller
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
 
-            $query = Review::with(['user', 'product'])->orderBy('created_at', 'desc');
+            $query = Review::select('reviews.*')->selectRaw('review_id as id')->with(['user', 'product'])->orderBy('reviews.created_at', 'desc');
 
             return DataTables::of($query)
-                ->addColumn('product_id', function ($review) {
-                    return $review->product_id ?? 'N/A';
+                ->setRowId('review_id')
+                ->addColumn('review_id', function ($review) {
+                    return '<strong>#' . $review->review_id . '</strong>';
                 })
                 ->addColumn('product', function ($review) {
                     return $review->product?->name ?? 'N/A';
                 })
                 ->addColumn('customer', function ($review) {
-                    return $review->user?->name ?? 'N/A';
+                    return ($review->user ? $review->user->first_name . ' ' . $review->user->last_name : 'N/A');
                 })
                 ->addColumn('rating', function ($review) {
                     $stars = str_repeat('⭐', $review->rating) . ' ' . $review->rating . '/5';
@@ -88,12 +89,13 @@ class ReviewController extends Controller
                 })
                 ->filterColumn('customer', function ($query, $keyword) {
                     $query->whereHas('user', function($uq) use ($keyword) {
-                        $uq->where('name', 'like', "%{$keyword}%")
+                        $uq->where('first_name', 'like', "%{$keyword}%")
+                           ->orWhere('last_name', 'like', "%{$keyword}%")
                            ->orWhere('email', 'like', "%{$keyword}%");
                     })
                     ->orWhere('comment', 'like', "%{$keyword}%");
                 })
-                ->rawColumns(['rating', 'comment', 'actions'])
+                ->rawColumns(['review_id', 'rating', 'comment', 'actions'])
                 ->make(true);
         } catch (\Exception $e) {
             \Log::error('DataTable error: ' . $e->getMessage(), ['exception' => $e]);
@@ -224,7 +226,7 @@ class ReviewController extends Controller
             'reviews' => $reviews->map(function ($review) {
                 return [
                     'review_id' => $review->review_id,
-                    'user_name' => $review->user->name,
+                    'user_name' => $review->user->first_name . ' ' . $review->user->last_name,
                     'rating' => $review->rating,
                     'comment' => $review->comment,
                     'date' => $review->created_at->format('M d, Y'),

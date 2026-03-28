@@ -13,7 +13,7 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table table-striped table-hover">
+            <table id="categories-table" class="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Category ID</th>
@@ -24,43 +24,48 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($categories as $category)
-                        <tr>
-                            <td>#{{ $category->category_id }}</td>
-                            <td><strong>{{ $category->name }}</strong></td>
-                            <td>{{ Str::limit($category->description, 50) }}</td>
-                            <td>
-                                <span class="badge bg-info">{{ $category->products->count() }}</span>
-                            </td>
-                            <td>
-                                <a href="{{ route('categories.show', $category) }}" class="btn btn-sm btn-info" title="View">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                @if (Auth::check() && Auth::user()->role === 'admin')
-                                    <a href="{{ route('categories.edit', $category) }}" class="btn btn-sm btn-warning" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <form action="{{ route('categories.destroy', $category) }}" method="POST" style="display:inline;">
-                                        @method('DELETE')
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-center text-muted">No categories found</td>
-                        </tr>
-                    @endforelse
                 </tbody>
             </table>
         </div>
-
-        <div class="d-flex justify-content-center mt-4">
-            {{ $categories->links() }}
-        </div>
     </div>
+
+    @push('scripts')
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
+    <script>
+        $(document).ready(function() {
+            $('#categories-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('categories.datatable') }}",
+                    type: 'GET',
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        'Accept': 'application/json'
+                    },
+                    error: function(xhr, error, thrown) {
+                        console.error('DataTable AJAX Error:', error);
+                        console.error('Status:', xhr.status);
+                        console.error('Response:', xhr.responseText);
+                        console.error('Thrown:', thrown);
+                    }
+                },
+                columns: [
+                    { data: 'id', render: function(data) { return '#' + data; } },
+                    { data: 'name' },
+                    { data: 'description', render: function(data) { return data ? data.substring(0, 50) + (data.length > 50 ? '...' : '') : '-'; } },
+                    { data: 'product_count', render: function(data) { return data; }, orderable: false },
+                    { data: 'actions', render: function(data) { return data; }, orderable: false, searchable: false }
+                ],
+                pageLength: 10,
+                lengthMenu: [10, 15, 25, 50, 100],
+                order: [[0, 'desc']]
+            });
+        });
+    </script>
+    @endpush
 @endsection

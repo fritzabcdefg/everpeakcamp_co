@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class CategoryController extends Controller
 {
@@ -12,8 +13,62 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::with('products')->paginate(15);
-        return view('categories.index', ['categories' => $categories]);
+        return view('categories.index');
+    }
+
+    /**
+     * Get categories for DataTable
+     */
+    public function datatable(Request $request)
+    {
+        try {
+            \Log::info('CategoryController::datatable called - User: ' . (auth()->check() ? auth()->user()->id : 'NOT_AUTHENTICATED'));
+            
+            if (!auth()->check()) {
+                \Log::warning('Unauthorized datatable access - user not authenticated');
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+            
+            if (auth()->user()->role !== 'admin') {
+                \Log::warning('Unauthorized datatable access - user not admin');
+                return response()->json(['error' => 'Forbidden'], 403);
+            }
+            
+            $query = Category::select('categories.*')->selectRaw('category_id as id')->with('products')->orderBy('categories.category_id', 'desc');
+
+            return DataTables::of($query)
+                ->setRowId('category_id')
+                ->addColumn('product_count', function ($category) {
+                    return '<span class="badge bg-info">' . $category->products->count() . '</span>';
+                })
+                ->addColumn('actions', function ($category) {
+                    return $this->renderActions($category);
+                })
+                ->filterColumn('name', function ($query, $keyword) {
+                    $query->where('name', 'like', "%{$keyword}%")
+                          ->orWhere('description', 'like', "%{$keyword}%");
+                })
+                ->rawColumns(['product_count', 'actions'])
+                ->make(true);
+        } catch (\Exception $e) {
+            \Log::error('DataTable error: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'Server error: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Render action buttons
+     */
+    private function renderActions(Category $category)
+    {
+        $actions = '<a href="' . route('categories.show', $category) . '" class="btn btn-sm btn-info me-1" title="View"><i class="fas fa-eye"></i> View</a>';
+        $actions .= '<a href="' . route('categories.edit', $category) . '" class="btn btn-sm btn-warning me-1" title="Edit"><i class="fas fa-edit"></i> Edit</a>';
+        $actions .= '<form action="' . route('categories.destroy', $category) . '" method="POST" style="display:inline;">';
+        $actions .= '<input type="hidden" name="_method" value="DELETE">';
+        $actions .= '<input type="hidden" name="_token" value="' . csrf_token() . '">';
+        $actions .= '<button type="submit" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm(\'Are you sure?\')"><i class="fas fa-trash"></i> Delete</button>';
+        $actions .= '</form>';
+        return $actions;
     }
 
     /**

@@ -5,7 +5,7 @@
             <div class="col-lg-3 col-md-6">
                 <div class="mb-3">
                     <h5 class="fw-bold mb-3">
-                        <i class="fas fa-campground" style="color: var(--terracotta);"></i> EverPeak Camp Co.
+                        <i class="fas fa-campground" style="color: var(--terracotta);"></i> Everpeak Camp Co
                     </h5>
                     <p style="font-size: 0.95rem;">
                         Your ultimate destination for premium outdoor and camping gear. Explore the world with confidence.
@@ -119,7 +119,7 @@
         <div class="row align-items-center">
             <div class="col-md-6">
                 <p class="mb-0" style="font-size: 0.9rem;">
-                    <i class="fas fa-copyright me-1"></i> 2026 EverPeak Camp Co. All rights reserved.
+                    <i class="fas fa-copyright me-1"></i> 2026 Everpeak Camp Co. All rights reserved.
                 </p>
             </div>
             <div class="col-md-6 text-md-end">

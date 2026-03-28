@@ -45,6 +45,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // Category Management
     Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
+    Route::get('/categories/datatable', [CategoryController::class, 'datatable'])->name('categories.datatable');
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::get('/categories/{category}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
     Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
@@ -83,16 +84,16 @@ Route::get('/shop', [ShopController::class, 'show'])->name('shop.show');
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
 
+// Cart routes - Allow guests and authenticated users
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
+Route::put('/cart/{productId}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/{productId}', [CartController::class, 'destroy'])->name('cart.destroy');
+Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+
 // Protected routes (Authenticated users)
 Route::middleware('auth')->group(function () {
-    // Customer Cart & Orders
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
-    Route::put('/cart/{cartItem}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
-    Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-
-    // Checkout (confirm and process order) for customers
+    // Checkout (confirm and process order) for customers - requires login
     Route::get('/checkout', [OrderController::class, 'checkoutForm'])->name('checkout.index');
     Route::post('/checkout', [OrderController::class, 'checkout'])->name('orders.checkout');
 
