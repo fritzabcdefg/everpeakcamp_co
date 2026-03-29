@@ -3,15 +3,12 @@
 @section('content')
     <div class="container mt-4">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-chart-line"></i> Dashboard</h2>
-            <!-- Date Range Filter -->
-            <form method="GET" action="{{ route('dashboard') }}" class="d-flex gap-2">
-                <input type="date" name="start_date" value="{{ $startDate }}" class="form-control form-control-sm" style="width: 150px;">
-                <input type="date" name="end_date" value="{{ $endDate }}" class="form-control form-control-sm" style="width: 150px;">
-                <button type="submit" class="btn btn-sm btn-primary" style="min-width: 110px;"> <i class="fas fa-filter me-1"></i> Filter</button>
-                <a href="{{ route('dashboard') }}" class="btn btn-sm btn-secondary" style="min-width: 110px;"> <i class="fas fa-redo me-1"></i> Reset</a>
-            </form>
+        <!-- Dashboard Header -->
+        <div class="mb-5">
+            <div style="background: linear-gradient(135deg, #1a472a 0%, #2d5f3f 100%); color: white; padding: 40px; border-radius: 12px; text-align: center;">
+                <h1 class="mb-0" style="font-size: 2.5rem; font-weight: 700; color: var(--cream);"></i>Dashboard</h1>
+                <p class="mb-0 mt-2" style="opacity: 0.9;color: var(--cream);">Sales Analytics & Business Insights</p>
+            </div>
         </div>
 
         <!-- Stats Cards Row with Quick Actions -->
@@ -113,13 +110,57 @@
             </div>
         </div>
 
-        <!-- Revenue & Pending Orders Row -->
+        <!-- Revenue & Pending Orders Row with Date Filter -->
+        <div class="row g-4 mb-5">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0" style="color: var(--cream);"><i class="fas fa-money-bill-wave me-2"></i>Revenue & Orders Summary</h5>
+                        </div>
+                        <form method="GET" action="{{ route('dashboard') }}" class="d-flex gap-2" style="margin: 0;">
+                            <input type="date" name="start_date" value="{{ $startDate }}" class="form-control form-control-sm" style="width: 140px;">
+                            <input type="date" name="end_date" value="{{ $endDate }}" class="form-control form-control-sm" style="width: 140px;">
+                            <input type="hidden" name="yearly_start_date" value="{{ $yearlyStartDate }}">
+                            <input type="hidden" name="yearly_end_date" value="{{ $yearlyEndDate }}">
+                            <input type="hidden" name="product_start_date" value="{{ $productStartDate }}">
+                            <input type="hidden" name="product_end_date" value="{{ $productEndDate }}">
+                            <button type="submit" class="btn btn-sm btn-dark" style="min-width: 80px;"><i class="fas fa-filter me-1"></i> Filter</button>
+                        </form>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="text-center">
+                                    <p class="text-muted small mb-2">
+                                        <i class="fas fa-money-bill-wave text-success"></i> Total Revenue
+                                    </p>
+                                    <h2 class="text-success mb-0">₱{{ number_format($stats['total_revenue'] ?? 0, 2) }}</h2>
+                                    <small class="text-muted">From all completed and pending orders</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-center">
+                                    <p class="text-muted small mb-2">
+                                        <i class="fas fa-clock text-danger"></i> Pending Orders
+                                    </p>
+                                    <h2 class="text-danger mb-0">{{ $stats['pending_orders'] }}</h2>
+                                    <small class="text-muted">Orders waiting to be processed</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Old Revenue & Pending Orders Row (removed)
         <div class="row g-4 mb-5">
             <div class="col-md-6">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="card-title mb-0"><i class="fas fa-dollar-sign text-success"></i> Total Revenue</h5>
+                            <h5 class="card-title mb-0"></i>₱ Total Revenue</h5>
                         </div>
                         <h2 class="text-success mb-2">₱{{ number_format($stats['total_revenue'] ?? 0, 2) }}</h2>
                         <p class="text-muted small mb-0">From all completed and pending orders</p>
@@ -143,25 +184,49 @@
         <!-- Charts Section -->
         <div class="row g-4 mb-5">
             <!-- Yearly Sales Chart -->
-            <div class="col-lg-8">
+            <div class="col-12">
                 <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0" style="color: var(--cream);"><i class="fas fa-chart-bar me-2"></i>Yearly Sales Revenue</h5>
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0" style="color: var(--cream);"><i class="fas fa-chart-bar me-2"></i>Yearly Sales Revenue</h5>
+                        </div>
+                        <form method="GET" action="{{ route('dashboard') }}" class="d-flex gap-2" style="margin: 0;">
+                            <input type="date" name="yearly_start_date" value="{{ $yearlyStartDate }}" class="form-control form-control-sm" style="width: 140px;">
+                            <input type="date" name="yearly_end_date" value="{{ $yearlyEndDate }}" class="form-control form-control-sm" style="width: 140px;">
+                            <input type="hidden" name="daily_start_date" value="{{ $dailyStartDate }}">
+                            <input type="hidden" name="daily_end_date" value="{{ $dailyEndDate }}">
+                            <input type="hidden" name="product_start_date" value="{{ $dailyStartDate }}">
+                            <input type="hidden" name="product_end_date" value="{{ $dailyEndDate }}">
+                            <button type="submit" class="btn btn-sm btn-light" style="min-width: 80px;"><i class="fas fa-filter me-1"></i> Filter</button>
+                        </form>
                     </div>
-                    <div class="card-body">
-                        <canvas id="yearlySalesChart" width="400" height="200"></canvas>
+                    <div class="card-body" style="min-height: 300px;">
+                        <canvas id="yearlySalesChart"></canvas>
                     </div>
                 </div>
             </div>
 
             <!-- Product Sales Percentage Pie Chart -->
-            <div class="col-lg-4">
+            <div class="col-12">
                 <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0" style="color: var(--cream);"><i class="fas fa-chart-pie me-2"></i>Product Sales Distribution</h5>
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0" style="color: var(--cream);"><i class="fas fa-chart-pie me-2"></i>Product Sales Distribution</h5>
+                        </div>
+                        <form method="GET" action="{{ route('dashboard') }}" class="d-flex gap-2" style="margin: 0;">
+                            <input type="date" name="product_start_date" value="{{ $dailyStartDate }}" class="form-control form-control-sm" style="width: 140px;">
+                            <input type="date" name="product_end_date" value="{{ $dailyEndDate }}" class="form-control form-control-sm" style="width: 140px;">
+                            <input type="hidden" name="yearly_start_date" value="{{ $yearlyStartDate }}">
+                            <input type="hidden" name="yearly_end_date" value="{{ $yearlyEndDate }}">
+                            <input type="hidden" name="daily_start_date" value="{{ $dailyStartDate }}">
+                            <input type="hidden" name="daily_end_date" value="{{ $dailyEndDate }}">
+                            <button type="submit" class="btn btn-sm btn-light" style="min-width: 80px;"><i class="fas fa-filter me-1"></i> Filter</button>
+                        </form>
                     </div>
-                    <div class="card-body">
-                        <canvas id="productSalesChart" width="300" height="300"></canvas>
+                    <div class="card-body" style="display: flex; justify-content: center; min-height: 450px;">
+                        <div style="max-width: 500px; width: 100%; position: relative;">
+                            <canvas id="productSalesChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -194,6 +259,7 @@
                         },
                         options: {
                             responsive: true,
+                            maintainAspectRatio: false,
                             scales: {
                                 y: {
                                     beginAtZero: true,
@@ -213,12 +279,10 @@
                     });
                 }
 
-                // Product Sales Percentage Pie Chart
                 const productSalesCtx = document.getElementById('productSalesChart');
                 if (productSalesCtx) {
-                    const productSalesData = @json($productSales) || [
-                        {product_name: 'Test Product', percentage: 100}
-                    ];
+                    const productSalesData = @json($productSales) || [];
+                    console.log('Product Sales Data:', productSalesData);
 
                     new Chart(productSalesCtx.getContext('2d'), {
                         type: 'pie',
@@ -255,6 +319,7 @@
                         },
                         options: {
                             responsive: true,
+                            maintainAspectRatio: false,
                             plugins: {
                                 legend: {
                                     position: 'bottom',

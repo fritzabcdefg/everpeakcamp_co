@@ -13,7 +13,7 @@
         </div>
 
         <div class="table-responsive">
-            <table id="orders-table" class="table table-striped table-hover">
+            <table class="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Order ID</th>
@@ -26,50 +26,44 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @forelse ($orders as $order)
+                        <tr>
+                            <td>#{{ $order->order_id }}</td>
+                            <td>{{ $order->order_date->format('M d, Y') }}</td>
+                            <td>{{ $order->user ? $order->user->first_name . ' ' . $order->user->last_name : 'N/A' }}</td>
+                            <td>₱{{ number_format($order->orderItems->sum(fn($item) => $item->quantity * $item->unit_price) + ($order->shipping_fee ?? 0), 2) }}</td>
+                            <td>{{ $order->orderItems->count() }} items</td>
+                            <td>
+                                @switch($order->status)
+                                    @case('pending')
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        @break
+                                    @case('processing')
+                                        <span class="badge bg-info">Processing</span>
+                                        @break
+                                    @case('completed')
+                                        <span class="badge bg-success">Completed</span>
+                                        @break
+                                    @case('cancelled')
+                                        <span class="badge bg-danger">Cancelled</span>
+                                        @break
+                                    @default
+                                        <span class="badge bg-secondary">{{ ucfirst($order->status) }}</span>
+                                @endswitch
+                            </td>
+                            <td>
+                                <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">No orders found</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
     </div>
-
-    @push('scripts')
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    
-    <script>
-        $(document).ready(function() {
-            $('#orders-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: "{{ route('orders.datatable') }}",
-                    type: 'GET',
-                    dataType: 'json',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                        'Accept': 'application/json'
-                    },
-                    error: function(xhr, error, thrown) {
-                        console.error('DataTable AJAX Error:', error);
-                        console.error('Status:', xhr.status);
-                        console.error('Response:', xhr.responseText);
-                        console.error('Thrown:', thrown);
-                    }
-                },
-                columns: [
-                    { data: 'order_id' },
-                    { data: 'order_date' },
-                    { data: 'customer_name' },
-                    { data: 'total_amount' },
-                    { data: 'item_count' },
-                    { data: 'status', render: function(data) { return data; }, orderable: false },
-                    { data: 'actions', render: function(data) { return data; }, orderable: false, searchable: false }
-                ],
-                pageLength: 15,
-                lengthMenu: [10, 15, 25, 50, 100],
-                order: [[1, 'desc']],
-            });
-        });
-    </script>
-    @endpush
 @endsection

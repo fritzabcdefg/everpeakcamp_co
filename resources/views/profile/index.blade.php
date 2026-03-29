@@ -4,8 +4,8 @@
 
 @section('content')
     <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-8">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
                 <div class="card">
                     <div class="card-header text-white" style="background: linear-gradient(135deg, #1a472a 0%, #2d5f3f 100%);">
                         <h4 class="mb-0"><i class="fas fa-user"></i> My Profile</h4>

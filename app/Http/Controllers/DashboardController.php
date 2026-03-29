@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -17,8 +18,22 @@ class DashboardController extends Controller
      */
     public function index(Request $request)
     {
+        // Stats date range (for revenue and pending orders)
         $startDate = $request->get('start_date', now()->subMonths(12)->startOfMonth()->toDateString());
         $endDate = $request->get('end_date', now()->toDateString());
+
+        // Separate date ranges for each chart
+        // Daily sales date range
+        $dailyStartDate = $request->get('daily_start_date', '2025-01-01');
+        $dailyEndDate = $request->get('daily_end_date', now()->toDateString());
+
+        // Yearly sales date range
+        $yearlyStartDate = $request->get('yearly_start_date', '2024-01-01');
+        $yearlyEndDate = $request->get('yearly_end_date', '2026-12-31');
+
+        // Product sales date range
+        $productStartDate = $request->get('product_start_date', '2025-01-01');
+        $productEndDate = $request->get('product_end_date', now()->toDateString());
 
         // Calculate totals for the date range
         $totalRevenue = Order::with('orderItems')
@@ -30,18 +45,18 @@ class DashboardController extends Controller
                 return $carry + $subtotal + ($o->shipping_fee ?? 0);
             }, 0);
 
-        // Yearly sales data for bar chart
+        // Yearly sales data for bar chart (using separate yearly date range)
         $yearlySales = Order::selectRaw('YEAR(order_date) as year, SUM(shipping_fee) as shipping_total')
             ->with('orderItems')
-            ->whereBetween('order_date', [$startDate, $endDate])
+            ->whereBetween('order_date', [$yearlyStartDate, $yearlyEndDate])
             ->where('status', '!=', 'cancelled')
             ->groupByRaw('YEAR(order_date)')
             ->orderBy('year')
             ->get()
-            ->map(function($item) use ($startDate, $endDate) {
+            ->map(function($item) use ($yearlyStartDate, $yearlyEndDate) {
                 // Calculate product sales for this year
                 $productTotal = Order::whereYear('order_date', $item->year)
-                    ->whereBetween('order_date', [$startDate, $endDate])
+                    ->whereBetween('order_date', [$yearlyStartDate, $yearlyEndDate])
                     ->where('status', '!=', 'cancelled')
                     ->with('orderItems')
                     ->get()
@@ -56,6 +71,39 @@ class DashboardController extends Controller
                 ];
             });
 
+        // Daily sales data for custom date range (using separate daily date range)
+        $dailySales = collect();
+        
+        $startDateObj = Carbon::parse($dailyStartDate);
+        $endDateObj = Carbon::parse($dailyEndDate);
+        
+        for ($date = $startDateObj; $date->lte($endDateObj); $date->addDay()) {
+            $orders = Order::whereDate('order_date', $date->toDateString())
+                ->where('status', '!=', 'cancelled')
+                ->with('orderItems')
+                ->get();
+            
+            $total = $orders->reduce(function ($carry, $o) {
+                $subtotal = $o->orderItems->sum(fn($it) => $it->quantity * $it->unit_price);
+                return $carry + $subtotal + ($o->shipping_fee ?? 0);
+            }, 0);
+
+            // Only add days with sales data to reduce chart clutter
+            if ($total > 0) {
+                $dailySales->push([
+                    'date' => $date->format('M d'),
+                    'total' => round($total, 2)
+                ]);
+            }
+        }
+
+        // Ensure chart has data
+        if ($dailySales->isEmpty()) {
+            $dailySales = collect([
+                ['date' => now()->format('M d'), 'total' => 0]
+            ]);
+        }
+
         // Ensure chart has at least the current year
         if ($yearlySales->isEmpty()) {
             $yearlySales = collect([
@@ -65,8 +113,8 @@ class DashboardController extends Controller
 
         // Product sales percentage for pie chart (all products, not just top 5)
         $productSales = OrderItem::selectRaw('product_id, SUM(quantity * unit_price) as total_sales')
-            ->whereHas('order', function($q) use ($startDate, $endDate) {
-                $q->whereBetween('order_date', [$startDate, $endDate])
+            ->whereHas('order', function($q) use ($productStartDate, $productEndDate) {
+                $q->whereBetween('order_date', [$productStartDate, $productEndDate])
                   ->where('status', '!=', 'cancelled');
             })
             ->with('product')
@@ -100,7 +148,15 @@ class DashboardController extends Controller
         return view('dashboard', [
             'stats' => $stats,
             'yearlySales' => $yearlySales,
+            'dailySales' => $dailySales,
             'productSales' => $productSales,
+            'dailyStartDate' => $dailyStartDate,
+            'dailyEndDate' => $dailyEndDate,
+            'yearlyStartDate' => $yearlyStartDate,
+            'yearlyEndDate' => $yearlyEndDate,
+            'productStartDate' => $productStartDate,
+            'productEndDate' => $productEndDate,
+            // Keep these for backward compatibility
             'startDate' => $startDate,
             'endDate' => $endDate,
         ]);

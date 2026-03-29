@@ -1,4 +1,4 @@
-@extends('layouts.base')
+@extends('layouts.auth')
 
 @section('title', 'Login - EverPeak Camp')
 
@@ -7,10 +7,10 @@
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
             <div class="card shadow-nature rounded-nature">
-                <div class="card-header" style="background: linear-gradient(135deg, var(--primary-green-light) 0%, var(--accent-green) 100%);">
-                    <h4 class="mb-0 text-center" style="color: white; font-weight: 600;">
-                        <i class="fas fa-sign-in-alt me-2"></i>{{ __('Login to Your Account') }}
-                    </h4>
+                <div class="card-header" style="background: linear-gradient(135deg, var(--primary-green-light) 0%, var(--accent-green) 100%); padding: 1rem;">
+                    <a href="{{ route('home') }}" class="btn btn-light btn-sm rounded-pill" style="font-weight: 600;">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Home
+                    </a>
                 </div>
 
                 <div class="card-body p-4">

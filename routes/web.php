@@ -100,6 +100,7 @@ Route::middleware('auth')->group(function () {
     // Customer orders (view only)
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::get('/orders/{order}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.downloadReceipt');
 
     // User Profile (generic) – used by admin and other links
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');

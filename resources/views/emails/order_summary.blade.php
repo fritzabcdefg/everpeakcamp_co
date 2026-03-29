@@ -125,6 +125,22 @@
 
             <div class="divider"></div>
 
+            <div class="section">
+                <div class="section-title">Receipt</div>
+                <div style="background: linear-gradient(135deg, #f0f4f3 0%, #f9fef8 100%); padding: 20px; border-radius: 6px; text-align: center;">
+                    <p style="color: #1a472a; font-weight: 600; margin-bottom: 12px;">📄 Your Receipt is Attached</p>
+                    <p style="color: #666; font-size: 13px; margin-bottom: 15px;">A detailed PDF receipt of your order is attached to this email. You can download and save it for your records.</p>
+                    <a href="{{ route('orders.downloadReceipt', $order) }}" style="display: inline-block; padding: 10px 24px; background: linear-gradient(135deg, #1a472a 0%, #2d5f3f 100%); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 13px; margin: 10px 0;">
+                        ⬇️ Download Receipt PDF
+                    </a>
+                    <p style="color: #555; font-size: 12px; line-height: 1.6; margin-top: 12px;">
+                        <strong>File name:</strong> receipt-order-#{{ $order->order_id }}.pdf
+                    </p>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
             <div style="background-color: #f9fef8; padding: 15px; border-radius: 6px; text-align: center;">
                 <p style="color: #1a472a; font-weight: 600; margin-bottom: 8px;">Questions? We're here to help!</p>
                 <p style="color: #666; font-size: 13px;">Reply to this email or contact our support team anytime.</p>

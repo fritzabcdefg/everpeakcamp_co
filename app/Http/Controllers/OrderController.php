@@ -19,10 +19,17 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $userId = $request->user()?->id ?? auth()->id();
-        $orders = Order::where('user_id', $userId)
-            ->with('orderItems.product')
-            ->paginate(15);
+        // Admin sees all orders, customers see only their own
+        if (auth()->user()->role === 'admin') {
+            $orders = Order::with('orderItems', 'user')
+                ->orderBy('order_date', 'desc')
+                ->paginate(15);
+        } else {
+            $orders = Order::where('user_id', auth()->id())
+                ->with('orderItems', 'user')
+                ->orderBy('order_date', 'desc')
+                ->paginate(15);
+        }
         return view('orders.index', ['orders' => $orders]);
     }
 
@@ -39,12 +46,15 @@ class OrderController extends Controller
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
             
-            if (auth()->user()->role !== 'admin') {
-                \Log::warning('Unauthorized datatable access - user not admin');
-                return response()->json(['error' => 'Forbidden'], 403);
+            // Admin sees all orders, customers see only their own
+            if (auth()->user()->role === 'admin') {
+                $query = Order::with('user')->orderBy('order_date', 'desc');
+            } else {
+                // Customer - filter by their user_id only
+                $query = Order::where('user_id', auth()->user()->id)
+                    ->with('user')
+                    ->orderBy('order_date', 'desc');
             }
-
-            $query = Order::with('orderItems.product', 'user')->orderBy('order_date', 'desc');
 
             return DataTables::of($query)
                 ->addColumn('order_id', function ($order) {
@@ -57,11 +67,12 @@ class OrderController extends Controller
                     return ($order->user ? $order->user->first_name . ' ' . $order->user->last_name : 'N/A');
                 })
                 ->addColumn('total_amount', function ($order) {
-                    $total = $order->orderItems->sum(fn($item) => $item->quantity * $item->unit_price) + ($order->shipping_fee ?? 0);
+                    $items = $order->orderItems()->get();
+                    $total = $items->sum(fn($item) => $item->quantity * $item->unit_price) + ($order->shipping_fee ?? 0);
                     return '₱' . number_format($total, 2);
                 })
                 ->addColumn('item_count', function ($order) {
-                    return $order->orderItems->count() . ' items';
+                    return $order->orderItems()->count() . ' items';
                 })
                 ->addColumn('status', function ($order) {
                     $statusColors = [
@@ -230,6 +241,11 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
+        // Only allow the order owner or admins to view
+        if (auth()->user()->role !== 'admin' && $order->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to this order');
+        }
+        
         $order->load('user', 'customer', 'orderItems.product');
         return view('orders.show', ['order' => $order]);
     }
@@ -239,6 +255,11 @@ class OrderController extends Controller
      */
     public function edit(Order $order)
     {
+        // Only allow admins to edit orders (customers cannot edit their orders)
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized - only admins can edit orders');
+        }
+        
         return view('orders.edit', ['order' => $order]);
     }
 
@@ -247,6 +268,11 @@ class OrderController extends Controller
      */
     public function update(Request $request, Order $order)
     {
+        // Only allow admins to update orders
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized - only admins can update orders');
+        }
+        
         $validated = $request->validate([
             'customer_id' => 'nullable|exists:customers,customer_id',
             'shipping_fee' => 'sometimes|numeric|min:0',
@@ -279,5 +305,24 @@ class OrderController extends Controller
     {
         $order->delete();
         return redirect()->route('orders.index')->with('success', 'Order deleted successfully');
+    }
+
+    /**
+     * Download order receipt as PDF
+     */
+    public function downloadReceipt(Order $order)
+    {
+        // Authorize: only the order owner or admin can download
+        if (auth()->user()?->id !== $order->user_id && auth()->user()?->role !== 'admin') {
+            abort(403, 'Unauthorized access to this order');
+        }
+
+        $order->load('orderItems.product', 'customer');
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.receipt_pdf', [
+            'order' => $order,
+        ]);
+
+        return $pdf->download('receipt-order-' . $order->order_id . '.pdf');
     }
 }

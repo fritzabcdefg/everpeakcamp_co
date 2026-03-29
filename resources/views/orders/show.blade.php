@@ -3,8 +3,8 @@
 @section('content')
     <div class="container mt-4">
 
-        <div class="row">
-            <div class="col-md-8">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
                 <div class="card">
                     <div class="card-header bg-info text-white">
                         <h4 class="mb-0" style="color: var(--cream);"><i class="fas fa-receipt"></i> Order #{{ $order->order_id }}</h4>

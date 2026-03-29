@@ -17,9 +17,86 @@
 <div class="section">
     <div class="container">
         <div class="section-header">
-            <h2><i class="fas fa-star me-2" style="color: var(--terracotta);"></i> Featured Products</h2>
-            <p class="section-subtitle">Discover our handpicked selection of premium outdoor gear</p>
+            <h2><i class="fas fa-star me-2" style="color: var(--terracotta);"></i> 
+                @if($searchMethod)
+                    Search Results
+                @else
+                    Featured Products
+                @endif
+            </h2>
+            <p class="section-subtitle">
+                @if($searchMethod)
+                    <span>Search Method: 
+                        <span class="badge" style="background-color: var(--accent-green);">
+                            @switch($searchMethod)
+                                @case('like')
+                                    <i class="fas fa-database me-1"></i> LIKE Query
+                                    @break
+                                @case('model')
+                                    <i class="fas fa-sitemap me-1"></i> Model Search 
+                                    @break
+                                @case('scout')
+                                    <i class="fas fa-search me-1"></i> Laravel Scout 
+                                    @break
+                            @endswitch
+                        </span>
+                    </span>
+                @else
+                    Discover our handpicked selection of premium outdoor gear
+                @endif
+            </p>
         </div>
+
+        <!-- Search Form with Multiple Methods -->
+        <div class="card" style="margin-bottom: 2rem; border: 2px solid var(--accent-green); background: rgba(173, 213, 168, 0.05);">
+            <div class="card-body">
+                <form method="GET" action="{{ route('home') }}" class="row g-3">
+                    <!-- Search Input -->
+                    <div class="col-md-5">
+                        <label for="searchInput" class="form-label fw-bold">Search Products</label>
+                        <input type="text" class="form-control" id="searchInput" name="search" 
+                               value="{{ $search }}" placeholder="Search by name or description...">
+                    </div>
+
+                    <!-- Search Method Selection -->
+                    <div class="col-md-4">
+                        <label for="searchType" class="form-label fw-bold">Search Method</label>
+                        <select class="form-select" id="searchType" name="search_type">
+                            <option value="like" {{ ($searchMethod === 'like') ? 'selected' : '' }}>
+                                LIKE Query Search
+                            </option>
+                            <option value="model" {{ ($searchMethod === 'model') ? 'selected' : '' }}>
+                                Model Search Scope
+                            </option>
+                            <option value="scout" {{ ($searchMethod === 'scout') ? 'selected' : '' }}>
+                                Laravel Scout 
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="col-md-3 d-flex gap-2 align-items-end">
+                        <button type="submit" class="btn btn-success flex-grow-1">
+                            <i class="fas fa-search me-1"></i> Search
+                        </button>
+                        @if($search)
+                            <a href="{{ route('home') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i> Clear
+                            </a>
+                        @endif
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results Info -->
+        @if($search)
+            <div class="alert alert-info mb-3">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>{{ count($products->items()) }}</strong> result(s) found for <strong>"{{ $search }}"</strong>
+                using <strong>{{ ucfirst($searchMethod) }} Search</strong>
+            </div>
+        @endif
         
         <div class="product-grid">
             @forelse($products as $product)

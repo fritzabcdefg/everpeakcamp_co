@@ -15,16 +15,6 @@
         <!-- Navbar Content -->
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <div class="d-flex align-items-center gap-3 flex-wrap ms-auto">
-                <!-- Search Form -->
-                <form action="{{ route('shop.show') }}" class="d-flex me-lg-3 search-form" method="GET">
-                    <input class="form-control form-control-sm me-2" type="search" 
-                           placeholder="Search gear..." aria-label="Search" name="search" 
-                           style="width: 180px; border-radius: 25px;">
-                    <button class="btn btn-sm btn-warning rounded-pill" type="submit" title="Search">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
-
                 <!-- Cart Button -->
                 @if (!Auth::check() || Auth::user()->role !== 'admin')
                     <a href="{{ route('cart.index') }}" class="btn btn-outline-light btn-sm position-relative rounded-pill" 
@@ -77,7 +67,7 @@
                             </div>
                             <hr class="dropdown-divider" style="margin: 0.5rem 0;">
                             @if(Auth::user()->role === 'admin')
-                                <h6 class="dropdown-subheader" style="color: var(--primary-green-dark); font-size: 12px; font-weight: 700;">ADMIN</h6>
+                                <h6 class="dropdown-subheader" style="color: var(--primary-green-dark); font-size: 12px; font-weight: 700; margin: 0.5rem 0 0.5rem 1rem;">ADMIN</h6>
                                 <a class="dropdown-item" href="{{ route('dashboard') }}"><i class="fas fa-chart-line me-2" style="color: var(--primary-green-light);"></i> Dashboard</a>
                                 <a class="dropdown-item" href="{{ route('users.index') }}"><i class="fas fa-users me-2" style="color: var(--info);"></i> Manage Users</a>
                                 <a class="dropdown-item" href="{{ route('products.index') }}"><i class="fas fa-box me-2" style="color: var(--accent-green);"></i> Manage Products</a>
@@ -102,6 +92,16 @@
                         </div>
                     </div>
                 @endauth
+
+                <!-- Login and Register Buttons (Only for guests) -->
+                @guest
+                    <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm rounded-pill">
+                        <i class="fas fa-sign-in-alt me-1"></i> Login
+                    </a>
+                    <a href="{{ route('register') }}" class="btn btn-light btn-sm rounded-pill" style="color: var(--primary-green-dark);">
+                        <i class="fas fa-user-plus me-1"></i> Register
+                    </a>
+                @endguest
             </div>
         </div>
     </div>
