@@ -24,20 +24,19 @@ class DashboardController extends Controller
 
         // Separate date ranges for each chart
         // Daily sales date range
-        $dailyStartDate = $request->get('daily_start_date', '2025-01-01');
+        $dailyStartDate = $request->get('daily_start_date', '2024-01-01');
         $dailyEndDate = $request->get('daily_end_date', now()->toDateString());
 
         // Yearly sales date range
         $yearlyStartDate = $request->get('yearly_start_date', '2024-01-01');
-        $yearlyEndDate = $request->get('yearly_end_date', '2026-12-31');
+        $yearlyEndDate = $request->get('yearly_end_date', now()->toDateString());
 
         // Product sales date range
-        $productStartDate = $request->get('product_start_date', '2025-01-01');
+        $productStartDate = $request->get('product_start_date', '2024-01-01');
         $productEndDate = $request->get('product_end_date', now()->toDateString());
 
-        // Calculate totals for the date range
+        // Calculate total revenue (all time, no date filter)
         $totalRevenue = Order::with('orderItems')
-            ->whereBetween('order_date', [$startDate, $endDate])
             ->where('status', '!=', 'cancelled')
             ->get()
             ->reduce(function ($carry, $o) {
@@ -46,30 +45,26 @@ class DashboardController extends Controller
             }, 0);
 
         // Yearly sales data for bar chart (using separate yearly date range)
-        $yearlySales = Order::selectRaw('YEAR(order_date) as year, SUM(shipping_fee) as shipping_total')
-            ->with('orderItems')
+        $yearlySales = Order::with('orderItems')
             ->whereBetween('order_date', [$yearlyStartDate, $yearlyEndDate])
             ->where('status', '!=', 'cancelled')
-            ->groupByRaw('YEAR(order_date)')
-            ->orderBy('year')
             ->get()
-            ->map(function($item) use ($yearlyStartDate, $yearlyEndDate) {
-                // Calculate product sales for this year
-                $productTotal = Order::whereYear('order_date', $item->year)
-                    ->whereBetween('order_date', [$yearlyStartDate, $yearlyEndDate])
-                    ->where('status', '!=', 'cancelled')
-                    ->with('orderItems')
-                    ->get()
-                    ->reduce(function ($carry, $o) {
-                        $subtotal = $o->orderItems->sum(fn($it) => $it->quantity * $it->unit_price);
-                        return $carry + $subtotal;
-                    }, 0);
-
+            ->groupBy(function($order) {
+                return $order->order_date->year;
+            })
+            ->map(function($yearOrders, $year) {
+                $total = $yearOrders->reduce(function ($carry, $o) {
+                    $subtotal = $o->orderItems->sum(fn($it) => $it->quantity * $it->unit_price);
+                    return $carry + $subtotal + ($o->shipping_fee ?? 0);
+                }, 0);
+                
                 return [
-                    'year' => (string)$item->year,
-                    'total' => $productTotal + $item->shipping_total
+                    'year' => (string)$year,
+                    'total' => round($total, 2)
                 ];
-            });
+            })
+            ->sortBy('year')
+            ->values();
 
         // Daily sales data for custom date range (using separate daily date range)
         $dailySales = collect();
@@ -111,25 +106,33 @@ class DashboardController extends Controller
             ]);
         }
 
-        // Product sales percentage for pie chart (all products, not just top 5)
-        $productSales = OrderItem::selectRaw('product_id, SUM(quantity * unit_price) as total_sales')
+        // Product sales percentage for pie chart
+        $productSales = OrderItem::with('product')
             ->whereHas('order', function($q) use ($productStartDate, $productEndDate) {
                 $q->whereBetween('order_date', [$productStartDate, $productEndDate])
                   ->where('status', '!=', 'cancelled');
             })
-            ->with('product')
+            ->get()
             ->groupBy('product_id')
-            ->orderByDesc('total_sales')
-            ->get();
+            ->map(function($items) {
+                $totalSales = $items->sum(fn($it) => $it->quantity * $it->unit_price);
+                $productName = $items->first()->product->name ?? 'Unknown';
+                return [
+                    'product_name' => $productName,
+                    'total_sales' => $totalSales
+                ];
+            })
+            ->sortByDesc(fn($item) => $item['total_sales'])
+            ->values();
 
         // Calculate total sales for percentage calculation
         $totalSalesAmount = $productSales->sum('total_sales');
 
         $productSales = $productSales->map(function($item) use ($totalSalesAmount) {
-            $percentage = $totalSalesAmount > 0 ? ($item->total_sales / $totalSalesAmount) * 100 : 0;
+            $percentage = $totalSalesAmount > 0 ? ($item['total_sales'] / $totalSalesAmount) * 100 : 0;
             return [
-                'product_name' => $item->product->name ?? 'Unknown',
-                'total_sales' => $item->total_sales,
+                'product_name' => $item['product_name'],
+                'total_sales' => $item['total_sales'],
                 'percentage' => round($percentage, 1)
             ];
         });
@@ -139,10 +142,10 @@ class DashboardController extends Controller
             'total_users' => User::count(),
             'total_products' => Product::count(),
             'total_categories' => Category::count(),
-            'total_orders' => Order::whereBetween('order_date', [$startDate, $endDate])->count(),
+            'total_orders' => Order::count(),
             'total_revenue' => $totalRevenue,
-            'pending_orders' => Order::whereBetween('order_date', [$startDate, $endDate])->where('status', 'pending')->count(),
-            'completed_orders' => Order::whereBetween('order_date', [$startDate, $endDate])->where('status', 'completed')->count(),
+            'pending_orders' => Order::where('status', 'pending')->count(),
+            'completed_orders' => Order::where('status', 'completed')->count(),
         ];
 
         return view('dashboard', [

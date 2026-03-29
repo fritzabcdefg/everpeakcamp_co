@@ -132,9 +132,11 @@
                         </div>
                     </div>
                     <div class="card-footer">
-                        <a href="{{ route('orders.edit', $order) }}" class="btn btn-warning">
-                            <i class="fas fa-edit"></i> Edit
-                        </a>
+                        @if(Auth::check() && Auth::user()->role === 'admin')
+                            <a href="{{ route('orders.edit', $order) }}" class="btn btn-warning">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                        @endif
                         <a href="{{ route('orders.index') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Back
                         </a>

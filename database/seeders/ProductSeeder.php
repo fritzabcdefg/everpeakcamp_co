@@ -90,6 +90,87 @@ class ProductSeeder extends Seeder
                     'products/LED Camping Lanteren 2.png',
                 ],
             ],
+            // Clothing Products
+            [
+                'name' => 'Thermal Base Layer Set',
+                'description' => 'Lightweight thermal base layers for temperature regulation.',
+                'cost_price' => 1100.00,
+                'sell_price' => 2500.00,
+                'category_id' => $createdCategories[5]->category_id,
+                'img_path' => 'products/thermal base layer.png',
+                'gallery_images' => [
+                    'products/thermal base layer 2.png',
+                    'products/thermal base layer 3.png',
+                ],
+            ],
+            [
+                'name' => 'Insulated Hiking Boots',
+                'description' => 'Waterproof insulated boots for cold weather hiking.',
+                'cost_price' => 3300.00,
+                'sell_price' => 6600.00,
+                'category_id' => $createdCategories[5]->category_id,
+                'img_path' => 'products/hiking boots.png',
+                'gallery_images' => [
+                    'products/hiking boots 2.png',
+                ],
+            ],
+            [
+                'name' => 'Windproof Fleece Jacket',
+                'description' => 'Lightweight fleece jacket with wind-resistant outer shell.',
+                'cost_price' => 1650.00,
+                'sell_price' => 3850.00,
+                'category_id' => $createdCategories[5]->category_id,
+                'img_path' => 'products/fleece jacket.png',
+                'gallery_images' => [
+                    'products/fleece jacket 2.png',
+                ],
+            ],
+            // Navigation Products
+            [
+                'name' => 'Magnetic Compass',
+                'description' => 'Professional magnetic compass with adjustable declination.',
+                'cost_price' => 550.00,
+                'sell_price' => 1375.00,
+                'category_id' => $createdCategories[6]->category_id,
+                'img_path' => 'products/magnetic compass.png',
+                'gallery_images' => [
+                    'products/magnetic compass 2.png',
+                ],
+            ],
+            [
+                'name' => 'GPS Navigation Device',
+                'description' => 'Portable GPS device with detailed trail mapping.',
+                'cost_price' => 4950.00,
+                'sell_price' => 11000.00,
+                'category_id' => $createdCategories[6]->category_id,
+                'img_path' => 'products/gps device.png',
+                'gallery_images' => [
+                    'products/gps device 2.png',
+                ],
+            ],
+            // First Aid Products
+            [
+                'name' => 'Complete First Aid Kit',
+                'description' => 'Comprehensive first aid kit with bandages, gauze, and medications.',
+                'cost_price' => 1100.00,
+                'sell_price' => 2750.00,
+                'category_id' => $createdCategories[7]->category_id,
+                'img_path' => 'products/first aid kit.png',
+                'gallery_images' => [
+                    'products/first aid kit 2.png',
+                ],
+            ],
+            [
+                'name' => '7 in 1 Emergency Whistle',
+                'description' => 'High-pitched emergency whistle audible from great distances with multiple functions.',
+                'cost_price' => 165.00,
+                'sell_price' => 550.00,
+                'category_id' => $createdCategories[7]->category_id,
+                'img_path' => 'products/emergency whistle.png',
+                'gallery_images' => [
+                    'products/emergency whistle 2.png',
+                ],
+            ],
         ];
 
         foreach ($products as $productData) {

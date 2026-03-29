@@ -1,8 +1,9 @@
 <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container-fluid px-3 px-lg-4">
+    <div class="container-fluid px-2 px-lg-2">
         <!-- Brand -->
-        <a class="navbar-brand" href="{{ route('home') }}">
-            <i class="fas fa-campfire me-2"></i> Everpeak Camp Co
+        <a class="navbar-brand" href="{{ route('home') }}" title="Everpeak Camp Co - Back to Home">
+            <img src="{{ asset('storage/Everpeak Camp Co Logo.svg') }}" alt="Everpeak Camp Co Logo" 
+                 style="height: 80px; width: 80px; border-radius: 50%; object-fit: contain; cursor: pointer;">
         </a>
 
         <!-- Toggler Button -->
@@ -17,8 +18,8 @@
             <div class="d-flex align-items-center gap-3 flex-wrap ms-auto">
                 <!-- Cart Button -->
                 @if (!Auth::check() || Auth::user()->role !== 'admin')
-                    <a href="{{ route('cart.index') }}" class="btn btn-outline-light btn-sm position-relative rounded-pill" 
-                       title="Shopping Cart">
+                    <a href="{{ route('cart.index') }}" class="btn btn-outline-light position-relative rounded-pill" 
+                       title="Shopping Cart" style="padding: 0.6rem 1.2rem; font-size: 1.1rem;">
                         <i class="fas fa-shopping-cart me-1"></i> Cart
                         @php
                             $cartCount = Auth::check() ? \App\Models\CartItem::where('user_id', Auth::id())->count() : 0;
@@ -39,10 +40,10 @@
                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="My Profile">
                             @if(Auth::user()->photo)
                                 <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="{{ Auth::user()->first_name }}" 
-                                     class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover; border: 2px solid var(--accent-green);">
+                                     class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid var(--accent-green);">
                             @else
                                 <div class="rounded-circle d-inline-flex align-items-center justify-content-center" 
-                                     style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-green-light) 0%, var(--accent-green) 100%); color: white; font-weight: bold; font-size: 18px;">
+                                     style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary-green-light) 0%, var(--accent-green) 100%); color: white; font-weight: bold; font-size: 24px;">
                                     {{ substr(Auth::user()->first_name, 0, 1) }}{{ substr(Auth::user()->last_name, 0, 1) }}
                                 </div>
                             @endif

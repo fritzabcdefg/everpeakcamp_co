@@ -174,7 +174,7 @@
                 <a href="{{ route('shop.show') }}?category[]={{ $category->category_id }}" class="text-decoration-none">
                     <div class="card h-100 animate-fade-in" style="text-align: center; border-top: 4px solid var(--primary-green-light); padding: 2rem 1.5rem;">
                         <div>
-                            <i class="fas fa-campground fa-3x mb-3" style="color: var(--accent-green);"></i>
+                            <i style="color: var(--accent-green);"></i>
                             <h5 class="card-title" style="color: var(--primary-green-dark);">{{ $category->name }}</h5>
                             <p class="card-text text-muted small">{{ $category->description ?? 'Explore our collection' }}</p>
                             <span class="badge badge-success">Explore Collection</span>

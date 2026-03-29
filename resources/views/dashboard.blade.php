@@ -110,23 +110,12 @@
             </div>
         </div>
 
-        <!-- Revenue & Pending Orders Row with Date Filter -->
+        <!-- Revenue & Pending Orders Row -->
         <div class="row g-4 mb-5">
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-0" style="color: var(--cream);"><i class="fas fa-money-bill-wave me-2"></i>Revenue & Orders Summary</h5>
-                        </div>
-                        <form method="GET" action="{{ route('dashboard') }}" class="d-flex gap-2" style="margin: 0;">
-                            <input type="date" name="start_date" value="{{ $startDate }}" class="form-control form-control-sm" style="width: 140px;">
-                            <input type="date" name="end_date" value="{{ $endDate }}" class="form-control form-control-sm" style="width: 140px;">
-                            <input type="hidden" name="yearly_start_date" value="{{ $yearlyStartDate }}">
-                            <input type="hidden" name="yearly_end_date" value="{{ $yearlyEndDate }}">
-                            <input type="hidden" name="product_start_date" value="{{ $productStartDate }}">
-                            <input type="hidden" name="product_end_date" value="{{ $productEndDate }}">
-                            <button type="submit" class="btn btn-sm btn-dark" style="min-width: 80px;"><i class="fas fa-filter me-1"></i> Filter</button>
-                        </form>
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0" style="color: var(--cream);"><i class="fas fa-money-bill-wave me-2"></i>Revenue & Orders Summary</h5>
                     </div>
                     <div class="card-body">
                         <div class="row g-4">
@@ -200,7 +189,7 @@
                             <button type="submit" class="btn btn-sm btn-light" style="min-width: 80px;"><i class="fas fa-filter me-1"></i> Filter</button>
                         </form>
                     </div>
-                    <div class="card-body" style="min-height: 300px;">
+                    <div class="card-body" style="position: relative; height: 400px; min-height: 400px;">
                         <canvas id="yearlySalesChart"></canvas>
                     </div>
                 </div>
@@ -223,10 +212,8 @@
                             <button type="submit" class="btn btn-sm btn-light" style="min-width: 80px;"><i class="fas fa-filter me-1"></i> Filter</button>
                         </form>
                     </div>
-                    <div class="card-body" style="display: flex; justify-content: center; min-height: 450px;">
-                        <div style="max-width: 500px; width: 100%; position: relative;">
-                            <canvas id="productSalesChart"></canvas>
-                        </div>
+                    <div class="card-body" style="position: relative; height: 500px;">
+                        <canvas id="productSalesChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -237,109 +224,126 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             try {
+                // Wait a bit for Chart.js to be fully loaded
+                if (typeof Chart === 'undefined') {
+                    console.error('Chart.js library not loaded');
+                    return;
+                }
+
                 // Yearly Sales Bar Chart
                 const yearlySalesCtx = document.getElementById('yearlySalesChart');
                 if (yearlySalesCtx) {
-                    const yearlySalesData = @json($yearlySales) || [
+                    const yearlySalesData = @json($yearlySales) || [];
+                    console.log('Yearly Sales Data from server:', yearlySalesData);
+                    
+                    // Use fallback if empty
+                    const chartData = yearlySalesData.length > 0 ? yearlySalesData : [
                         {year: '2025', total: 1000},
                         {year: '2026', total: 1500}
                     ];
 
-                    new Chart(yearlySalesCtx.getContext('2d'), {
-                        type: 'bar',
-                        data: {
-                            labels: yearlySalesData.map(item => item.year),
-                            datasets: [{
-                                label: 'Revenue (₱)',
-                                data: yearlySalesData.map(item => item.total),
-                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    ticks: {
-                                        callback: function(value) {
-                                            return '₱' + value.toLocaleString();
-                                        }
-                                    }
-                                }
+                    try {
+                        new Chart(yearlySalesCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: chartData.map(item => item.year),
+                                datasets: [{
+                                    label: 'Revenue (₱)',
+                                    data: chartData.map(item => item.total),
+                                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                    borderColor: 'rgba(54, 162, 235, 1)',
+                                    borderWidth: 1
+                                }]
                             },
-                            plugins: {
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    yAxes: [{
+                                        beginAtZero: true,
+                                        ticks: {
+                                            callback: function(value) {
+                                                return '₱' + value.toLocaleString();
+                                            }
+                                        }
+                                    }]
+                                },
                                 legend: {
                                     display: false
                                 }
                             }
-                        }
-                    });
+                        });
+                        console.log('Yearly Sales Chart rendered successfully');
+                    } catch (err) {
+                        console.error('Error rendering yearly sales chart:', err);
+                    }
                 }
 
                 const productSalesCtx = document.getElementById('productSalesChart');
                 if (productSalesCtx) {
                     const productSalesData = @json($productSales) || [];
-                    console.log('Product Sales Data:', productSalesData);
+                    console.log('Product Sales Data from server:', productSalesData);
 
-                    new Chart(productSalesCtx.getContext('2d'), {
-                        type: 'pie',
-                        data: {
-                            labels: productSalesData.map(item => item.product_name + ' (' + item.percentage + '%)'),
-                            datasets: [{
-                                data: productSalesData.map(item => item.percentage),
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.6)',
-                                    'rgba(54, 162, 235, 0.6)',
-                                    'rgba(255, 205, 86, 0.6)',
-                                    'rgba(75, 192, 192, 0.6)',
-                                    'rgba(153, 102, 255, 0.6)',
-                                    'rgba(255, 159, 64, 0.6)',
-                                    'rgba(201, 203, 207, 0.6)',
-                                    'rgba(255, 99, 255, 0.6)',
-                                    'rgba(99, 255, 132, 0.6)',
-                                    'rgba(132, 99, 255, 0.6)'
-                                ],
-                                borderColor: [
-                                    'rgba(255, 99, 132, 1)',
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(255, 205, 86, 1)',
-                                    'rgba(75, 192, 192, 1)',
-                                    'rgba(153, 102, 255, 1)',
-                                    'rgba(255, 159, 64, 1)',
-                                    'rgba(201, 203, 207, 1)',
-                                    'rgba(255, 99, 255, 1)',
-                                    'rgba(99, 255, 132, 1)',
-                                    'rgba(132, 99, 255, 1)'
-                                ],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
+                    try {
+                        new Chart(productSalesCtx, {
+                            type: 'pie',
+                            data: {
+                                labels: productSalesData.map(item => item.product_name + ' (' + item.percentage + '%)'),
+                                datasets: [{
+                                    data: productSalesData.map(item => item.percentage),
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.6)',
+                                        'rgba(54, 162, 235, 0.6)',
+                                        'rgba(255, 205, 86, 0.6)',
+                                        'rgba(75, 192, 192, 0.6)',
+                                        'rgba(153, 102, 255, 0.6)',
+                                        'rgba(255, 159, 64, 0.6)',
+                                        'rgba(201, 203, 207, 0.6)',
+                                        'rgba(255, 99, 255, 0.6)',
+                                        'rgba(99, 255, 132, 0.6)',
+                                        'rgba(132, 99, 255, 0.6)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 205, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)',
+                                        'rgba(201, 203, 207, 1)',
+                                        'rgba(255, 99, 255, 1)',
+                                        'rgba(99, 255, 132, 1)',
+                                        'rgba(132, 99, 255, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
                                 legend: {
                                     position: 'bottom',
                                     labels: {
-                                        boxWidth: 12,
-                                        font: {
-                                            size: 11
-                                        }
+                                        boxWidth: 18,
+                                        fontSize: 14,
+                                        padding: 15
                                     }
                                 },
-                                tooltip: {
+                                tooltips: {
                                     callbacks: {
-                                        label: function(context) {
-                                            return context.label + ': ' + context.parsed + '%';
+                                        label: function(tooltipItem, data) {
+                                            return tooltipItem.label + ': ' + tooltipItem.value + '%';
                                         }
-                                    }
+                                    },
+                                    titleFontSize: 14,
+                                    bodyFontSize: 13
                                 }
                             }
-                        }
-                    });
+                        });
+                        console.log('Product Sales Chart rendered successfully');
+                    } catch (err) {
+                        console.error('Error rendering product sales chart:', err);
+                    }
                 }
             } catch (error) {
                 console.error('Chart initialization error:', error);
